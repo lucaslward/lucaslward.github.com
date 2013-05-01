@@ -1,0 +1,17 @@
+---
+layout: post
+title: "Tips for connecting to Github private repositories with Hudson/Jenkins"
+date: 2011-05-04T19:41:00-07:00
+comments: false
+---
+
+<div class='post'>
+I recently created a private repository on GitHub, and wanted to create a build for it on my Jenkins server.  I ran into some interesting problems that I couldn't find reasonable solutions to via google, so I thought I would write about my experience.<br /><br />The first and most important thing to keep in mind is that <span style="font-weight: bold;">there are no settings in Jenkins to control or manage SSH keys for Git</span>.  You might get confused when you see the SSH section in the general settings, thinking you can upload your git RSA key there and it will work.  It won't.  The only thing that will work is setting it in the .ssh directory of the user that is running Jenkins.  If you're running it standalone, it will be the Jenkins user.  In the case of a standard Ubuntu install, this was in /var/lib/jenkins/.ssh.  If you are running Jenkins inside of a tomcat container, then it will be the tomcat user. (tomcat6 generally in Linux)<br /><br />The second thing I learned is: If you're running Jenkins on Windows, it's going to be painful.  Mind you, I'm not running it that way, but nearly every single Google result on this issue was coming back with issues for Windows.  It's not really even Jenkins fault either.  I'll stop short of bashing Windows, but if you've ever had to deal with running any type of service on Windows, you're already familiar with the pain anyway.<br /><br />And the final lesson I learned?  You can't use a passphrase in your RSA key file.  I lost hours to this one.  I thought I had some other issue with the key.  Until I stumbled on <a href="http://gibbston.net/?p=10">this blog post</a>.  It makes sense when you think about it.  When you're running git on your machine you might get prompted for access to a keychain, but after that its seamless so it can be easy to forget that its there.  If you follow the default instructions for creating the key on github, it will guide you to create the passphrase.  Ignore that and follow the advice on the previously mentioned post.  Git should work without issue after that.  I would still recommend using a passphrase for your personal account though.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Inori</div>
+<div class='content'>
+For Windows, this blog helped me: http://element34.ca/blog/jenkins-remote-windows-nodes-and-private-github-repos</div>
+</div>
+</div>

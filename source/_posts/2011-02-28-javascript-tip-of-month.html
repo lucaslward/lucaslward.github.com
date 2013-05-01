@@ -1,0 +1,9 @@
+---
+layout: post
+title: "Javascript tip of the month"
+date: 2011-02-28T12:52:00-08:00
+comments: false
+---
+
+<div class='post'>
+I was reading an article I saw linked to from a blog I follow:<br /><a href="http://devblog.blackberry.com/2011/02/thanks-for-the-open-letter-to-rim-developer-relations/"><br />http://devblog.blackberry.com/2011/02/thanks-for-the-open-letter-to-rim-developer-relations/</a><br /><br />Ironically, it's a response to an open letter to RIM about how difficult it is to use their PlayBook developer tools.  I was doing other things when I noticed that page will still loading, so I took a quick peak into the html, and saw this:<br /><br /><pre><br />&lt;script src="http://code.jquery.com/jquery-latest.js"&gt;&lt;/script&gt;<br />&lt;script src="http://dev.jquery.com/view/trunk/plugins/validate/jquery.validate.js" type="text/javascript"&gt;&lt;/script&gt;<br /></pre><br /><br />This should go without saying, but don't do that!  That's not the only offense, but certainly the most costly in terms of loading a page.  There is actually another section that reference jquery locally, so I'm not sure how that got in there, but it has a pretty huge negative impact to have to download the unminified version of jquery from jquery.com.</div>

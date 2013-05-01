@@ -1,0 +1,22 @@
+---
+layout: post
+title: "Grails Testing issue when rendering as 'text/json'"
+date: 2011-03-09T11:40:00-08:00
+comments: false
+---
+
+<div class='post'>
+I ran into this issue while unit testing my controllers (many of which only return JSON) in Grails.  I've reported the issue to grails: <a href="http://jira.codehaus.org/browse/GRAILS-7339">http://jira.codehaus.org/browse/GRAILS-7339</a> but it's also worth noting here, so anyone else left scratching their head as to why the rendering doesn't appear to be working in their unit tests can find the workaround as well:<br /><br />If you are writing a unit or integration test in grails and mocking the controller, which can be done either by extending ControllerUnitTestCase (or using mockController) you might run into this issue.  As you probably know, there are multiple ways to render JSON in grails.  One is to take a normal map and render as JSON:<br /><br /><pre class="prettyprint"><br />def jsonMap = [success:true]<br />render jsonMap as JSON<br /></pre><br /><br />This will work fine everywhere, because you're effectively passing it in as a converter.  However, if you use the more verbose (and in many ways more powerful) rendering, you will run into issues:<br /><br /><pre class="prettyprint"><br />render(contentType: "text/json") {<br />  success(true)<br />  results {<br />    result.each {<br />    def period = it.getPeriod() <br />    b(id: it.id,name: it.name)<br />    }<br />  }<br />}         <br /></pre><br /><br />In my case, my test looks like this:<br /><br /><pre class="prettyprint"><br />assert JSON.parse(this.controller.response.contentAsString)?.success == true<br /></pre><br /><br />This won't work, because the content on the mock response will be null.  With a little digging into how mockController() works, you will find the problem lies in MockUtils.  Specifically, in the method that handles a map with render options and a closure:<br /><br /><pre class="prettyprint"><br />clazz.metaClass.render = {Map map, Closure c -><br />  renderArgs.putAll(map)<br /><br />  switch(map["contentType"]) {<br />    case null:<br />    break<br /><br />    case "application/xml":<br />    case "text/xml":<br />      def b = new StreamingMarkupBuilder()<br />      if (map["encoding"]) b.encoding = map["encoding"]<br /><br />      def writable = b.bind(c)<br />      delegate.response.outputStream << writable<br />      break<br /><br />    default:<br />      println "Nothing"<br />      break<br />  }<br />}<br /></pre><br /><br />As you can see, the case of 'text/json' isn't handled.  I was able to workaround this issue by creating a custom unit test case class to extend from the Grails ControllerUnitTestCase:<br /><br /><pre class="prettyprint"><br />class CustomControllerTestCase extends ControllerUnitTestCase{<br /><br />    protected void setUp() {<br />        super.setUp()<br />        controller.class.metaClass.render = {Map map, Closure c -><br />            renderArgs.putAll(map)<br /><br />            switch(map["contentType"]) {<br />            case null:<br />                break<br /><br />            case "application/xml":<br />            case "text/xml":<br />                def b = new StreamingMarkupBuilder()<br />                if (map["encoding"]) b.encoding = map["encoding"]<br /><br />                def writable = b.bind(c)<br />                delegate.response.outputStream << writable<br />                break<br /><br />            case "text/json":<br />                new JSonBuilder(delegate.response).json(c)<br />                break<br />            default:<br />                println "Nothing"<br />                break<br />            }<br />        }<br />    }<br /><br />}<br /></pre><br /><br />Since it's groovy, you could pretty much replace this anywhere by overriding your mock controller's meta class.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>olikaf</div>
+<div class='content'>
+you saved my day :-)</div>
+</div>
+<div class='comment'>
+<div class='author'>Robert</div>
+<div class='content'>
+Thanks Lucas, this problem looked like it was going to start eating up the rest of my afternoon. Your solution did the trick.</div>
+</div>
+</div>

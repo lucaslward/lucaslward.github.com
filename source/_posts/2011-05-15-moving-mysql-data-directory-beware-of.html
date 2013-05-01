@@ -1,0 +1,37 @@
+---
+layout: post
+title: "Moving the Mysql  Data Directory?  Beware of AppArmor"
+date: 2011-05-15T16:54:00-07:00
+comments: false
+---
+
+<div class='post'>
+Recently, my 8 year old linux server I was running mysql on died.  My new computer is more than capable of running mysql in the background, but I didn't want to mess with moving everything over.  Now I'm forced to.  It's extremely easy on Ubuntu to install mysql.  However, I run my operating system and all development related applications off of a 64GB SSD.  There isn't room, or a need to run it on the SSD.  I have a second platter based hard drive as well.  It should be fairly straightforward to store MySql data there.  Most instructions for doing so will tell you to do the following:<br /><ol><li>Copy the current data directory to your new partition.  (Current directory is usually /var/lib/mysql on Ubuntu)</li><li>Make sure it is still owned by the mysql user. 'chown -R mysql:mysql newdatadir'</li><li>Change the mysql configuration to point to the new directory.  Inside of my.cnf is a value datadir, which is what needs to be changed to the new directory.</li></ol>Sounds easy, right?  It is, for the most part.  If you try these steps on ubuntu, it won't work.  MySql won't start up.  If you're like me, the first thing you'll look is syslog, where you'll find something like:<br /><br /><pre>[1064644.473299] type=1400 audit(1305502269.192:364):<br />apparmor="DENIED" operation="open" parent=1 profile="/usr/sbin/mysqld" <br />name="/media/data1/mysql-data/" pid=24578 comm="mysqld" requested_mask="r" <br />denied_mask="r"fsuid=1001 ouid=1001</pre>Your first instinct is to check the permissions, but they're all fine.  So, what's going on?  <a href="https://help.ubuntu.com/8.04/serverguide/C/apparmor.html">AppArmor  </a>is preventing access.  If you type 'ls -la /etc/apparmor.d' you'll see the following:<br /><pre>drwxr-xr-x   8 root root  4096 2011-05-15 19:18 ./<br />drwxr-xr-x 141 root root 12288 2011-05-15 18:20 ../<br />drwxr-xr-x   3 root root  4096 2011-04-11 18:38 abstractions/<br />drwxr-xr-x   2 root root  4096 2011-05-15 17:38 cache/<br />drwxr-xr-x   2 root root  4096 2010-10-07 11:06 disable/<br />drwxr-xr-x   2 root root  4096 2010-08-06 23:19 force-complain/<br />-rw-r--r--   1 root root   986 2010-09-13 03:07 gdm-guest-session<br />drwxr-xr-x   2 root root  4096 2011-05-15 17:38 local/<br />-rw-r--r--   1 root root  2052 2010-08-06 23:18 sbin.dhclient3<br />drwxr-xr-x   3 root root  4096 2011-04-11 18:38 tunables/<br />-rw-r--r--   1 root root  2052 2010-09-27 17:58 usr.bin.evince<br />-rw-r--r--   1 root root  4006 2011-04-29 04:00 usr.bin.firefox<br />-rw-r--r--   1 root root  4158 2010-10-01 04:58 usr.sbin.cupsd<br />-rw-r--r--   1 root root   989 2010-11-10 00:51 usr.sbin.mysqld<br />-rw-r--r--   1 root root  1172 2010-08-06 12:45 usr.sbin.tcpdump<br /></pre>If you open up usr.sbin.mysqld, and add the new directory to the list, your problems will be solved.  Something like:<br /><br /><pre> /mysql-data/ r,<br />/mysql-data/** rwk,<br /></pre></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Chris Caldwell</div>
+<div class='content'>
+would NEVER have found this. thank you thank you.</div>
+</div>
+<div class='comment'>
+<div class='author'>Unknown</div>
+<div class='content'>
+I had this problem and wouldn&#39;t have been able to solve it without this post, many thanks.</div>
+</div>
+<div class='comment'>
+<div class='author'>johank</div>
+<div class='content'>
+I had the same problem and it boiled down to one silly mistake. The directory where I mounted the disk to hold the MySQL data files didn&#39;t have the right permissions. Making it group+world readabe did the trick. I realised my error when starting mysqld &quot;by hand&quot; and actually got to see MySQL complain. With apparmor, I got no logs from MySQL...</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Glad I could help.</div>
+</div>
+<div class='comment'>
+<div class='author'>Serge</div>
+<div class='content'>
+Hey !<br />I was in the exact same situation than you.<br />Thank you very much for this piece of information, i&#39;m pretty unaware of apparmor and wasn&#39;t aware of this configuration (i usually put all my application datas files on a separate partition, including the mysql datas).</div>
+</div>
+</div>

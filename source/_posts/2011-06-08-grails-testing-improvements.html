@@ -1,0 +1,22 @@
+---
+layout: post
+title: "Grails testing improvements"
+date: 2011-06-08T08:08:00-07:00
+comments: false
+---
+
+<div class='post'>
+Peter Ledbrook put up a new blog post detailing some of the improvements to come 1.4 for unit testing grails: <a href="http://blog.springsource.com/2011/06/07/countdown-to-grails-1-4-unit-testing/">http://blog.springsource.com/2011/06/07/countdown-to-grails-1-4-unit-testing/</a><br /><br />There's some awesome stuff in there. I had read a bit about the new features in milestone 1. But it didn't show the kind of details that Peter has. I'm especially excited about these two features:<br /><ol><li>Full Gorm testing. It looks like they're using some kind of noSQL database in-memory. I'm interested to see if it will slow down the unit test at all, but the method of testing is much more intuitive. The whole mockDomain(Class,listOfInstances) felt a bit dirty, and it was kind of brittle if you used any kind of inheritance at all.</li><li>Improved JSON response testing. Grails now does the work in the mock response of converting the JSON response to a proper object hierarchy. In my own testing, I could get halfway there by converting the responseText to JSONObjects, but they were a bit painful to work with at times. (especially arrays)<br /></li></ol>Those two fixes represent for me the only real issues I have with grails unit testing. The annotations are nice, but I had given up on the test hierarchy long ago. You can use MockUtils easily in the same way that GrailsUnitTest does.<br /><br />That leaves only one major complaint for me regarding testing and Grails: Integration testing. Its nice that they found ways to allow for using unit testing more often, but it doesn't solve the fundamental problem. Integration testing takes too long because you have to start the world. Lately I've been working a lot with ElasticSearch, and I refused to put it in the Integration test folder and rely on the bootstrap. In the test setup I brought up an in-memory ElasticSearch instance and test against it. Its definitely an integration test, but I can run it in about 6 seconds. It takes longer than that for Grails to resolve dependencies. (Which is something I hear they're addressing in 1.4) Its all perfectly fine for CI, but you can't use it to test on the fly. Its far too tempting to do a run-war and fiddle with it that way. It seems like it wouldn't be too difficult to bring up a persistent integration testing environment. In truth, it would probably still be some kind of headless container that you could keep running integration tests in without having to restart the container. I've seen a few other Grails bloggers mention it though, so perhaps its on the roadmap somewhere? Maybe post 1.4?</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Graeme,<br /><br />I&#39;ve tried that once or twice before and its still was too slow to run it reliably. I know one issue you&#39;re addressing is dependency resolution, but what are the other issues to speed it up in interactive mode in 1.4?<br /><br />I still kind of wish I could start an integration environment in something like Jetty with an overlay, and just runs tets, which perhaps under the covers are either JMX or &#39;web service&#39; calls to run tests in the container and report back results.</div>
+</div>
+<div class='comment'>
+<div class='author'>Graeme Rocher</div>
+<div class='content'>
+For speeding up integration testing we recommend using interactive mode which is greatly improved in 1.4. In 1.3.x you can do:<br /><br />{code}<br />grails interactive<br />{code}<br /><br />Then type test-app, but it has a few issues which we&#39;re addressing in 1.4</div>
+</div>
+</div>

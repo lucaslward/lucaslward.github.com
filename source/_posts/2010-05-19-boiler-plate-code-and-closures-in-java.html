@@ -1,0 +1,22 @@
+---
+layout: post
+title: "Boiler Plate code and closures in Java"
+date: 2010-05-19T12:22:00-07:00
+comments: false
+---
+
+<div class='post'>
+While working on a project recently, I ran into the following code:<br /><pre class="prettyprint"><br />public SomethingFromDatabase getSomethingFromDatabase(){<br />  Element element = getDataFromCache();<br />  return (SomethingFromDatabase)element.getValue();<br />}<br /><br />private Element getDataFromCache(){<br />  Element element = cache.get(KEY);<br />  if(element == null){<br />    element = new Element(KEY, dao.getSomethingFromDatabase());<br />    cache.put(element);<br />  }<br />  return element;<br />}<br /></pre>Assuming cache is an instance of net.sf.Ehcache and the dao is your run of the mill Dao.<br /><br />There's some obvious problems with this code, the one that stood out the most to me is the boilerplate code.  The solution I used to solve the problem, which is common, is to use closures:<br /><pre class="prettyprint"><br />public <t> T get(String cacheKey, CacheDataClosure<t> closure){<br />  Element element = cache.get(cacheKey);<br />  @SuppressWarnings("unchecked")<br />  T cachedObject = element == null ? null : (T) element.getValue();<br />  if(cachedObject == null){<br />    cachedObject = closure.getData();<br />    cache.put(new Element(cacheKey, cachedObject));<br />  }<br />  return cachedObject;<br />}<br /><br />public interface CacheDataClosure<t> {<br />  T getData();<br />}<br /></t></t></t></pre>A similar approach is used by Spring in it's *Template classes.  Refactoring the original code to use the Facade, would look something like:<br /><pre class="prettyprint"><br />private Foo getDataFromCache(){<br />  return cacheFacade.get(KEY, new CacheDataClosure<Foo>(){<br />     Foo getData(){ return dao.getFooFromDatabase(); }<br />   });<br />}<br /></pre>I'm sure to some people reading this blog, the solution seems obvious, and almost not worth mentioning.  However, over the years I have seen many interesting solutions to the same problem, especially in the database world, but elsewhere as well.  You would be surprised how many people solve this problem with inheritance by instinct.  Even those who have used frameworks that require a closure in certain scenarios, don't necessarily think about what it is they're using, and don't think to use it when a problem arises later.  Despite the fact that closures are ugly in Java, they are still the best solution for allowing for separation of concerns in a lot of scenarios, and reducing boilerplate code.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Thanks for pointing that out.  I hadn&#39;t seen it before.  I&#39;m still not sure that I get it though, as I don&#39;t see a way for someone to define how the cache is refreshed, which is the main problem I had with the original code.  When the cache is stale, you have to populate it yourself, and it&#39;s all boilerplate.  As a user of ehcache, all I really want to tell them is how to get my data.  Unless I&#39;m missing something when looking at the Javadoc?  (Which is highly likely)<br /><br />I do think from looking at it that I may need to go back and think about concurrency.  I haven&#39;t looked at the ehcache implementation, but I assumed it blocked.  I was simply refactoring the earlier boiletplate code.</div>
+</div>
+<div class='comment'>
+<div class='author'>David Dossot</div>
+<div class='content'>
+You could also consider using EHCache&#39;s <a href="http://ehcache.org/apidocs/net/sf/ehcache/constructs/blocking/SelfPopulatingCache.html" rel="nofollow">SelfPopulatingCache</a> construct (granted it&#39;s cache specific while your approach is generic).</div>
+</div>
+</div>

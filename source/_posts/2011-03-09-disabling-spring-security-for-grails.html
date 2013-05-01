@@ -1,0 +1,27 @@
+---
+layout: post
+title: "Disabling Spring Security for grails integration testing"
+date: 2011-03-09T08:09:00-08:00
+comments: false
+---
+
+<div class='post'>
+One of the great things about Grails is how easy it is to do integration testing.  When running the integration tests, the grails container will be started up, including an in-memory version of hsqldb. (and it looks to go to h2 in 1.4)  When you combine that with controller mocking, you can easily test from you controller down to the database.  However, because you're getting your entire system, minus only the web server, it can take a while to startup.  It's not too bad for a CI build, but can get annoying when you're writing and running tests in your development environment.  One of the big culprits in terms of time is spring security.  I'm not sure why that is, but it is possible to disable it in your integration test environment.  The first step is to set the active configuration property to false in Config.groovy:<br /><br /><pre class="prettyprint"><br />test {<br />  grails.plugins.springsecurity.active = false        <br />}<br /></pre><br /><br />Now, when you run 'grails test-app integration:' you should see something like this:<br /><br /><pre><br />grails test-app integration:<br />Welcome to Grails 1.3.6 - http://grails.org/<br />Licensed under Apache Standard License 2.0<br />Resolving dependencies...<br />Dependencies resolved in 5123ms.<br />Environment set to test<br />Starting integration test phase ...<br />Spring Security is disabled, not loading<br /></pre><br /><br />The important thing to notice is the last line: <b>Spring Security is disabled, not loading</b><br /><br />Of course, there's now a new problem, any code you have that is referencing springSecurityService will now fail.  In general, the most likely method to cause an issue is getCurrentUser().  However, it's simple to create a quick stub for it:<br /><br /><pre class="prettyprint"><br />class StubSpringSecurityService {<br /><br />    def currentUser<br /><br />    Object getCurrentUser() {<br />        return currentUser<br />    }<br /><br />    String encodePassword(String password, salt = null) {<br />        return password<br />    }<br /><br />}<br /></pre><br /><br />In my case, I only needed to stub getCurrentUser() and encodePassword, however, you may need to add more, and the general approach can be applied to any additional methods you may need.  It is also worth noting that I debated about using something like stubFor, but decided it was more straightforward to make a simple stub.<br /><br />Now that you have a stub, you need to make sure that it's being set in the test environment.  You can do this by adding the following to resources.groovy:<br /><br /><pre class="prettyprint"><br />if (GrailsUtil.environment == "test"){<br />  springSecurityService(StubSpringSecurityService)<br />}<br /></pre><br /><br />Now for the last step, setting up the current user in your bootstrap:<br /><br /><pre class="prettyprint"><br />if (GrailsUtil.environment == "test") {<br />      def testUser = new User()<br />      testUser.save(failOnError: true)<br />      springSecurityService.currentUser = testUser;<br />}<br /></pre><br /><br />Any code running during an integration test, will now get back the saved user if it calls getCurrentUser()</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Rajkumar</div>
+<div class='content'>
+I solved this problem. The problem is I was having my Stub file under test/integration directory. <br /><br />Now, I want to enable the springsecurity plugin when I am running functional test using selenium RC , how to do it ?  But, I want it to be disabled during the unit and integration test.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Tough to say. It looks like there may be an issue with the code you added to your resources.groovy. Can you paste that into a comment?</div>
+</div>
+<div class='comment'>
+<div class='author'>Rajkumar</div>
+<div class='content'>
+Hi , I am getting the following error when I followed the steps your mentioned.<br /><br />2011-09-22 21:15:44,831 [main] ERROR spring.GrailsRuntimeConfigurator  - [RuntimeConfiguration] Unable to load beans from resources.groovy<br />groovy.lang.MissingPropertyException: No such property: org for class: resources<br /><br /><br />What could be the reason?</div>
+</div>
+</div>

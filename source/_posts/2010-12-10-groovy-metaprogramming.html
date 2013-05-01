@@ -1,0 +1,9 @@
+---
+layout: post
+title: "Groovy MetaProgramming"
+date: 2010-12-10T09:09:00-08:00
+comments: false
+---
+
+<div class='post'>
+While working on a Grails project I started investigating groovy meta-programming.  I wanted to be able to add one method per class for every Enum in the containing class.  (I'll have an example below)<br /><br />The official groovy documentation on the topic is here: <a href="http://groovy.codehaus.org/ExpandoMetaClass">http://groovy.codehaus.org/ExpandoMetaClass</a><br /><br />Most examples show something like the following:<br /><pre class="prettyprint"><br />//Add new method call printHello<br />SomeClass.metaClass.printHello = { print "Hello" }<br />def instance = new SomeClass()<br /></pre><br />Which of course when run will print "Hello".<br /><br />However, I didn't know the method was called at runtime, I just wanted to add one for every entry in an enum.  It's not hard, but there isn't an example out there, after a little playing in the groovy console, I figured it out:<br /><pre class="prettyprint"><br />enum Status {A,B,C}<br /><br />class User{<br />   def status<br />}<br /><br />Status.each{ statusEnum -><br />   User.metaClass."is${statusEnum.name()}" = {<br />       return status == statusEnum<br />   }<br />}<br /><br />def user = new User()<br />println user.isA()<br />user.status = Status.A<br />println user.isA()<br />println user.isB()<br />user.status = Status.B<br />println user.isB()<br /></pre>While will output:<br /><pre><br />false<br />true<br />false<br />true<br /></pre><br />Of course, this isn't exactly complex, and I may find that I don't like how this turns out, but I couldn't find an example of this type of Groovy meta-programming example, so I thought I would share.</div>

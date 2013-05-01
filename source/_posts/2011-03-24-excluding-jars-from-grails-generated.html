@@ -1,0 +1,9 @@
+---
+layout: post
+title: "Excluding jars from a Grails generated war file"
+date: 2011-03-24T15:07:00-07:00
+comments: false
+---
+
+<div class='post'>
+Yesterday, I posted about how to <a href="http://www.lucasward.net/2011/03/upgrading-grails-13x-to-use-hibernate.html">upgrade hibernate versions in grails</a>.  This solution worked great for me locally. (i.e. using run-app) But we were still getting weird issues in our staging environment.  It's not uncommon for this kind of thing to happen, and I used my local tomcat setup to try and nail down the problem.  When I cracked open the WAR, I found two version of hibernate, 3.3.1 and 3.3.2.  Upon closer inspection of the problem, it turned out to be the same original issue I had upgraded Hibernate to fix, somewhat hidden by some additional 'noise' in the log file.  I tried about 10 different things to get the war to generate correctly, until I stumbled onto this blog post:<br /><br /><a href="http://www.anyware.co.uk/2005/2009/01/21/excluding-files-from-a-war-with-grails-the-right-way/">http://www.anyware.co.uk/2005/2009/01/21/excluding-files-from-a-war-with-grails-the-right-way/</a><br /><br />Grails gives you the option to declare a closure to modify the war resources.  I added the following to the top of my buildConfig.groovy, and it fixed the issue:<br /><br /><pre class="prettyprint"><br />grails.war.resources = { stagingDir -><br />  delete(file:"${stagingDir}/WEB-INF/lib/hibernate-core-3.3.1.GA.jar")<br />}<br /></pre></div>

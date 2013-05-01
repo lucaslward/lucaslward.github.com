@@ -1,0 +1,147 @@
+---
+layout: post
+title: "Grails Envers Plugin"
+date: 2011-04-22T10:55:00-07:00
+comments: false
+---
+
+<div class='post'>
+<h3><b>***Update -&nbsp;4/11/2013***</b></h3><h4>I finally got around to updating and publishing this plugin:&nbsp;<a href="http://www.lucasward.net/2013/04/grails-envers-plugin-update.html">http://www.lucasward.net/2013/04/grails-envers-plugin-update.html</a></h4><br /><br />I recently needed to add auditing to my grails application and decided to use envers, mostly for its ability to keep updates to multiple hibernate objects tied together in a way that is query-able afterwards.  Unfortunately, because Grails exerts somewhat tight control of Hibernate, and because of how Envers was implemented, getting it to work with grails can be a bit tricky.  I did a cursory glance around and couldn't find anyone that had created a plugin to help with Envers and Grails.  So while implementing it in my application, I wrote the envers specific code as a plugin, which I have published on github:<br /><br /><a href="https://github.com/lucaslward/grails-envers-plugin">https://github.com/lucaslward/grails-envers-plugin</a><br /><br />Eventually, I need to write actual documentation for it, and try and get it in the official grails plugin repository.  However, for now, I'll write up how to use it based on the integration tests.<br /><br />If you're pulling it down from the git repo above, you need only do a simple 'grails package-plugin', which will create a zip file, which can be then be installed into your grails application via: 'grails install-plugin /path/to/zip/grails-envers-plugin-0.1.x.zip'.  The plugin sets up envers via Hibernate event listeners, and provides gorm style dynamic methods that can be used to query for revisions.<br /><br />In order to configure your domain objects to use Envers, you need to annotate them with @Audited.  (I haven't written any code to try and make that work with static members a la gorm)  I'll use the sample domain from the plugin:<br /><pre class="prettyprint">@Audited<br />class Customer {<br /><br />  String email<br />  String name<br />  Address address<br />  SortedSet<orderentry> orders = new TreeSet<orderentry>()<br /><br />  static constraints = {<br />    address (blank: true, nullable: true)<br />    address component: true<br />  }<br /><br />  static mapping = {<br />    orders cascade: "all,delete-orphan"<br />  }<br />}<br /><br />@Audited<br />class Address {<br />  String city<br />  String zip<br />}<br /><br />@Audited<br />class OrderEntry implements Comparable<orderentry>{<br /><br />  Date date<br />  double amount<br />  int numberOfItems<br />  Customer customer<br /><br />  static belongTo = [customer:Customer]<br /><br />  @Override<br />  int compareTo(OrderEntry o) {<br />    date.compareTo(o.date)<br />  }<br />}</orderentry></orderentry></orderentry></pre>In this example, I have three domain classes: Customer, Address, and OrderEntry.  Customer in this class is the main class, who has a one to one relation ship with an Address, and a collection of Orders.  Now, let's assume that we create a customer with an address, then modify the customer and the address twice in separate transactions:<br /><br /><pre class="prettyprint">Customer customer<br />Customer.withTransaction {<br />  def address = new Address(city: "Chicago", zip: "60640")<br />  address.save()<br />  customer = new Customer(name: "PureGorm", email: "tester@gorm.org", address: address)<br />  customer.save(flush: true)<br />}<br /><br />Customer.withTransaction {<br />  customer = Customer.findByName("PureGorm")<br />  customer.email = "tester2@gorm.org"<br />  customer.address.city = "New York"<br />  customer.save(flush: true)<br />}<br /><br />Customer.withTransaction {<br />  customer = Customer.findByName("PureGorm")<br />  customer.email = "tester3@gorm.org"<br />  customer.address.zip = "10003"<br />  customer.save(flush: true)<br />}</pre><br /><span style="font-style: italic;">Note: If you're trying to test envers in your application you have to turn off transactions for your test and wrap individual calls in transactions as above. (with an appropriate tear-down to clean up afterwards of course)</span><br /><br />In this scenario, we should have 3 entries in the audit tables for Customer and Address (customer_aud and address_aud respectively).  We can query for this methods with the findAllRevisions dynamic method:<br /><br /><pre class="prettyprint">def results = Customer.findAllRevisions()<br /><br />assert results.size() == 3<br />def r = results[0]<br />assert r.name == "PureGorm"<br />assert r.email == "tester@gorm.org"<br />assert r.address.city == "Chicago"<br />assert r.address.zip == "60640"<br />assert r.revisionType == RevisionType.ADD<br />r = results[1]<br />assert r.email == "tester2@gorm.org"<br />assert r.address.city == "New York"<br />assert r.revisionType == RevisionType.MOD<br />r = results[2]<br />assert r.email == "tester3@gorm.org"<br />assert r.address.zip == "10003"<br />assert r.revisionType == RevisionType.MOD</pre><br /><br />As you can see, findAllRevisions returns an array of three results. The plugin will automatically take the envers RevisionEntity and RevisionType, and set them on the returned revisions, which is how revisionType is being checked.  As you can see, all three revisions are present.  By default its sorted by the earliest revision first.  First is an add,  followed by two 'mods' (update).  The revision entity is also accessible via the revisionEntity property: r.revisionEntity.getRevisionDate().  It's also worth noting that even a custom envers RevisionEntity will be accessible this way. (See the envers documentation for more details on how to do this)<br /><br />findAllRevisions also supports sorting in the same way as gorm queries.  Assuming the same audit trail as above, you could query it this way:<br /><br /><pre class="prettyprint">def results = Customer.findAllRevisions(sort:"email",order:"asc")<br /><br />assert results.size() == 3<br />assert results[0].email == "tester2@gorm.org"<br />UserRevisionEntity entity = results[0].revisionEntity<br />assert entity.getUserId() == currentUser.id<br />assert results[0].revisionEntity.getUserId() == currentUser.id<br />assert results[1].email == "tester3@gorm.org"<br />assert results[2].email == "tester@gorm.org"</pre><br /><br />You still get back 3 results.  But this time the first result is the first update, followed by the second, following by the initial create.  This is because its being sorted by email ascending.<br /><br />As with sorting, you can also use max and offset:<br /><br /><pre class="prettyprint">    <br />def results = Customer.findAllRevisions(max:1)<br /><br />assert results.size() == 1<br />assert results[0].email == "tester@gorm.org"<br /><br />results = Customer.findAllRevisions(max:1,offset:1)<br /><br />assert results[0].email == "tester2@gorm.org"<br /><br />results = Customer.findAllRevisions(max:1,offset:2)<br /><br />assert results[0].email == "tester3@gorm.org"</pre><br /><br />Besides sorting and paginating, you can also search for revision by property name:<br /><br /><pre class="prettyprint">Customer.findAllRevisionsById(customer.id)<br /><br />Customer.findAllRevisionsByAddress(customer.address)<br /><br />Customer.findAllRevisionsByName("PureGorm",[sort:"email",order:"asc", max:2])</pre><br /><br />The first case above is searching by id, and requires a long.  The second is searching by the address, which requires an attached hibernate entity.  The final is searching by a simple property name, in this case: "PureGorm", with some additional sorting, etc tacked on.  As with gorm, you can use any property name on the object to query by.  At this point, the plugin only supports querying by one property.  If you need to query by more, you will need to use the Envers classes directly. (i.e. AuditReader)<br /><br />The final method available statically is getCurrentRevision():<br /><br /><pre class="prettyprint">Customer.getCurrentRevision()</pre><br /><br />Which gets the current revision number.  Meaning, what is the last revision of any customer?<br /><br />There are also two methods that are applicable on domain class instances as well:<br /><br /><pre class="prettyprint">     <br />List<number> revisions = customer.getRevisions()<br />assert revisions != null<br />assert revisions.size() == 3<br /><br />Customer oldCustomer = customer.findAtRevision(revisions[1])<br />assert oldCustomer.email == "tester2@gorm.org"<br />assert oldCustomer.address.city == "New York"</number></pre><br /><br />The first method will return all revisions of a particular class.  (The same as Customer.findAllRevisionById(customer.id))  And the second will find a particular customer at a particular revision.<br /><br />There is certainly some functionality I'm missing here, as I'm using the integration tests as an example.  I will add more blog entries on the subject as I discover the corner cases I have missed.  Hopefully, I can also get time to write actual documentation, and get the plugin in the official repository as well.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>bdbull</div>
+<div class='content'>
+Has anyone come up with an efficient way to add a &quot;revision&quot; property to the domain class?  It seems a little involved if I want to actually attach the revision to the domain class itself.</div>
+</div>
+<div class='comment'>
+<div class='author'>Prashant Potluri</div>
+<div class='content'>
+I am using @Audited on getter methods instead of at class level for auditing specific properties only. However i am unable to use any of the dynamic finder methods findAllRevisionsById() etc. It says cannot resolve property revision. If i annotate the class @Audited, it works. <br />Is there a work around for this without annotating the class?</div>
+</div>
+<div class='comment'>
+<div class='author'>Prashant Potluri</div>
+<div class='content'>
+There is @Transactional on controller. Also tried the programmatic way using Entity.withTransaction.<br />I still don&#39;t see any data written to audit tables. DataSource.groovy contains multiple data sources:<br /><br /> development {<br />  dataSource {<br />    dbCreate = &quot;update&quot;<br />    url = &quot;jdbc:mysql://localhost/dev&quot;<br />    username = &quot;xxxxx&quot;<br />    password = &quot;xxxx&quot;<br />  }<br />  dataSource_audit {<br />   dbCreate = &quot;update&quot;<br />   url = &quot;jdbc:mysql://localhost/audit&quot;<br />   username = &quot;xxxx&quot;<br />   password = &quot;xxxx&quot;<br />     }<br /> }</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Usually when it&#39;s not pushing to the AUD tables it&#39;s a transactional issue, because it only pushes those entries on transactional boundaries.</div>
+</div>
+<div class='comment'>
+<div class='author'>Prashant Potluri</div>
+<div class='content'>
+If there are multiple data sources defined in DataSource.groovy, the plugin is not saving any data in the audit tables. Any suggestions?</div>
+</div>
+<div class='comment'>
+<div class='author'>Tomasz Kalkosiński</div>
+<div class='content'>
+Hi Lucas<br /><br />I wrote an interesting blog post about working with Grails 2.1 and Hibernate Envers together. It&#39;d be great if you can read, comment and spread a word about my work. My post can be found here:<br /><br />http://refaktor.blogspot.com/2012/08/hibernate-envers-with-grails-210.html<br /><br />Greetings,<br />Tomasz Kalkosiński</div>
+</div>
+<div class='comment'>
+<div class='author'>Manuel B.</div>
+<div class='content'>
+Jay Hogan has forked the repository and upgrade envers plugin for grails 2.0<br /><br />URL: https://github.com/jayhogan/grails-envers-plugin<br /><br />Regards</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+korsbecker,<br /><br />Getting the plugin to work with Grails 2.0 is a whole other problem. Grails 2 jumped the hibernate version up to 3.6 which is something like 4 years worth of Hibernate. I haven&#39;t looked into that at all yet (but probably will in 3 or 4 months) but there&#39;s no telling what issues might pop up. The error you have looks more related to issues cause by this upgrade than from anything else.</div>
+</div>
+<div class='comment'>
+<div class='author'>korsbecker</div>
+<div class='content'>
+Smita,<br /><br />Did you solve your problem with <br /><br />Caused by ClassCastException: org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsAnnotationConfiguration cannot be cast to org.hibernate.cfg.AnnotationConfiguration<br /><br />I have exact the same problem with Grails 2.0. I have upgraded the plugin to to grails 2.0 and change to Hibernate 3.6.7.Final and explicitly added a runtime for hibernate-envers:3.6.7.Final<br /><br />But still with the same problem??<br /><br />cheers<br />henrik</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Sorry for the delay in responding to some of these. I took a long vacation and have just now gotten back. <br /><br />@Smita - The plugin definitely won&#39;t work below grails 1.3, and even that can get tricky at times. The problem is that Envers was integrated with hibernate a couple of years ago. Grails is really behind on hibernate releases (for obvious reasons). It will all be much more straightforward with Grails 2.0 I think.<br /><br />@Gmacmullin, I&#39;m glad it worked out for you. I really need to get this thing into the official plugin repo...</div>
+</div>
+<div class='comment'>
+<div class='author'>gmacmullin</div>
+<div class='content'>
+Looks like I had a typo where I declared the Envers plugin as a compile plugin dependency. It works great now.<br /><br />Thanks for creating the plugin Lucas!<br /><br />Glen</div>
+</div>
+<div class='comment'>
+<div class='author'>gmacmullin</div>
+<div class='content'>
+I&#39;ve been using the Envers plugin with Graisl 1.3.7, but I have to download the source code and upgrade it to Grails 1.3.7<br /><br />The weird thing is the plugin works perfectly when I run &quot;grails run-app&quot;, but when I deploy it as a war file in Tomcat, the <b>_aud</b> tables are not created. I turned on logging for Envers and the plugin, but I don&#39;t see any errors/problems.<br /><br />Lucas, have you had any problems running the plugin in a WAR file?<br /><br />Thanks,<br />Glen</div>
+</div>
+<div class='comment'>
+<div class='author'>Smita Saraswat</div>
+<div class='content'>
+Anyone as run this plug in with the latest version of grails ?<br />Thanks.</div>
+</div>
+<div class='comment'>
+<div class='author'>Smita Saraswat</div>
+<div class='content'>
+Lucas,<br /><br />I am running grails 2.0M2 version and when I installed your plugin, I get the following error :<br /><br />Caused by ClassCastException: org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsAnnotationConfiguration cannot be cast to org.hibernate.cfg.AnnotationConfiguration<br /><br />Thanks.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@euvitudo <br /><br />Transactions in Grails are a bit weird anyway, but yes, nothing will be written to the audit tables until a commit. That&#39;s because a common revision ties together all the work done in a single transaction. Of course, if you do this work in a service, that method is transactional, you can use the @transactional annotation as you already mentioned, and there is a transactional controller plugin that let&#39;s you set which methods on a controller should be transactional. (which is what I use in my app)</div>
+</div>
+<div class='comment'>
+<div class='author'>euvitudo</div>
+<div class='content'>
+Regarding the transactional context:<br /><br />I&#39;ve been experimenting with your plugin (thanks for the plugin, btw), and have only simplistic examples using grails scaffolding.  I found that after adding @Transactional (org.springframework.transaction.annotation.Transactional) to the controllers, updates to the audit tables are committed.<br /><br />The drawback to this method (at least, while using scaffolding) is that all methods will be transactional.<br /><br />Annotating a service or service method in this way will do the same.</div>
+</div>
+<div class='comment'>
+<div class='author'>morungos</div>
+<div class='content'>
+Thanks Lucas. I&#39;d be OK doing that if I was a little more Groovy-savvy. Couldn&#39;t find much in the way of annotation at anything other than the class level. I was about 2/3 way through improvising auditing with Groovy MOP hacks, an event listener, and a static field, so I might for now go that way, but I&#39;ll certainly track this plugin, which appears to be much better for the long term.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@morungus<br /><br />The plugin doesn&#39;t actually address configuration, and relies on envers itself.  As I mentioned in a previous comment, I would love to do more gorm style mappings, but will likely wait until grails 1.4.<br /><br />This problem is kind of tricky for groovy in general (and why I suspect grails uses static fields).  There&#39;s a few posts you can find on the topic, but because groovy generates your getters and setters, etc, annotations on a field don&#39;t do what you expect (or in this case what envers expects).  Your best bet is to create the getters and setters yourself, and annotate them.  It&#39;s still tricky, but that&#39;s your best bet for individual field annotations on gorm classes.  Of course, it will work straight away on java classes configured with hibernate xml or entity annotations.  Although, I&#39;m sure that&#39;s not a great option for many.  You can test this yourself by annotating your groovy classes and using reflection in java to see if you can get at them.</div>
+</div>
+<div class='comment'>
+<div class='author'>morungos</div>
+<div class='content'>
+This is almost ideal, but I need to be selective about which fields to track for audit. I tried the plugin but it always seemed to cough on a relation to a non-audited object. is this known to work?</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@Fabio<br /><br />Sorry for the delayed response.<br /><br />Regarding the UserRevisionEntity.  It&#39;s really tricky.  The weirdest thing is it will only work if you make it a java class and register it directly with hibernate.  If you look at the plugin code, you&#39;ll see a hibernate config file,where the revision entity is the only configured class.  I have no idea why @Audit works fine on gorm classes, but @RevisionEntity doesn&#39;t.  The listener via the annotation is also really silly of them.  It prevents the listener from wiring it up.  Once the plugin is released completely, and seems to be stable, my next big release will likely be to write my own configuration for it, probably using a combination of normal plugin config in config.groovy and static methods a la gorm on domain classes.  But I probably won&#39;t even try that until grails 1.4, since envers changes to a first class citizen in hibernate 3.5. (1.4 will go to 3.6 I believe)<br /><br />Oh, and it isn&#39;t necessary to use Spring Security.  That&#39;s just what I use for my app at work, but really whatever you&#39;re using for authentication will work.</div>
+</div>
+<div class='comment'>
+<div class='author'>Fábio Miranda</div>
+<div class='content'>
+Hi Lucas!<br /><br />Nice post and nice plugin!<br /><br />The only thing that is not clear is how to configure UserRevisionEntity to track the user that performed changes to the database. <br /><br />First, only &#39;rev&#39; and &#39;revtstmp&#39; columns were created at the database.<br /><br />Second, even after I found SpringSecurityRevisionListener, SpringSecurityServiceHolder and StubSpringSecurityService in the sources, it&#39;s not clear how to use them.<br /><br />Third, is it necessary to integrate with a particular technology (Spring Security)?<br /><br />Thanks!<br />Fábio Miranda.</div>
+</div>
+<div class='comment'>
+<div class='author'>daniel</div>
+<div class='content'>
+Lucas,<br />that was the problem. When using a grails service, everything works as expected.<br /><br />Thanks a lot for your help and the plugin  ;-)<br /><br />Daniel</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@daniel<br /><br />I&#39;m assuming by empty _aud tables you mean that when doing an update to a database table, you aren&#39;t seeing a corresponding entry in the corresponding audit table?<br /><br />My first thought is that it has to be something to do with transactions.  For example, I have seen this happen with MySql myisam tables.  You can write to them without transactions, and since Envers is tied completely to transactional hooks, it will never be called.  I&#39;m will to be if you breakpointed the Envers AuditEventListener class, which is what is actually listening to Hibernate events.  If you replicate the tests I have in the blog post, using .withTransaction around your calls, you should see the entries.  If that works in an integration test, then you need to probably take a look at your Grails controllers.  Remember, by default they are not transactional.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@DM Sorry about that, I guess I left out the imports when I cut and pasted.</div>
+</div>
+<div class='comment'>
+<div class='author'>daniel</div>
+<div class='content'>
+Hi Lucas,<br />I was recently integrating envers myself into Grails, but had a problem with empty _aud tables. This way I stumbled upon your plugin. Trying it with your plugin unfortunately yields the same result (empty _aud tables). I upgraded your plugin to Grails version 1.3.7 though, but I don&#39;t think this is causing the problem.<br /><br />Any hint for me what is going wrong?<br /><br />Cheers,<br />Daniel</div>
+</div>
+<div class='comment'>
+<div class='author'>DM</div>
+<div class='content'>
+Okay - sorted. Just need to add:<br />&quot;import org.hibernate.envers.Audited&quot;.</div>
+</div>
+<div class='comment'>
+<div class='author'>DM</div>
+<div class='content'>
+G&#39;day Lucas<br />Using eclipse (STS) and running through the blog, after installing the plugin, and attempting to implement the Customer class, the @Audited annotation is marked as an error ... is there some extra configuration I need to do?</div>
+</div>
+</div>

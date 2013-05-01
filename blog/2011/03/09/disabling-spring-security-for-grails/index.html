@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Disabling Spring Security for grails integration testing - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="One of the great things about Grails is how easy it is to do integration testing. When running the integration tests, the grails container will be &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2011/03/09/disabling-spring-security-for-grails">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Disabling Spring Security for Grails Integration Testing</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-09T10:09:00-06:00" pubdate data-updated="true">Mar 9<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+One of the great things about Grails is how easy it is to do integration testing.  When running the integration tests, the grails container will be started up, including an in-memory version of hsqldb. (and it looks to go to h2 in 1.4)  When you combine that with controller mocking, you can easily test from you controller down to the database.  However, because you&#8217;re getting your entire system, minus only the web server, it can take a while to startup.  It&#8217;s not too bad for a CI build, but can get annoying when you&#8217;re writing and running tests in your development environment.  One of the big culprits in terms of time is spring security.  I&#8217;m not sure why that is, but it is possible to disable it in your integration test environment.  The first step is to set the active configuration property to false in Config.groovy:<br /><br /><pre class="prettyprint"><br />test {<br />  grails.plugins.springsecurity.active = false        <br />}<br /></pre><br /><br />Now, when you run &#8216;grails test-app integration:&#8217; you should see something like this:<br /><br /><pre><br />grails test-app integration:<br />Welcome to Grails 1.3.6 - http://grails.org/<br />Licensed under Apache Standard License 2.0<br />Resolving dependencies...<br />Dependencies resolved in 5123ms.<br />Environment set to test<br />Starting integration test phase ...<br />Spring Security is disabled, not loading<br /></pre><br /><br />The important thing to notice is the last line: <b>Spring Security is disabled, not loading</b><br /><br />Of course, there&#8217;s now a new problem, any code you have that is referencing springSecurityService will now fail.  In general, the most likely method to cause an issue is getCurrentUser().  However, it&#8217;s simple to create a quick stub for it:<br /><br /><pre class="prettyprint"><br />class StubSpringSecurityService {<br /><br />    def currentUser<br /><br />    Object getCurrentUser() {<br />        return currentUser<br />    }<br /><br />    String encodePassword(String password, salt = null) {<br />        return password<br />    }<br /><br />}<br /></pre><br /><br />In my case, I only needed to stub getCurrentUser() and encodePassword, however, you may need to add more, and the general approach can be applied to any additional methods you may need.  It is also worth noting that I debated about using something like stubFor, but decided it was more straightforward to make a simple stub.<br /><br />Now that you have a stub, you need to make sure that it&#8217;s being set in the test environment.  You can do this by adding the following to resources.groovy:<br /><br /><pre class="prettyprint"><br />if (GrailsUtil.environment == "test"){<br />  springSecurityService(StubSpringSecurityService)<br />}<br /></pre><br /><br />Now for the last step, setting up the current user in your bootstrap:<br /><br /><pre class="prettyprint"><br />if (GrailsUtil.environment == "test") {<br />      def testUser = new User()<br />      testUser.save(failOnError: true)<br />      springSecurityService.currentUser = testUser;<br />}<br /></pre><br /><br />Any code running during an integration test, will now get back the saved user if it calls getCurrentUser()</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Rajkumar</div>
+<div class='content'>
+I solved this problem. The problem is I was having my Stub file under test/integration directory. <br /><br />Now, I want to enable the springsecurity plugin when I am running functional test using selenium RC , how to do it ?  But, I want it to be disabled during the unit and integration test.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Tough to say. It looks like there may be an issue with the code you added to your resources.groovy. Can you paste that into a comment?</div>
+</div>
+<div class='comment'>
+<div class='author'>Rajkumar</div>
+<div class='content'>
+Hi , I am getting the following error when I followed the steps your mentioned.<br /><br />2011-09-22 21:15:44,831 [main] ERROR spring.GrailsRuntimeConfigurator  - [RuntimeConfiguration] Unable to load beans from resources.groovy<br />groovy.lang.MissingPropertyException: No such property: org for class: resources<br /><br /><br />What could be the reason?</div>
+</div>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-09T10:09:00-06:00" pubdate data-updated="true">Mar 9<span>th</span>, 2011</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2011/03/09/disabling-spring-security-for-grails/" data-via="" data-counturl="http://lucaslward.github.io/blog/2011/03/09/disabling-spring-security-for-grails/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/02/28/javascript-tip-of-month/" title="Previous Post: Javascript tip of the month">&laquo; Javascript tip of the month</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/03/09/grails-testing-issue-when-rendering-as/" title="Next Post: Grails Testing issue when rendering as 'text/json'">Grails Testing issue when rendering as 'text/json' &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Using Spring Security Concurrent Session controls with Grails - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="While it isn&#8217;t a problem for most website, many have a requirement to control how many users can be connected concurrently. This is usually &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2012/08/08/using-spring-security-concurrent">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Using Spring Security Concurrent Session Controls With Grails</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-08T12:15:00-05:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+While it isn&#8217;t a problem for most website, many have a requirement to control how many users can be connected concurrently. This is usually related to sites that sell &#8216;per user&#8217; licenses, such as my current company. Unfortunately, this isn&#8217;t very straightforward in Grails.<br /><br />First thing to note: Grails Spring Security plugin doesn&#8217;t support concurrent session. Spring security does have the feature, and the plugin doesn&#8217;t prevent it from being used, but it doesn&#8217;t help either. And it&#8217;s a bit harder because you don&#8217;t have the advantage of the spring security namespace to help with some of this. Most of the information I found on how to set this up came from this blog post: <a href="http://blog.block-consult.com/2012/01/restricting-concurrent-user-sessions-in-grails-2-using-spring-security-core-plugin/">http://blog.block-consult.com/2012/01/restricting-concurrent-user-sessions-in-grails-2-using-spring-security-core-plugin/</a>. Using that as a guide, There are three things that have to be added to resources.groovy:<br /><blockquote class="tr_bq">sessionRegistry(SessionRegistryImpl)<br /><br />concurrencyFilter(ConcurrentSessionFilter) {<br />&nbsp; &nbsp; sessionRegistry = sessionRegistry<br />&nbsp; &nbsp; logoutHandlers = [ref(&#8220;rememberMeServices&#8221;), ref(&#8220;securityContextLogoutHandler&#8221;)]<br />&nbsp; &nbsp; expiredUrl=&#8217;/login/invalidated&#8217;<br />}<br /><br /><br />concurrentSessionControlStrategy(ConcurrentSessionControlStrategy, sessionRegistry) {<br />&nbsp; &nbsp; alwaysCreateSession = true<br />&nbsp; &nbsp; exceptionIfMaximumExceeded = true<br />&nbsp; &nbsp; maximumSessions = 1<br />}</blockquote>The SessionRegistry is just a mechanism with a thread-safe map to register new sessions. It&#8217;s stores them both by session id and by principal. It uses a class called SessionInformation. This object contains some information, such as the last time anything happened on this session, and if it&#8217;s expired. In general, sessions are only registered by the ConcurrentSessionControlStrategy. This strategy actually extends the Spring SessionFixationStragey, which is a whole other ball of wax I won&#8217;t go into. Either way, this strategy is generally used by the UsernamePasswordAuthenticationFilter. Normally I imagine this is setup using the spring namespace. However, in grails you have to deal with it manually. The way I found for it to work is an entry in boostrap.groovy: <br /><blockquote class="tr_bq">authenticationProcessingFilter.sessionAuthenticationStrategy = concurrentSessionControlStrategy</blockquote>What this strategy does is enforce *at authentication time* various rules about concurrent sessions. In our case, we set the Maximum sessions to 1. I also set it to throw an exception if it&#8217;s exceeded. It basically stops the authentication. I do this because I would prefer to tell the user what will happen if they log in: the other session will be expired. This is done by the strategy by looping through the SessionInformation objects tied to the given principal and calling expireNow() on the least recently used one.<br /><br />Which brings me to the filter.<br /><br />The filter shown above is inserted into the standard spring security authentication filter chain. From the blog post above, it can be added to the filter chain using the following code in bootstrap.groovy:<br /><blockquote class="tr_bq">SpringSecurityUtils.clientRegisterFilter(&#8216;concurrencyFilter&#8217;, SecurityFilterPosition.CONCURRENT_SESSION_FILTER)</blockquote>Basically, what the filter does is call the SessionRegistry for the given session id. If there is a session information and it is marked as expired, it forces a redirect to the provided &#8216;expiredUrl&#8217;. <br /><br />Once this is done, it generally works as you expect. If you prevent a user from logging in, it&#8217;s fairly simple to mark other session information as &#8216;expired&#8217; and the filter will then redirect them to the &#8216;expiredURL&#8217;. <br /><br />Unless you&#8217;re using Remember me, in which case everything is screwed. <br /><br />If you notice in the config of the filter, there&#8217;s a couple of log out handlers, and one of them is the remember me service. Which removes the remember me token when the filter &#8216;expires&#8217; the session. But there&#8217;s still a gigantic problem: RememberMe tokens are processed by a completely different filter that is oblivious to the concurrent session control. This is the RememberMeAuthenticationFilter. Keep in mind that the username and password filter is only called for a specific url and is usually posted to by some login page. So, it only touches a request if the url of the request matches the one it&#8217;s looking for.  <br /><br />So, here&#8217;s the scenario: User A logs in with a remember me token. The normal UsernamePasswordAuthenticationFilter is called. Because there&#8217;s the remember me option enabled. (easily setup by the grails plugin) It tells the RememberMeServices to add the cookie to the response. Everything is fine after that. So, let&#8217;s say that user sits idle for a bit and their session expires. The SessionRegistryImpl is also setup to receive HttpSession change events. This is setup by turning on the session event publisher via an option in config.groovy. Something like: grails.plugins.springsecurity.useHttpSessionEventPublisher = true. Which, is also necessary for concurrent session handling to work. <br /><br />The container expiring the session causes the registry to remove the SessionInformation for this session from the registry. Now, let&#8217;s say another user logs in with the same credentials (the same principal in Spring Security terms) That user is logged in and now has a session tied to that principal in the registry. Now, let&#8217;s say that the first user with the remember me cookie starts using the application again. This creates a request that doesn&#8217;t have a security context, which would normally punt you back to login. However, the RememberMeAuthenticationFilter sees the cookie and authenticates the user. In this case, it&#8217;s actually a slightly different Authentication object, but the user is still authenticated. The RememberMe filter never looks at the registry or strategy, so as far as the SessionRegistry is concerned, there is still only one user for this principal. Thus the user with the token can use it all day long without running afoul of the concurrent session limits. What this basically means is that anyone using Spring Security with remember me can bypass concurrent session limits by using a remember me token and letting their session expire.<br /><br />My first assumption was that there was something that needs to be setup that wasn&#8217;t being done. Maybe something the namespace was doing. But I can&#8217;t find any hook in either the remember me filter of the service for anything that would handle this. Even looking at newer versions of spring security, the only changes I see are for the registry to use java.util.concurrent, which was probably done after 3.1 when they could assume Java 5.<br /><br />There are some pretty reasonable extension points to the filter though. I extended it and overrode the method onSuccessfulAuthentication, thinking I could do some of the same things the strategy does. I could register a new information and mark others as expired. But it gets a bit complicated. In this case, I think the users with the token coming back from idle should be the one bounced. Which isn&#8217;t super hard, as long as the remember me filter is before the ConcurrentSessionFilter. However, there&#8217;s all kinds of potential threading issues. Especially if an application uses ajax. It&#8217;s really non-deterministic. I honestly think that the registry would need to be upgraded to understand the RememberMe cookie. <br /><br />Usually, when working with an established open source project, I assume that I&#8217;m doing something wrong. However, when looking through the code, I can&#8217;t find anything to handle this properly.<br /><br />So, my current bottom line is this: Concurrent Session can be used with the Grails plugin, however, not if you allow your users to use a &#8216;remember me&#8217; token.<br /><br /><b><span style="font-size: large;">Update</span></b><br /><br />I had passed on this issue to some friends at Vmware, and it looks like I was correct: Concurrent Session doesn&#8217;t work with RememberMe. Here&#8217;s the ticket that was created:&nbsp;<a href="https://jira.springsource.org/browse/SEC-2028">https://jira.springsource.org/browse/SEC-2028</a></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>BadBob</div>
+<div class='content'>
+Great and very detailed article. It helps me so much. Thanks a lot.<br />Your issue was closed as duplicate. Actual issue is: https://jira.springsource.org/browse/SEC-2028<br />Everyone, who read this article, please vote for that issue. </div>
+</div>
+<div class='comment'>
+<div class='author'>BadBob</div>
+<div class='content'>
+This comment has been removed by the author.</div>
+</div>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-08T12:15:00-05:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2012/08/08/using-spring-security-concurrent/" data-via="" data-counturl="http://lucaslward.github.io/blog/2012/08/08/using-spring-security-concurrent/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/12/15/on-git-command-line-usability/" title="Previous Post: On Git Command Line Usability">&laquo; On Git Command Line Usability</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/" title="Next Post: How to figure out what the Grails meta-methods do">How to figure out what the Grails meta-methods do &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

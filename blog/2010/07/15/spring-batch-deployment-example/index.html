@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Spring Batch Deployment Example - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Deployment has always been a tricky part of Batch Processing. Unlike a Web application, there is no standardized deployment, and there are a variety &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2010/07/15/spring-batch-deployment-example">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Spring Batch Deployment Example</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-07-15T16:14:00-05:00" pubdate data-updated="true">Jul 15<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+Deployment has always been a tricky part of Batch Processing.  Unlike a Web application, there is no standardized deployment, and there are a variety of environments that could be deployed to.  You could actually deploy a Batch application within a web container, or as a standalone java app to be started by one of many available schedulers.  For this reason, everyone&#8217;s environment is different, and there can be no one example that someone can use as a starting point.  However, I have done enough standalone deployments for Linux using Bash to share a simple example. <br /><br />The job itself matters little for the purposes of this post.  A simple one tasklet job suffice:<br /><br /><pre class="prettyprint">   &lt;job id="sampleJob" job-repository="jobRepository"&gt;<br />       &lt;step id="simpleStep"&gt;<br />           &lt;tasklet ref="tasklet" /&gt;<br />       &lt;/step&gt;<br />   &lt;/job&gt;<br /><br />   &lt;beans:bean id="jobRepository" <br />   class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"/&gt;<br /><br />   &lt;beans:bean id="transactionManager" <br />   class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" /&gt;<br /><br />   &lt;beans:bean id="jobLauncher" <br />   class="org.springframework.batch.core.launch.support.SimpleJobLauncher"&gt;<br />       &lt;beans:property name="jobRepository" ref="jobRepository" /&gt;<br />   &lt;/beans:bean&gt;<br /><br />   &lt;beans:bean id="tasklet" class="net.lucasward.sample.SampleTasklet" /&gt;<br /></pre><br /><br />(namespace removed for readability)<br /><br />The Tasklet simply prints &#8216;Hello World&#8217;<br /><br /><pre class="prettyprint">public class SampleTasklet implements Tasklet {<br /><br />   public RepeatStatus execute(StepContribution contribution, <br />                               ChunkContext chunkContext) throws Exception {<br />       System.out.println("Hello World");<br />       return FINISHED;<br />   }<br />}<br /></pre><br /><br />Simple enough, right?  Now for the hard part.  If we want a scheduler to be able to launch this from the command line, what do we do?  The first problem to solve is, what does our deployment look like?  In my mind, there&#8217;s three necessary components: <br /><br /><ol><br /><li>The jars themselves, which need to be on the classpath<br /></li><li>A Script that can be called<br /></li><li>The xml and/or .properties files that will be used for configuration<br /></li></ol><br /><br />Personally, I prefer to separate the XML files from the jars, to allow for tweaks to the Job.  This is especially useful for Spring Batch job definitions, although may be less so for normal spring configuration files.   My preferred layout is to have three directories: bin, lib, and resources.  Obviously, the scripts go in /bin, jars in /lib, and xml/properties in /resources.  It doesn&#8217;t really matter how you break yours up, but it&#8217;s the format I&#8217;ll be using.  In order to create this layout, I&#8217;ll use Maven and the assembly plugin:<br /><br /><pre><br />          &lt;plugin&gt;<br />               &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;<br />               &lt;version&gt;2.2-beta-2&lt;/version&gt;<br />               &lt;configuration&gt;<br />                   &lt;descriptors&gt;<br />                       &lt;descriptor&gt;src/main/assembly/descriptor.xml&lt;/descriptor&gt;<br />                   &lt;/descriptors&gt;<br />               &lt;/configuration&gt;<br />               &lt;executions&gt;<br />                   &lt;execution&gt;<br />                       &lt;id&gt;make-distribution&lt;/id&gt;<br />                       &lt;phase&gt;package&lt;/phase&gt;<br />                       &lt;goals&gt;<br />                           &lt;goal&gt;single&lt;/goal&gt;<br />                       &lt;/goals&gt;<br />                   &lt;/execution&gt;<br />               &lt;/executions&gt;<br />           &lt;/plugin&gt;<br /></pre><br /><br />And the Descriptor:<br /><br /><pre>&lt;assembly&gt;<br />   &lt;id&gt;distribution&lt;/id&gt;<br />   &lt;formats&gt;<br />       &lt;format&gt;tar.gz&lt;/format&gt;<br />   &lt;/formats&gt;<br />   &lt;includeBaseDirectory&gt;false&lt;/includeBaseDirectory&gt;<br />   &lt;fileSets&gt;<br />       &lt;fileSet&gt;<br />           &lt;directory&gt;src/main/scripts&lt;/directory&gt;<br />           &lt;outputDirectory&gt;bin&lt;/outputDirectory&gt;<br />           &lt;useDefaultExcludes&gt;true&lt;/useDefaultExcludes&gt;<br />       &lt;/fileSet&gt;<br />       &lt;fileSet&gt;<br />           &lt;directory&gt;src/main/resources&lt;/directory&gt;<br />           &lt;outputDirectory&gt;resources&lt;/outputDirectory&gt;<br />           &lt;useDefaultExcludes&gt;true&lt;/useDefaultExcludes&gt;<br />           &lt;filtered&gt;true&lt;/filtered&gt;<br />       &lt;/fileSet&gt;<br />   &lt;/fileSets&gt;<br /><br />   &lt;dependencySets&gt;<br />       &lt;dependencySet&gt;<br />           &lt;outputDirectory&gt;lib&lt;/outputDirectory&gt;<br />       &lt;/dependencySet&gt;<br />   &lt;/dependencySets&gt;<br />&lt;/assembly&gt;<br /></pre><br /><br />The format I&#8217;m using is tar.gz, since I&#8217;m targeting linux, but <a href="http://maven.apache.org/plugins/maven-assembly-plugin/">there are many more available</a>.<br /><br />The two fileset entries describes both the bin and resources directory.  (I haven&#8217;t talked about the script yet, but I will below).  The &#8216;DependencySet&#8217; reference is to transfer all the dependencies that Maven is managing into the lib directory, including the created jar itself.  When you run &#8216;mvn install&#8217; there will be two artifacts created: The normal jar, and another file with the same name, ending in -distribution.tar.gz.  In the case of my example that is: batch-deploy-sample-1.0-SNAPSHOT.jar and batch-deploy-sample-1.0-SNAPSHOT-distribution.tar.gz.  In my example, unzipping gave me the following:<br /><br /><pre>./bin:<br />sampleJob.sh<br /><br />./lib:<br />aopalliance-1.0.jar                           spring-batch-core-2.1.1.RELEASE.jar           spring-tx-2.5.6.jar<br />batch-deploy-sample-1.0-SNAPSHOT.jar          spring-batch-infrastructure-2.1.1.RELEASE.jar stax-1.2.0.jar<br />commons-logging-1.1.1.jar                     spring-beans-2.5.6.jar                        stax-api-1.0.1.jar<br />jettison-1.1.jar                              spring-context-2.5.6.jar                      xpp3_min-1.1.4c.jar<br />spring-aop-2.5.6.jar                          spring-core-2.5.6.jar                         xstream-1.3.jar<br /><br />./resources:<br />jobs<br /><br />./resources/jobs:<br />sampleJob.xml<br /></pre><br /><br />All we need now is a simple script to actually run the job:<br /><br /><pre class="prettyprint">#!/bin/bash<br /><br />CP=resources/<br /><br />LIB=lib/*<br />for f in $LIB<br />do<br />CP=$CP:$f<br />done<br /><br />java -cp $CP org.springframework.batch.core.launch.support.CommandLineJobRunner \<br />jobs/sampleJob.xml sampleJob<br /></pre><br /><br />I&#8217;m probably not going to win any awards for my bash scripting skills anytime soon, but it gets the job done and isn&#8217;t quite as archaic as a more concise version would be.  Essentially, I&#8217;m creating a classpath from all the jar files in /lib by looping through the files and separating them with a colon.  Once that is done, I can start a java process, using the <a href="http://static.springsource.org/spring-batch/apidocs/org/springframework/batch/core/launch/support/CommandLineJobRunner.html">CommandLineJobRunner</a> as the Main method.  As described in the documentation, all I need to pass to the job runner is the xml file to run the job, and the job name.  (It&#8217;s worth noting that normally you would also need JobParameters, but since I&#8217;m using the MapRepository, it isn&#8217;t necessary)<br /><br />You can download the running example from my github account: <a href="http://github.com/lucaslward/blog/tree/master/batch-deploy-sample/">batch-deploy-sample</a>.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Interesting. I&#39;ll definitely add your code for the script directory. I&#39;m not a big fan of using the CLASSPATH variable, so I think I&#39;ll stick to just passing in the classpath to the command line via -cp</div>
+</div>
+<div class='comment'>
+<div class='author'>Philippe</div>
+<div class='content'>
+I slightly corrected the shell script so that it can be launched from anywhere, rather than having to cd to the bin directory.<br />Here is what I did :<br /><br /># Set the classpath<br />SCRIPTDIR=&quot;$( cd &quot;$( dirname &quot;$0&quot; )&quot; &amp;&amp; pwd )&quot;<br />CLASSPATH=.<br /><br />for file in `ls $SCRIPTDIR/../lib`<br />do<br />        export CLASSPATH=$CLASSPATH:$SCRIPTDIR/../lib/$file<br />done<br />export CLASSPATH=$CLASSPATH:$SCRIPTDIR:$SCRIPTDIR/../resources<br /><br /># Launch the conversion job<br />java org.springframework.batch.core.launch.support.CommandLineJobRunner &#8230;</div>
+</div>
+<div class='comment'>
+<div class='author'>Philippe</div>
+<div class='content'>
+Thanks a lot ! It&#39;s exactly what I was looking for and it works like a charm&#8230;</div>
+</div>
+<div class='comment'>
+<div class='author'>Philippe</div>
+<div class='content'>
+This comment has been removed by the author.</div>
+</div>
+<div class='comment'>
+<div class='author'>Dil&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;:)</div>
+<div class='content'>
+I want to stop the running spring batch job, Please let me know how can i do that .. i wil b follooing u r blog fr ans</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+I&#39;m sorry for the crazy late response, I&#39;ve been extremely busy with client work for the last few weeks.  Are you still having this issue?</div>
+</div>
+<div class='comment'>
+<div class='author'>David Tam</div>
+<div class='content'>
+Thanks, this is very useful for someone totally new to Spring Batch, but when I run the job.. I get this.. <br /><br />ClassPathXmlApplicationContext [INFO] Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@4ca31e1b: display name [org.springframework.context.support.ClassPathXmlApplicationContext@4ca31e1b]; startup date [Fri Oct 22 10:28:52 CDT 2010]; root of context hierarchy<br />2010-10-22 10:28:52 XmlBeanDefinitionReader [INFO] Loading XML bean definitions from class path resource [jobs/sampleJob.xml]<br />2010-10-22 10:28:53 CommandLineJobRunner [ERROR] Job Terminated in error:<br />org.springframework.beans.factory.BeanDefinitionStoreException: Unexpected exception parsing XML document from class path resource [jobs/sampleJob.xml]; nested exception is java.lang.IllegalArgumentException: &#39;beanName&#39; must not be empty<br /><br />Its probably something simple I&#39;m missing.</div>
+</div>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-07-15T16:14:00-05:00" pubdate data-updated="true">Jul 15<span>th</span>, 2010</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2010/07/15/spring-batch-deployment-example/" data-via="" data-counturl="http://lucaslward.github.io/blog/2010/07/15/spring-batch-deployment-example/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2010/05/24/test-code-quality/" title="Previous Post: Test code quality">&laquo; Test code quality</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2010/11/09/maven-and-continuous-delivery/" title="Next Post: Maven and Continuous Delivery">Maven and Continuous Delivery &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

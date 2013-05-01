@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>The Programmer's Time Paradox - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="At the beginning of this week I started work on a new feature. For the purposes of this post it doesn&#8217;t matter what the feature was, but I &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2011/03/17/programmers-time-paradox">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">The Programmer's Time Paradox</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-17T23:12:00-05:00" pubdate data-updated="true">Mar 17<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+At the beginning of this week I started work on a new feature.  For the purposes of this post it doesn&#8217;t matter what the feature was, but  I started in on it on Monday and things went extremely well.  I was in the zone.   It&#8217;s hard to describe, but I think if you&#8217;re a programmer you&#8217;ll understand the feeling.  I started out with just the right amount of testing in the right places, built something simple and added on top of it, while refactoring periodically as I discovered new angles on the problem.  Everytime I moved forward, I was able to run my tests and tell immediately that my last fix had broken something.  I was moving forward in small steps and it was all falling together nicely.<br /><br />And then I got greedy.  I suppose it makes me a dork to admit it, but I was having fun.  I had been somewhat behind on the feature because I was debating on a couple different paths, but now that I had chosen, I was moving forward with wreckless abandon.  It&#8217;s somewhat intoxicating to be in the zone.  So, I pushed myself hard.  I worked from around 9 AM until 1 or 2 in the morning every night for 3 days straight.  (I work from home, so it&#8217;s a bit easier to work later like that)<br /><br />This morning I woke up begrudgingly.  The comforter was very, very heavy.  It was the weird programmer kind of fatigue, where you&#8217;ve done nothing but sit on your but all day, but your mind has been going too fast for too long, so you feel mentally exhausted but physically fine.  When you hit that point, no amount of coffee is going to make it better.  Now, I&#8217;ve been on some pretty hellish death marches before.  Some of them spanned months, so it&#8217;s not like working hard for 3 days is all that terrible.  But the programming gods are vengeful.  I might have been tired, but I was excited to get the feature working.  I was in the home stretch.  My sister is coming to town this weekend and it&#8217;s her first time in Chicago since turning 21, so I wanted to get this thing done and party like it was&#8230;2003?<br /><br />So I got sloppy.  I ran into a weird bug.  It was a NullPointerException with no stack trace.  Which sometimes interchanged itself with an InovcationTargetException.  When you see something like that happen, it&#8217;s time to stop the production line.  I should have stopped, immediately, and attempted to recreate the conditions in my testing setup.  I had a perfect, isolated, test suite setup where I could have recreated this thing in a controlled environment, but I didn&#8217;t do that.  Instead, I fiddled with idea after idea.  They were all well informed, reasonable things to be trying.  But when you&#8217;re doing this kind of thing inside your application, there can be too many factors.  Production code is complicated, and there&#8217;s just too many variables.<br /><br />At around 6PM I stopped myself, and did what I should have done in the first place.  In an integration test, I slowly recreated the problem, piece by piece.  Within 15 minutes I had found the problem.  I forgot to put an annotation on a particular class.<br /><br />I. forgot. an. annotation&#8230;..$#$%#$%#$!!!!!!!!!!!<br /><br />I suppose I could get mad at the guy who wrote the open source framework I was using.  But I would be one heck of a hypocrite if I did.  I can&#8217;t imagine how many people have been in the same situation with Spring Batch, and probably felt the same way about me.  I hit a scenario he didn&#8217;t think of, so there wasn&#8217;t specific error handling for it, and the results were nondeterministic.<br /><br />No, I was tired.  I pushed myself too hard and I made a stupid mistake, and the funny thing is, I lost all of the time I had saved by working so much! Awesome.<br /><br />And when has that not been the case?  I can&#8217;t think of time where I worked too many hours and this exact same thing hasn&#8217;t happened.  I was tired and made a stupid mistake.  A mistake that I would have easily caught if fully rested.  And that mistake had cost all the time I had spent working late.  And it&#8217;s compounded by the number of people overworking themselves.  The more people doing it, the worse the effect is.  Because your stupid mistake made while trying to fix someone else&#8217;s stupid mistake quickly snowballs.<br /><br />But sometimes, it&#8217;s just hard to grok.  I don&#8217;t think the human mind is fully capable of thinking that way.  If you&#8217;re running somewhere, running faster gets you there quicker, baring the limits of endurance.  But overall, if you can run faster, running faster will get you there sooner.  Or at least is seems that way when you&#8217;re coding at 1 in the morning on an interesting problem.  And I know all about sustainable pace, and I agree with it fully.  And I wasn&#8217;t under the spell of an evil project manager either.  It&#8217;s a small company, and I&#8217;m the CTO.  The only drive I have is to get features done quicker to support our sales efforts.  And I know, from personal experience, what happens when programmers work unsustainable paces.<br /><br />You know what it&#8217;s like?  It&#8217;s like white castle.  At least once or twice a year I&#8217;ll decide eating at White Castle is a good idea.  I may or may not be sober when I make this decision, but I make it anyway.  And I pay for it.  The next day you wake up and you *know* you made a terrible mistake.  And for days, maybe even weeks, you&#8217;ll swear to never eat at white castle again.  But then you&#8217;ll be at your cousin&#8217;s wedding and there just so happens to be a white castle within walking distance, and the terrible cycle repeats itself.</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-17T23:12:00-05:00" pubdate data-updated="true">Mar 17<span>th</span>, 2011</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2011/03/17/programmers-time-paradox/" data-via="" data-counturl="http://lucaslward.github.io/blog/2011/03/17/programmers-time-paradox/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/03/09/grails-testing-issue-when-rendering-as/" title="Previous Post: Grails Testing issue when rendering as 'text/json'">&laquo; Grails Testing issue when rendering as 'text/json'</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/03/23/upgrading-grails-13x-to-use-hibernate/" title="Next Post: Upgrading Grails 1.3.x to use Hibernate 3.3.2">Upgrading Grails 1.3.x to use Hibernate 3.3.2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

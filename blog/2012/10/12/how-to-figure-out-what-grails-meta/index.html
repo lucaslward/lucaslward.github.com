@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How to figure out what the Grails meta-methods do - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Since I code in Grails everyday, I periodically have friends and&nbsp;acquaintances that are learning the framework asking me questions. By far the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2012/10/12/how-to-figure-out-what-grails-meta">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How to Figure Out What the Grails Meta-methods Do</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-12T11:29:00-05:00" pubdate data-updated="true">Oct 12<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+Since I code in Grails everyday, I periodically have friends and&nbsp;acquaintances that are learning the framework asking me questions. By far the most common one is something like: &#8220;where are all of these magic methods coming from!?!?!?!&#8221;<br /><br /><a href="http://4.bp.blogspot.com/-GGm0H6ccXYI/UHg4RrrewfI/AAAAAAAAACc/8sIiO1IBoiM/s1600/Screen+Shot+2012-10-12+at+10.31.16+AM.png" imageanchor="1" style="clear: right; float: right; margin-bottom: 1em; margin-left: 1em;"><img border="0" height="400" src="http://4.bp.blogspot.com/-GGm0H6ccXYI/UHg4RrrewfI/AAAAAAAAACc/8sIiO1IBoiM/s400/Screen+Shot+2012-10-12+at+10.31.16+AM.png" width="146" /></a>Grails heavily uses <a href="http://groovy.codehaus.org/Dynamic+Groovy" target="_blank">Groovy meta programming</a>&nbsp;across every tier, but especially in controllers and domain objects. One example would be domainObject.save(), another would be the render method on controllers. You can see a list of all these dynamic methods in the grails documentation:&nbsp;<a href="http://grails.org/doc/latest/" target="_blank">http://grails.org/doc/latest/</a>&nbsp;I can&#8217;t find a good way to link to just the dynamic methods, but on the right side of the documentation there is a quick reference section that contains a listing of all the available methods and brief descriptions if you click through.<br /><br />While it&#8217;s definitely the best way to figure out what meta-methods are available to you, it doesn&#8217;t help you figure out exactly what those methods are doing. Furthermore, the documentation is generally pretty brief around how to use them. In my experience the best way to see all the configuration options and understand what&#8217;s happening is to look at the actual methods that are added to your controllers and domain objects. However, because they&#8217;re added to the &#8216;metaClass&#8217; of these classes when Grails bootstraps it can be difficult to figure out where and how they&#8217;re added.<br /><br />Fortunately, it&#8217;s not as bad as you think. Grails follows it&#8217;s own recommendations well and as a result all of these methods are added in the exact same fashion as they would be in a normal plugin. So, what you need to look for are the plugins that add them. I&#8217;ll start first with the Domain classes because they&#8217;re the most complicated and also the ones you will most likely need to understand. (More information on Grails plugins can be found <a href="http://grails.org/doc/latest/guide/plugins.html" target="_blank">here</a>)<br /><h3><b><br /></b></h3><h3><b>GORM Dynamic methods</b></h3>The first thing to note when examining the GORM Methods is that it was designed to be plug and play from the get go. By default GORM is a hibernate implementation connecting to a standard RDBMS. However, that can be changed to use something like <a href="http://blog.mongodb.org/post/18510469058/grails-in-the-land-of-mongodb" target="_blank">Mongo</a>. To keep things simple I&#8217;ll assume the default.<br /><table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center;"><tbody><tr><td style="text-align: center;"><a href="http://1.bp.blogspot.com/-i-adGG_Rgm4/UHg7xejuXCI/AAAAAAAAACs/WiODQqELVxI/s1600/Screen+Shot+2012-10-12+at+10.46.35+AM.png" imageanchor="1" style="margin-left: auto; margin-right: auto;"><img alt="" border="0" height="200" src="http://1.bp.blogspot.com/-i-adGG_Rgm4/UHg7xejuXCI/AAAAAAAAACs/WiODQqELVxI/s640/Screen+Shot+2012-10-12+at+10.46.35+AM.png" title="HibernateGrailsPlugin" width="640" /></a></td></tr><tr><td class="tr-caption" style="text-align: center;">In IntelliJ the hibernate plugin is included with all other project plugins</td></tr></tbody></table>As you can see, just like any other plugin, the hibernate plugin adds the dynamic methods in doWithDynamicMethods. In this case it&#8217;s delegating to another class, likely to allow for easier testing. I&#8217;m not going to go through the entire class, but it&#8217;s fairly straightforward from here, as most of the dynamic methods are added directly by HibernatePluginSupport.<h3><br /></h3><h3>Controller Dynamic Methods</h3><div>The controller methods are a little bit harder to find. Like the Hibernate plugin above, they are added via a plugin. However, you won&#8217;t find it with the normal plugin list, as it&#8217;s &#8216;core&#8217;. (Unless something massive has changed in 2.0)&nbsp;</div><div><br /></div><div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-JP202gjFz1I/UHg9okZhkiI/AAAAAAAAAC0/6z1K_uirKBI/s1600/Screen+Shot+2012-10-12+at+10.54.45+AM.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="168" src="http://2.bp.blogspot.com/-JP202gjFz1I/UHg9okZhkiI/AAAAAAAAAC0/6z1K_uirKBI/s640/Screen+Shot+2012-10-12+at+10.54.45+AM.png" width="640" /></a></div><div><br /></div><div>You&#8217;ll find when you look in this class that there&#8217;s a pretty natural separation of concerns, there&#8217;s a class for adding just the render methods, etc. In general, you can find most dynamic methods by searching for *GrailsPlugin.groovy.</div><div><br /></div><div>Hopefully this helps you understand better how the Grails &#8216;magic&#8217; works. Anyone with experience in Spring MVC or Hibernate will recognize most of what these methods are doing, but if not I suggest you do a quick look through those products to help you understand what&#8217;s happening.</div><div><br /></div></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Burt</div>
+<div class='content'>
+This is true before 2.0, but in 2.0+ most of the domain class methods and controller methods are added directly to the bytecode via ASTs rather than dynamic metaprogramming. Real dynamic methods like dynamic finders (e.g. findByFooAndBar) have to be added at runtime, but methods with fixed signatures like save() are added by the compiler.<br /><br />Also one small correction - GORM was not originally designed to be pluggable, it was retrofitted in 2.0 to be so; before that it was tightly coupled to Hibernate.</div>
+</div>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-12T11:29:00-05:00" pubdate data-updated="true">Oct 12<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2012/10/12/how-to-figure-out-what-grails-meta/" data-via="" data-counturl="http://lucaslward.github.io/blog/2012/10/12/how-to-figure-out-what-grails-meta/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/08/08/using-spring-security-concurrent/" title="Previous Post: Using Spring Security Concurrent Session controls with Grails">&laquo; Using Spring Security Concurrent Session controls with Grails</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/01/25/fundspire-has-been-acquired/" title="Next Post: Fundspire has been Acquired">Fundspire has been Acquired &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

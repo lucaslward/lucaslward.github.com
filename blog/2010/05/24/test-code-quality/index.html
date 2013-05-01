@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Test code quality - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="I&#8217;ve been meaning to write about this for awhile, but it always seems so contentious for some reason. I&#8217;m sure we&#8217;ve all seen the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2010/05/24/test-code-quality">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Test Code Quality</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-05-24T23:41:00-05:00" pubdate data-updated="true">May 24<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+I&#8217;ve been meaning to write about this for awhile, but it always seems so contentious for some reason.  I&#8217;m sure we&#8217;ve all seen the worst examples before.  I once opened up a 5,000 line unit test of a Spring MVC controller.  It got this bad because every bit of setup was <span style="font-weight:bold;">cut and paste into each new test function</span>.  Of course, it should have been a sign to the original author that refactoring was needed when there was that much setup required in the first place.  But it still begs the question: What level of quality should be expected of test code?  <br /><br />I&#8217;ve worked with lots of great developers that would see so much as a line of duplication and take it upon themselves to drop everything, including the donut in their hand, to remove it from code.  However, when it comes to test code, that same developer would shrug their shoulders and say: &#8216;It&#8217;s only test code&#8217;.  I just don&#8217;t get this.  If lack of reuse and duplicate code would cause an aneurysm in normal code, why is it acceptable in test code?  For that matter, why would the way you treat test code be any different at all?<br /><br />When we write unit tests, it&#8217;s code we intend to last just as long as the class it&#8217;s testing, or at least until the assumptions we made about the code have changed.  And given how slowly some companies could change even those basic assumptions, that could mean never.  Testcode still needs to be easy to maintain, and easy to understand.  <br /><br />Here&#8217;s some of the reasoning I&#8217;ve heard:<br /><br /><blockquote>I don&#8217;t want to make the unit test complicated, it should be easy to understand the intention</blockquote><br /><br />If abstractions and code reuse done properly can make code easier to understand, why would the same not apply to test code?  How would duplication between two unit test classes aid in the clarity of the individual test?<br /><br /><blockquote>Unit tests should be completely isolated from each other</blockquote><br /><br />I&#8217;ll agree to this in principle.  But I think it can be taken too far.  Unit tests should be able to be run side effect free.  You should be able to run each individual test by itself, or with any number of other unit tests without the existence or absence of such tests causing failures.  However, this has nothing to do with sharing abstractions with each other, or reusing the same setup data if more than one class under test uses the same domain objects.  As long as you&#8217;re creating new instances in your test classes, and not accessing them through stateful static calls, there should be no issue.<br /><br /><blockquote>Modifying one test to pass shouldn&#8217;t cause another to break</blockquote><br /><br />This is a tricky one that has bitten me numerous times before.  If you create some kind of abstraction, such as some type of a builder to create a set of test data for multiple tests, you run the risk of breaking a lot of tests if you change something in the builder to make one pass.  It can be extremely disheartening to watch the unit test you were working with pass, only to see hundreds of test failures when you run the entire build.<br /><br />However, despite the pain this has caused me in the past, doesn&#8217;t this seem like a normal coding problem?  Maybe it&#8217;s coupling/cohesion, or demeters law, or any other random law.  There&#8217;s probably a perfectly well known refactoring mechanism to make this test code easier to modify without side affects.  <span style="font-weight:bold;">There is no reason not to apply them to your unit test code as well.</span><br /><br />Now though, there comes the dirty part, that only an &#8216;Enterprise&#8217; developer will know the unfortunate reality of.  What if your test code looks nothing like your real code, but there&#8217;s nothing really wrong with it except it breaks many of the largely nonsensical &#8216;coding standards&#8217; put in place by some type of &#8216;governing body&#8217;?  What if *gasp* its better as a result?</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Dokemion</div>
+<div class='content'>
+When you are trying to <a href="http://www.developintelligence.com/" rel="nofollow"> learn java</a> you have to under go training.</div>
+</div>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-05-24T23:41:00-05:00" pubdate data-updated="true">May 24<span>th</span>, 2010</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2010/05/24/test-code-quality/" data-via="" data-counturl="http://lucaslward.github.io/blog/2010/05/24/test-code-quality/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2010/05/19/boiler-plate-code-and-closures-in-java/" title="Previous Post: Boiler Plate code and closures in Java">&laquo; Boiler Plate code and closures in Java</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2010/07/15/spring-batch-deployment-example/" title="Next Post: Spring Batch Deployment Example">Spring Batch Deployment Example &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

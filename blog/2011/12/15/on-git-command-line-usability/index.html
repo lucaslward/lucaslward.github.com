@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>On Git Command Line Usability - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Today I was reading about a new tool to use Git on a Mac called GitBox. I generally prefer the command-line, but as it was on sale and mentioned as &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2011/12/15/on-git-command-line-usability">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">On Git Command Line Usability</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-15T00:29:00-06:00" pubdate data-updated="true">Dec 15<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+Today I was reading about a new tool to use Git on a Mac called <a href="http://itunes.apple.com/us/app/gitbox/id403388357">GitBox</a>. I generally prefer the command-line, but as it was on sale and mentioned as one of the best clients for Mac, I figured I would at least take a look. When looking through the comments though, one part of a particular review stuck out to me:<br /><blockquote class="tr_bq">This app generally is a relieve compared to the terribly complicated git command line</blockquote>It&#8217;s a common refrain from even a seasoned developer that has been using other tools for awhile, even those familiar with subversion on the command-line. To simplify the discussion, let&#8217;s take one part of the obvious usability issues out of the general discussion of git usability: <a href="http://www.lucasward.net/2010/02/maturity-model-for-source-control-scmm.html">DVCS</a> in general. If using something like Hg or Git after using a more centralized VCS, it&#8217;s going to be more complicated by nature. With DVCS you&#8217;re effectively managing your own repo and merging with another common repo shared with the rest of your team. With a more centralized system like SVN you&#8217;re really just pushing change lists to a repo managed by someone else. I&#8217;m sure there&#8217;s some power users at every company, but I&#8217;m betting a lot of SVN users aren&#8217;t doing a lot of branch merging. Even looking at GitBox, which does look like a more simplified view of Git, the overall actions you&#8217;re performing are more complicated than say, something like tortoiseSVN.<br /><br />DVCS has it&#8217;s <a href="http://www.lucasward.net/2010/02/maturity-model-for-source-control-scmm.html">advantages and disadvantages</a>, but given that the overall model is more complex in nature for individual developers committing code, let&#8217;s shelve that and focus solely on the question of whether the git command line itself is overly complicated. (as the review described)<br /><br />My gut response to this question is &#8216;it depends&#8217;. Perhaps I was a consultant for too long. Git to me seems Unixy. That&#8217;s not really a word and doesn&#8217;t mean much though. I suppose another way of saying it is: if you&#8217;re used to working in unix like environments, it feels comfortable and familiar to you, and if you&#8217;re not, it&#8217;s never going to feel like anything other than overly complicated. If you&#8217;ve written a lot of bash scripts, or regularly tweaked your command line (i.e. bash settings), git feels natural. If you&#8217;re not that kind of command-line user, git seems complex.<br /><br />I would like to strenuously point out that <b>I am in no way trying to offend users who don&#8217;t like unix (or unix like operating system) or using the command-line in general</b>. I have some strong personal feelings about it, but at the end of the day, it&#8217;s personal preference. If you don&#8217;t like using the command-line, then you don&#8217;t like it. As an example, when talking through how to us a rest API with someone a month or so ago, I mentioned that they could just toss the URL into <a href="http://curl.haxx.se/">curl</a>. I&#8217;m so used to reaching for the command-line as my first instinct, that I didn&#8217;t even think that for someone not used to the command-line, it might seem complex. It&#8217;s just curl -XGET http://someurl afterall.<br /><br />But it&#8217;s never that simple is it? The next question is, ok, how do I post data?<br /><br />Hmm&#8230;..well, something like this:<br /><blockquote class="tr_bq">curl -XPOST http://someurl -d &#8220;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8221;</blockquote>Except, that won&#8217;t work. You can&#8217;t use double quotes like that. It has to be:<br /><blockquote class="tr_bq">curl -XPOST http://someurl -d &#8216;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8217;</blockquote>That will work. Well, maybe. You might need to set a json content header. If you&#8217;re used to using a unix command, you just type man curl, look up the option and do:<br /><br />curl -XPOST http://someurl -H &#8220;ContentType:application/json&#8221; -d &#8216;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8217;<br /><br />But reading man pages can sometimes be an acquired skill. For those of us that are used to it, we might quickly notice the quote issue, or quickly find the option we&#8217;re looking for with a quick man page search. However, if you just wanted to get something done quickly and you&#8217;re not used to these types of tools, it makes a simple test of a rest API turn into an epic undertaking leaving you doing a google search for rest thick clients.<br /><br />As another example, I recently wiped my mac machine. I hadn&#8217;t used it in awhile, as I normally code on an Ubuntu machine. However, the stock git that came with the fresh install of OS X Lion was jarring. There was no colors set, and I didn&#8217;t have my customery indicator in bash telling me what branch I was on. I needed to copy some of my bash config over from my other machine.<br /><br />It&#8217;s worth repeating, to effectively use git on the command line, I needed to modify my bash profile. (or bashrc, whatever you want to call it, depending on how you have things setup and distro, etc etc) For a regular command line user, it&#8217;s not a problem. But I remember when I first was learning to use linux, and failing miserably to even add things to my PATH the first few times.<br /><br />So I guess that&#8217;s my main point. Git to me fits in well with all my other gnu/unix style command line tools. It feels familiar and as it follows these conventions, I can work with it. But as I have introduced it and other command line tools to fellow programmers, it becomes obvious to me: If you&#8217;re not familiar with these conventions and with how to work with this type of command line, it&#8217;s going to seem extremely complex.</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-15T00:29:00-06:00" pubdate data-updated="true">Dec 15<span>th</span>, 2011</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2011/12/15/on-git-command-line-usability/" data-via="" data-counturl="http://lucaslward.github.io/blog/2011/12/15/on-git-command-line-usability/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/06/27/why-developers-sometimes-do-things-hard/" title="Previous Post: Why developers sometimes do things 'the hard way'">&laquo; Why developers sometimes do things 'the hard way'</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/08/08/using-spring-security-concurrent/" title="Next Post: Using Spring Security Concurrent Session controls with Grails">Using Spring Security Concurrent Session controls with Grails &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

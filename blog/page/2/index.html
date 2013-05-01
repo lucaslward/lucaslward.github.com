@@ -1,158 +1,100 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
-  <link href="http://lucaslward.github.io/atom.xml" rel="self"/>
-  <link href="http://lucaslward.github.io/"/>
-  <updated>2013-04-30T22:16:39-05:00</updated>
-  <id>http://lucaslward.github.io/</id>
-  <author>
-    <name><![CDATA[Your Name]]></name>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Recently, my 8 year old linux server I was running mysql on died. My new computer is more than capable of running mysql in the background, but I &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/page/2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
     
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+      <h1 class="entry-title"><a href="/blog/2011/05/15/moving-mysql-data-directory-beware-of/">Moving the Mysql Data Directory? Beware of AppArmor</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
 
   
-  <entry>
-    <title type="html"><![CDATA[Grails Envers plugin update]]></title>
-    <link href="http://lucaslward.github.io/blog/2013/04/11/grails-envers-plugin-update/"/>
-    <updated>2013-04-11T16:55:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2013/04/11/grails-envers-plugin-update</id>
-    <content type="html"><![CDATA[<div class='post'>
-Quite awhile ago I wrote a plugin for Hibernate Envers. You can find the original blog post here:&nbsp;<a href="http://www.lucasward.net/2011/04/grails-envers-plugin.html">http://www.lucasward.net/2011/04/grails-envers-plugin.html</a><br /><br />After that I got insanely busy with my startup. The Grails releases started to pile up and you can see the comments of the original blog post asking about when new releases of Grails would be supported. The great thing about open source (and especially github) is that others could take what I did and build on it easily. After my startup sold a few months back, I peeked my head back up to see what had happened with the plugin. Tomasz Kalkosinski summarized what had happened with forks by lots of people:&nbsp;<a href="http://refaktor.blogspot.com/2012/08/hibernate-envers-with-grails-210.html">http://refaktor.blogspot.com/2012/08/hibernate-envers-with-grails-210.html</a><br /><br />From following the chain it looks like the following group all provided individual contribution to the plugin:<br /><br /><ul><li>Jay Hogan</li><li>Tomasz Kalkosiński</li><li>Damir Murat</li><li>Matija Folnovic</li><li>Alexander Abdugafarov</li></ul><div>If I have missed anyone, I sincerely apologize. That&#8217;s at least who I could find in various commit logs.</div><div><br /></div><div>I took the various commits from everyone and turned it into three versions of the plugin that you can find in the Grails central plugin repository:</div><div><ul><li>1.0.0</li><li>2.0.0</li><li>2.1.0</li></ul><div><br />- 1.0.0 -&gt; This is my original version of the plugin that works for 1.3.6. I made a separate release because I know others that are still suck on an older version of grails. So, having a version they can download without having to pull down the old zip is helpful.</div></div><div>- 2.0.0 -&gt; This is the version mostly with work from Jay Hogan. It provides support for Grails 2.0.x and cleans up a few things.</div><div>-2.1.0 -&gt; The latest release I could find. It appears to support Grails 2.1.x, although I had no issues with it working on 2.2.1. It may be what was pushed to the grails repo as 0.4.4.</div><div><br /></div><div>You can see all the versions in the Grails maven repo:&nbsp;<a href="http://repo.grails.org/grails/plugins/org/grails/plugins/envers/">http://repo.grails.org/grails/plugins/org/grails/plugins/envers/</a></div><div><br /></div><div>&nbsp;Please feel free to submit any pull requests to:&nbsp;<a href="https://github.com/lucaslward/grails-envers-plugin">https://github.com/lucaslward/grails-envers-plugin</a></div></div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fundspire has been Acquired]]></title>
-    <link href="http://lucaslward.github.io/blog/2013/01/25/fundspire-has-been-acquired/"/>
-    <updated>2013-01-25T12:46:00-06:00</updated>
-    <id>http://lucaslward.github.io/blog/2013/01/25/fundspire-has-been-acquired</id>
-    <content type="html"><![CDATA[<div class='post'>
-This is definitely a bit belated, however, I wanted to announce on my blog that my startup, Fundspire, was acquired by Evestment last <a href="http://finance.yahoo.com/news/evestment-acquires-pertrac-fundspire-140000958.html" target="_blank">November</a>. Nothing much changes for me day to day, and I&#8217;m hopeful that it will allow more time to blog and work on my open source projects. I still very much need to get the grails envers plugin in the official repo and upgraded to support the latest versions of grails.</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How to figure out what the Grails meta-methods do]]></title>
-    <link href="http://lucaslward.github.io/blog/2012/10/12/how-to-figure-out-what-grails-meta/"/>
-    <updated>2012-10-12T11:29:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2012/10/12/how-to-figure-out-what-grails-meta</id>
-    <content type="html"><![CDATA[<div class='post'>
-Since I code in Grails everyday, I periodically have friends and&nbsp;acquaintances that are learning the framework asking me questions. By far the most common one is something like: &#8220;where are all of these magic methods coming from!?!?!?!&#8221;<br /><br /><a href="http://4.bp.blogspot.com/-GGm0H6ccXYI/UHg4RrrewfI/AAAAAAAAACc/8sIiO1IBoiM/s1600/Screen+Shot+2012-10-12+at+10.31.16+AM.png" imageanchor="1" style="clear: right; float: right; margin-bottom: 1em; margin-left: 1em;"><img border="0" height="400" src="http://4.bp.blogspot.com/-GGm0H6ccXYI/UHg4RrrewfI/AAAAAAAAACc/8sIiO1IBoiM/s400/Screen+Shot+2012-10-12+at+10.31.16+AM.png" width="146" /></a>Grails heavily uses <a href="http://groovy.codehaus.org/Dynamic+Groovy" target="_blank">Groovy meta programming</a>&nbsp;across every tier, but especially in controllers and domain objects. One example would be domainObject.save(), another would be the render method on controllers. You can see a list of all these dynamic methods in the grails documentation:&nbsp;<a href="http://grails.org/doc/latest/" target="_blank">http://grails.org/doc/latest/</a>&nbsp;I can&#8217;t find a good way to link to just the dynamic methods, but on the right side of the documentation there is a quick reference section that contains a listing of all the available methods and brief descriptions if you click through.<br /><br />While it&#8217;s definitely the best way to figure out what meta-methods are available to you, it doesn&#8217;t help you figure out exactly what those methods are doing. Furthermore, the documentation is generally pretty brief around how to use them. In my experience the best way to see all the configuration options and understand what&#8217;s happening is to look at the actual methods that are added to your controllers and domain objects. However, because they&#8217;re added to the &#8216;metaClass&#8217; of these classes when Grails bootstraps it can be difficult to figure out where and how they&#8217;re added.<br /><br />Fortunately, it&#8217;s not as bad as you think. Grails follows it&#8217;s own recommendations well and as a result all of these methods are added in the exact same fashion as they would be in a normal plugin. So, what you need to look for are the plugins that add them. I&#8217;ll start first with the Domain classes because they&#8217;re the most complicated and also the ones you will most likely need to understand. (More information on Grails plugins can be found <a href="http://grails.org/doc/latest/guide/plugins.html" target="_blank">here</a>)<br /><h3><b><br /></b></h3><h3><b>GORM Dynamic methods</b></h3>The first thing to note when examining the GORM Methods is that it was designed to be plug and play from the get go. By default GORM is a hibernate implementation connecting to a standard RDBMS. However, that can be changed to use something like <a href="http://blog.mongodb.org/post/18510469058/grails-in-the-land-of-mongodb" target="_blank">Mongo</a>. To keep things simple I&#8217;ll assume the default.<br /><table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center;"><tbody><tr><td style="text-align: center;"><a href="http://1.bp.blogspot.com/-i-adGG_Rgm4/UHg7xejuXCI/AAAAAAAAACs/WiODQqELVxI/s1600/Screen+Shot+2012-10-12+at+10.46.35+AM.png" imageanchor="1" style="margin-left: auto; margin-right: auto;"><img alt="" border="0" height="200" src="http://1.bp.blogspot.com/-i-adGG_Rgm4/UHg7xejuXCI/AAAAAAAAACs/WiODQqELVxI/s640/Screen+Shot+2012-10-12+at+10.46.35+AM.png" title="HibernateGrailsPlugin" width="640" /></a></td></tr><tr><td class="tr-caption" style="text-align: center;">In IntelliJ the hibernate plugin is included with all other project plugins</td></tr></tbody></table>As you can see, just like any other plugin, the hibernate plugin adds the dynamic methods in doWithDynamicMethods. In this case it&#8217;s delegating to another class, likely to allow for easier testing. I&#8217;m not going to go through the entire class, but it&#8217;s fairly straightforward from here, as most of the dynamic methods are added directly by HibernatePluginSupport.<h3><br /></h3><h3>Controller Dynamic Methods</h3><div>The controller methods are a little bit harder to find. Like the Hibernate plugin above, they are added via a plugin. However, you won&#8217;t find it with the normal plugin list, as it&#8217;s &#8216;core&#8217;. (Unless something massive has changed in 2.0)&nbsp;</div><div><br /></div><div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-JP202gjFz1I/UHg9okZhkiI/AAAAAAAAAC0/6z1K_uirKBI/s1600/Screen+Shot+2012-10-12+at+10.54.45+AM.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="168" src="http://2.bp.blogspot.com/-JP202gjFz1I/UHg9okZhkiI/AAAAAAAAAC0/6z1K_uirKBI/s640/Screen+Shot+2012-10-12+at+10.54.45+AM.png" width="640" /></a></div><div><br /></div><div>You&#8217;ll find when you look in this class that there&#8217;s a pretty natural separation of concerns, there&#8217;s a class for adding just the render methods, etc. In general, you can find most dynamic methods by searching for *GrailsPlugin.groovy.</div><div><br /></div><div>Hopefully this helps you understand better how the Grails &#8216;magic&#8217; works. Anyone with experience in Spring MVC or Hibernate will recognize most of what these methods are doing, but if not I suggest you do a quick look through those products to help you understand what&#8217;s happening.</div><div><br /></div></div>
-<h2>Comments</h2>
-<div class='comments'>
-<div class='comment'>
-<div class='author'>Burt</div>
-<div class='content'>
-This is true before 2.0, but in 2.0+ most of the domain class methods and controller methods are added directly to the bytecode via ASTs rather than dynamic metaprogramming. Real dynamic methods like dynamic finders (e.g. findByFooAndBar) have to be added at runtime, but methods with fixed signatures like save() are added by the compiler.<br /><br />Also one small correction - GORM was not originally designed to be pluggable, it was retrofitted in 2.0 to be so; before that it was tightly coupled to Hibernate.</div>
-</div>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Using Spring Security Concurrent Session controls with Grails]]></title>
-    <link href="http://lucaslward.github.io/blog/2012/08/08/using-spring-security-concurrent/"/>
-    <updated>2012-08-08T12:15:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2012/08/08/using-spring-security-concurrent</id>
-    <content type="html"><![CDATA[<div class='post'>
-While it isn&#8217;t a problem for most website, many have a requirement to control how many users can be connected concurrently. This is usually related to sites that sell &#8216;per user&#8217; licenses, such as my current company. Unfortunately, this isn&#8217;t very straightforward in Grails.<br /><br />First thing to note: Grails Spring Security plugin doesn&#8217;t support concurrent session. Spring security does have the feature, and the plugin doesn&#8217;t prevent it from being used, but it doesn&#8217;t help either. And it&#8217;s a bit harder because you don&#8217;t have the advantage of the spring security namespace to help with some of this. Most of the information I found on how to set this up came from this blog post: <a href="http://blog.block-consult.com/2012/01/restricting-concurrent-user-sessions-in-grails-2-using-spring-security-core-plugin/">http://blog.block-consult.com/2012/01/restricting-concurrent-user-sessions-in-grails-2-using-spring-security-core-plugin/</a>. Using that as a guide, There are three things that have to be added to resources.groovy:<br /><blockquote class="tr_bq">sessionRegistry(SessionRegistryImpl)<br /><br />concurrencyFilter(ConcurrentSessionFilter) {<br />&nbsp; &nbsp; sessionRegistry = sessionRegistry<br />&nbsp; &nbsp; logoutHandlers = [ref(&#8220;rememberMeServices&#8221;), ref(&#8220;securityContextLogoutHandler&#8221;)]<br />&nbsp; &nbsp; expiredUrl=&#8217;/login/invalidated&#8217;<br />}<br /><br /><br />concurrentSessionControlStrategy(ConcurrentSessionControlStrategy, sessionRegistry) {<br />&nbsp; &nbsp; alwaysCreateSession = true<br />&nbsp; &nbsp; exceptionIfMaximumExceeded = true<br />&nbsp; &nbsp; maximumSessions = 1<br />}</blockquote>The SessionRegistry is just a mechanism with a thread-safe map to register new sessions. It&#8217;s stores them both by session id and by principal. It uses a class called SessionInformation. This object contains some information, such as the last time anything happened on this session, and if it&#8217;s expired. In general, sessions are only registered by the ConcurrentSessionControlStrategy. This strategy actually extends the Spring SessionFixationStragey, which is a whole other ball of wax I won&#8217;t go into. Either way, this strategy is generally used by the UsernamePasswordAuthenticationFilter. Normally I imagine this is setup using the spring namespace. However, in grails you have to deal with it manually. The way I found for it to work is an entry in boostrap.groovy: <br /><blockquote class="tr_bq">authenticationProcessingFilter.sessionAuthenticationStrategy = concurrentSessionControlStrategy</blockquote>What this strategy does is enforce *at authentication time* various rules about concurrent sessions. In our case, we set the Maximum sessions to 1. I also set it to throw an exception if it&#8217;s exceeded. It basically stops the authentication. I do this because I would prefer to tell the user what will happen if they log in: the other session will be expired. This is done by the strategy by looping through the SessionInformation objects tied to the given principal and calling expireNow() on the least recently used one.<br /><br />Which brings me to the filter.<br /><br />The filter shown above is inserted into the standard spring security authentication filter chain. From the blog post above, it can be added to the filter chain using the following code in bootstrap.groovy:<br /><blockquote class="tr_bq">SpringSecurityUtils.clientRegisterFilter(&#8216;concurrencyFilter&#8217;, SecurityFilterPosition.CONCURRENT_SESSION_FILTER)</blockquote>Basically, what the filter does is call the SessionRegistry for the given session id. If there is a session information and it is marked as expired, it forces a redirect to the provided &#8216;expiredUrl&#8217;. <br /><br />Once this is done, it generally works as you expect. If you prevent a user from logging in, it&#8217;s fairly simple to mark other session information as &#8216;expired&#8217; and the filter will then redirect them to the &#8216;expiredURL&#8217;. <br /><br />Unless you&#8217;re using Remember me, in which case everything is screwed. <br /><br />If you notice in the config of the filter, there&#8217;s a couple of log out handlers, and one of them is the remember me service. Which removes the remember me token when the filter &#8216;expires&#8217; the session. But there&#8217;s still a gigantic problem: RememberMe tokens are processed by a completely different filter that is oblivious to the concurrent session control. This is the RememberMeAuthenticationFilter. Keep in mind that the username and password filter is only called for a specific url and is usually posted to by some login page. So, it only touches a request if the url of the request matches the one it&#8217;s looking for.  <br /><br />So, here&#8217;s the scenario: User A logs in with a remember me token. The normal UsernamePasswordAuthenticationFilter is called. Because there&#8217;s the remember me option enabled. (easily setup by the grails plugin) It tells the RememberMeServices to add the cookie to the response. Everything is fine after that. So, let&#8217;s say that user sits idle for a bit and their session expires. The SessionRegistryImpl is also setup to receive HttpSession change events. This is setup by turning on the session event publisher via an option in config.groovy. Something like: grails.plugins.springsecurity.useHttpSessionEventPublisher = true. Which, is also necessary for concurrent session handling to work. <br /><br />The container expiring the session causes the registry to remove the SessionInformation for this session from the registry. Now, let&#8217;s say another user logs in with the same credentials (the same principal in Spring Security terms) That user is logged in and now has a session tied to that principal in the registry. Now, let&#8217;s say that the first user with the remember me cookie starts using the application again. This creates a request that doesn&#8217;t have a security context, which would normally punt you back to login. However, the RememberMeAuthenticationFilter sees the cookie and authenticates the user. In this case, it&#8217;s actually a slightly different Authentication object, but the user is still authenticated. The RememberMe filter never looks at the registry or strategy, so as far as the SessionRegistry is concerned, there is still only one user for this principal. Thus the user with the token can use it all day long without running afoul of the concurrent session limits. What this basically means is that anyone using Spring Security with remember me can bypass concurrent session limits by using a remember me token and letting their session expire.<br /><br />My first assumption was that there was something that needs to be setup that wasn&#8217;t being done. Maybe something the namespace was doing. But I can&#8217;t find any hook in either the remember me filter of the service for anything that would handle this. Even looking at newer versions of spring security, the only changes I see are for the registry to use java.util.concurrent, which was probably done after 3.1 when they could assume Java 5.<br /><br />There are some pretty reasonable extension points to the filter though. I extended it and overrode the method onSuccessfulAuthentication, thinking I could do some of the same things the strategy does. I could register a new information and mark others as expired. But it gets a bit complicated. In this case, I think the users with the token coming back from idle should be the one bounced. Which isn&#8217;t super hard, as long as the remember me filter is before the ConcurrentSessionFilter. However, there&#8217;s all kinds of potential threading issues. Especially if an application uses ajax. It&#8217;s really non-deterministic. I honestly think that the registry would need to be upgraded to understand the RememberMe cookie. <br /><br />Usually, when working with an established open source project, I assume that I&#8217;m doing something wrong. However, when looking through the code, I can&#8217;t find anything to handle this properly.<br /><br />So, my current bottom line is this: Concurrent Session can be used with the Grails plugin, however, not if you allow your users to use a &#8216;remember me&#8217; token.<br /><br /><b><span style="font-size: large;">Update</span></b><br /><br />I had passed on this issue to some friends at Vmware, and it looks like I was correct: Concurrent Session doesn&#8217;t work with RememberMe. Here&#8217;s the ticket that was created:&nbsp;<a href="https://jira.springsource.org/browse/SEC-2028">https://jira.springsource.org/browse/SEC-2028</a></div>
-<h2>Comments</h2>
-<div class='comments'>
-<div class='comment'>
-<div class='author'>BadBob</div>
-<div class='content'>
-Great and very detailed article. It helps me so much. Thanks a lot.<br />Your issue was closed as duplicate. Actual issue is: https://jira.springsource.org/browse/SEC-2028<br />Everyone, who read this article, please vote for that issue. </div>
-</div>
-<div class='comment'>
-<div class='author'>BadBob</div>
-<div class='content'>
-This comment has been removed by the author.</div>
-</div>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[On Git Command Line Usability]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/12/15/on-git-command-line-usability/"/>
-    <updated>2011-12-15T00:29:00-06:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/12/15/on-git-command-line-usability</id>
-    <content type="html"><![CDATA[<div class='post'>
-Today I was reading about a new tool to use Git on a Mac called <a href="http://itunes.apple.com/us/app/gitbox/id403388357">GitBox</a>. I generally prefer the command-line, but as it was on sale and mentioned as one of the best clients for Mac, I figured I would at least take a look. When looking through the comments though, one part of a particular review stuck out to me:<br /><blockquote class="tr_bq">This app generally is a relieve compared to the terribly complicated git command line</blockquote>It&#8217;s a common refrain from even a seasoned developer that has been using other tools for awhile, even those familiar with subversion on the command-line. To simplify the discussion, let&#8217;s take one part of the obvious usability issues out of the general discussion of git usability: <a href="http://www.lucasward.net/2010/02/maturity-model-for-source-control-scmm.html">DVCS</a> in general. If using something like Hg or Git after using a more centralized VCS, it&#8217;s going to be more complicated by nature. With DVCS you&#8217;re effectively managing your own repo and merging with another common repo shared with the rest of your team. With a more centralized system like SVN you&#8217;re really just pushing change lists to a repo managed by someone else. I&#8217;m sure there&#8217;s some power users at every company, but I&#8217;m betting a lot of SVN users aren&#8217;t doing a lot of branch merging. Even looking at GitBox, which does look like a more simplified view of Git, the overall actions you&#8217;re performing are more complicated than say, something like tortoiseSVN.<br /><br />DVCS has it&#8217;s <a href="http://www.lucasward.net/2010/02/maturity-model-for-source-control-scmm.html">advantages and disadvantages</a>, but given that the overall model is more complex in nature for individual developers committing code, let&#8217;s shelve that and focus solely on the question of whether the git command line itself is overly complicated. (as the review described)<br /><br />My gut response to this question is &#8216;it depends&#8217;. Perhaps I was a consultant for too long. Git to me seems Unixy. That&#8217;s not really a word and doesn&#8217;t mean much though. I suppose another way of saying it is: if you&#8217;re used to working in unix like environments, it feels comfortable and familiar to you, and if you&#8217;re not, it&#8217;s never going to feel like anything other than overly complicated. If you&#8217;ve written a lot of bash scripts, or regularly tweaked your command line (i.e. bash settings), git feels natural. If you&#8217;re not that kind of command-line user, git seems complex.<br /><br />I would like to strenuously point out that <b>I am in no way trying to offend users who don&#8217;t like unix (or unix like operating system) or using the command-line in general</b>. I have some strong personal feelings about it, but at the end of the day, it&#8217;s personal preference. If you don&#8217;t like using the command-line, then you don&#8217;t like it. As an example, when talking through how to us a rest API with someone a month or so ago, I mentioned that they could just toss the URL into <a href="http://curl.haxx.se/">curl</a>. I&#8217;m so used to reaching for the command-line as my first instinct, that I didn&#8217;t even think that for someone not used to the command-line, it might seem complex. It&#8217;s just curl -XGET http://someurl afterall.<br /><br />But it&#8217;s never that simple is it? The next question is, ok, how do I post data?<br /><br />Hmm&#8230;..well, something like this:<br /><blockquote class="tr_bq">curl -XPOST http://someurl -d &#8220;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8221;</blockquote>Except, that won&#8217;t work. You can&#8217;t use double quotes like that. It has to be:<br /><blockquote class="tr_bq">curl -XPOST http://someurl -d &#8216;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8217;</blockquote>That will work. Well, maybe. You might need to set a json content header. If you&#8217;re used to using a unix command, you just type man curl, look up the option and do:<br /><br />curl -XPOST http://someurl -H &#8220;ContentType:application/json&#8221; -d &#8216;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8217;<br /><br />But reading man pages can sometimes be an acquired skill. For those of us that are used to it, we might quickly notice the quote issue, or quickly find the option we&#8217;re looking for with a quick man page search. However, if you just wanted to get something done quickly and you&#8217;re not used to these types of tools, it makes a simple test of a rest API turn into an epic undertaking leaving you doing a google search for rest thick clients.<br /><br />As another example, I recently wiped my mac machine. I hadn&#8217;t used it in awhile, as I normally code on an Ubuntu machine. However, the stock git that came with the fresh install of OS X Lion was jarring. There was no colors set, and I didn&#8217;t have my customery indicator in bash telling me what branch I was on. I needed to copy some of my bash config over from my other machine.<br /><br />It&#8217;s worth repeating, to effectively use git on the command line, I needed to modify my bash profile. (or bashrc, whatever you want to call it, depending on how you have things setup and distro, etc etc) For a regular command line user, it&#8217;s not a problem. But I remember when I first was learning to use linux, and failing miserably to even add things to my PATH the first few times.<br /><br />So I guess that&#8217;s my main point. Git to me fits in well with all my other gnu/unix style command line tools. It feels familiar and as it follows these conventions, I can work with it. But as I have introduced it and other command line tools to fellow programmers, it becomes obvious to me: If you&#8217;re not familiar with these conventions and with how to work with this type of command line, it&#8217;s going to seem extremely complex.</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Why developers sometimes do things 'the hard way']]></title>
-    <link href="http://lucaslward.github.io/blog/2011/06/27/why-developers-sometimes-do-things-hard/"/>
-    <updated>2011-06-27T13:08:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/06/27/why-developers-sometimes-do-things-hard</id>
-    <content type="html"><![CDATA[<div class='post'>
-I don&#8217;t like using the <a href="http://en.wikipedia.org/wiki/Agile_software_development">a word</a>. I never want to catch myself saying anything that could be construed as: &#8216;methodology X says we should do it this way&#8217;. Especially when it comes to engineering practices. These kinds of things should stand on their own really. In fact, I&#8217;m going to try and steer clear of any specifics in this post and speak to a larger trend.<br /><br />When working through an issue or a new feature, regardless of what environment you&#8217;re coding in or what language you&#8217;re using, there is probably a &#8216;hard way&#8217; to work through the issue/feature. I don&#8217;t mean this in terms of level of effort. I mean it takes longer for whatever reason. It may even be an uglier solution. I&#8217;ll give an example. Let&#8217;s say you&#8217;re adding a new feature to a web application. It&#8217;s not a big feature, maybe just adding the ability to search off of a new set of values. The easier way is to find some kind of quick feedback. A way to implement the new search and find out quickly if there&#8217;s an issue. I&#8217;ll stop short of saying &#8216;write a test&#8217; for the reasons mentioned above. However, instead you make the change and fire up the application server. You try the simple feature and it doesn&#8217;t work. You forgot something simple. You fix it, bounce the server, and try it again. Still doesn&#8217;t work. Rinse and repeat ad infinitum.<br /><br />To the outside observer, this certainly is &#8216;the hard way&#8217; to do it. Because of the amount of time it takes to restart the web server and click through to test the feature. It takes more effort than some other means with a shorter feedback cycle. But to the person using this approach is it really &#8216;the hard way&#8217;? The way they are doing it requires less thinking, and while they&#8217;re waiting on the server to bounce back up they can check reddit, failblog, or have an impromptu <a href="http://xkcd.com/303/">sword fight</a>. To put it another way, it takes longer but requires less effort.<br /><br />Of course, at this point someone could start throwing out the word &#8216;lazy&#8217;. But let&#8217;s take a more sympathetic approach. Why are they doing it this way? Why do they want to think less? Maybe they&#8217;re burnt out? Maybe they feel the project is out of their control and there is no reason to put in a lot of effort. That its better to save their brain power for the new programming language or framework they&#8217;re learning in their spare time. Maybe they aren&#8217;t getting enough sleep. They probably know deep down that its not really the most efficient way to do it, but they&#8217;re tired. Emotionally, physically, or even subconsciously. I&#8217;ve certainly felt that way before.<br /><br />Maybe the approach isn&#8217;t convincing your developers to do things the more efficient way. Maybe its better to be more sympathetic and find out why they&#8217;re doing it the easy way.</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Open Symphony, RIP (2000 - 2011)]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/06/18/open-symphony-rip-2000-2011/"/>
-    <updated>2011-06-18T14:17:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/06/18/open-symphony-rip-2000-2011</id>
-    <content type="html"><![CDATA[<div class='post'>
-It looks like the folks over at open symphony have declared the project <a href="http://www.opensymphony.com/">dead</a>. The main projects that originated there and are still in use have their own separate sites now, but the rest hadn&#8217;t been updated in awhile. I remember using OSCache awhile ago, but it seemed to have been completely replaced by EHCache.<br /><br />The question in my mind is, do organization like OpenSymphony need to exist anymore? (perhaps the same could be said for something like CodeHaus as well) Given sites like github and bitbucket, and the ease of getting a project website up and running via various mechanisms, perhaps they aren&#8217;t needed anymore? The one exception to that of course is community built around a particular project. Like plugins for Grails, or some of the Spring sub projects. They&#8217;re tied to a particular solution and can benefit from some of the success of the solution as well. Although, in the case of Grails plugins, they&#8217;re all hosted on GitHub, as is the code for grails itself.</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Grails testing improvements]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/06/08/grails-testing-improvements/"/>
-    <updated>2011-06-08T10:08:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/06/08/grails-testing-improvements</id>
-    <content type="html"><![CDATA[<div class='post'>
-Peter Ledbrook put up a new blog post detailing some of the improvements to come 1.4 for unit testing grails: <a href="http://blog.springsource.com/2011/06/07/countdown-to-grails-1-4-unit-testing/">http://blog.springsource.com/2011/06/07/countdown-to-grails-1-4-unit-testing/</a><br /><br />There&#8217;s some awesome stuff in there. I had read a bit about the new features in milestone 1. But it didn&#8217;t show the kind of details that Peter has. I&#8217;m especially excited about these two features:<br /><ol><li>Full Gorm testing. It looks like they&#8217;re using some kind of noSQL database in-memory. I&#8217;m interested to see if it will slow down the unit test at all, but the method of testing is much more intuitive. The whole mockDomain(Class,listOfInstances) felt a bit dirty, and it was kind of brittle if you used any kind of inheritance at all.</li><li>Improved JSON response testing. Grails now does the work in the mock response of converting the JSON response to a proper object hierarchy. In my own testing, I could get halfway there by converting the responseText to JSONObjects, but they were a bit painful to work with at times. (especially arrays)<br /></li></ol>Those two fixes represent for me the only real issues I have with grails unit testing. The annotations are nice, but I had given up on the test hierarchy long ago. You can use MockUtils easily in the same way that GrailsUnitTest does.<br /><br />That leaves only one major complaint for me regarding testing and Grails: Integration testing. Its nice that they found ways to allow for using unit testing more often, but it doesn&#8217;t solve the fundamental problem. Integration testing takes too long because you have to start the world. Lately I&#8217;ve been working a lot with ElasticSearch, and I refused to put it in the Integration test folder and rely on the bootstrap. In the test setup I brought up an in-memory ElasticSearch instance and test against it. Its definitely an integration test, but I can run it in about 6 seconds. It takes longer than that for Grails to resolve dependencies. (Which is something I hear they&#8217;re addressing in 1.4) Its all perfectly fine for CI, but you can&#8217;t use it to test on the fly. Its far too tempting to do a run-war and fiddle with it that way. It seems like it wouldn&#8217;t be too difficult to bring up a persistent integration testing environment. In truth, it would probably still be some kind of headless container that you could keep running integration tests in without having to restart the container. I&#8217;ve seen a few other Grails bloggers mention it though, so perhaps its on the roadmap somewhere? Maybe post 1.4?</div>
-<h2>Comments</h2>
-<div class='comments'>
-<div class='comment'>
-<div class='author'>Lucas Ward</div>
-<div class='content'>
-Graeme,<br /><br />I&#39;ve tried that once or twice before and its still was too slow to run it reliably. I know one issue you&#39;re addressing is dependency resolution, but what are the other issues to speed it up in interactive mode in 1.4?<br /><br />I still kind of wish I could start an integration environment in something like Jetty with an overlay, and just runs tets, which perhaps under the covers are either JMX or &#39;web service&#39; calls to run tests in the container and report back results.</div>
-</div>
-<div class='comment'>
-<div class='author'>Graeme Rocher</div>
-<div class='content'>
-For speeding up integration testing we recommend using interactive mode which is greatly improved in 1.4. In 1.3.x you can do:<br /><br />{code}<br />grails interactive<br />{code}<br /><br />Then type test-app, but it has a few issues which we&#39;re addressing in 1.4</div>
-</div>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[I'm speaking at Chicago Groovy User Group on June 14th]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/06/06/im-speaking-at-chicago-groovy-user/"/>
-    <updated>2011-06-06T15:59:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/06/06/im-speaking-at-chicago-groovy-user</id>
-    <content type="html"><![CDATA[<div class='post'>
-Details can be found here: <a href="http://cgug.org/">http://cgug.org/</a><br /><br />And you can sign up here: <a href="http://cgug.eventbrite.com/?ref=enivtefor?amp;utm_source=eb_email&utm_media=email&utm_compaign=invitefor&utm_term=readmore">http://cgug.eventbrite.com/?ref=enivtefor?amp;utm_source=eb_email&utm_media=email&utm_compaign=invitefor&utm_term=readmore</a></div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fundspire is hiring]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/05/24/fundspire-is-hiring/"/>
-    <updated>2011-05-24T20:01:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/05/24/fundspire-is-hiring</id>
-    <content type="html"><![CDATA[<div class='post'>
-The title says it all.  Things are going very well here at Fundspire, and we&#8217;re looking to expand.  You can find more information here: <a href="http://www.fundspire.com/careers/">http://www.fundspire.com/careers/</a><br /><br />Just because I can be a bit more narrative here.  We&#8217;re using the following technologies: Grails, Ext Js, Spring Batch running on Amazon EC2.  Of course, it would be great to find someone with experience in all of those technologies, but it never works out that way.  A solid Java developer experienced with Spring and Hibernate would also be great.  And of course the most important skill of all, a developer that tests the code they write, not with a debugger, but by writing tests.<br /><br />If you think you might be interested (or know someone who might be) please apply via the link above, or send your resume to jobs@fundspire.com</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Moving the Mysql  Data Directory?  Beware of AppArmor]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/05/15/moving-mysql-data-directory-beware-of/"/>
-    <updated>2011-05-15T18:54:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/05/15/moving-mysql-data-directory-beware-of</id>
-    <content type="html"><![CDATA[<div class='post'>
+
+
+<time datetime="2011-05-15T18:54:00-05:00" pubdate data-updated="true">May 15<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 Recently, my 8 year old linux server I was running mysql on died.  My new computer is more than capable of running mysql in the background, but I didn&#8217;t want to mess with moving everything over.  Now I&#8217;m forced to.  It&#8217;s extremely easy on Ubuntu to install mysql.  However, I run my operating system and all development related applications off of a 64GB SSD.  There isn&#8217;t room, or a need to run it on the SSD.  I have a second platter based hard drive as well.  It should be fairly straightforward to store MySql data there.  Most instructions for doing so will tell you to do the following:<br /><ol><li>Copy the current data directory to your new partition.  (Current directory is usually /var/lib/mysql on Ubuntu)</li><li>Make sure it is still owned by the mysql user. &#8216;chown -R mysql:mysql newdatadir&#8217;</li><li>Change the mysql configuration to point to the new directory.  Inside of my.cnf is a value datadir, which is what needs to be changed to the new directory.</li></ol>Sounds easy, right?  It is, for the most part.  If you try these steps on ubuntu, it won&#8217;t work.  MySql won&#8217;t start up.  If you&#8217;re like me, the first thing you&#8217;ll look is syslog, where you&#8217;ll find something like:<br /><br /><pre>[1064644.473299] type=1400 audit(1305502269.192:364):<br />apparmor="DENIED" operation="open" parent=1 profile="/usr/sbin/mysqld" <br />name="/media/data1/mysql-data/" pid=24578 comm="mysqld" requested_mask="r" <br />denied_mask="r"fsuid=1001 ouid=1001</pre>Your first instinct is to check the permissions, but they&#8217;re all fine.  So, what&#8217;s going on?  <a href="https://help.ubuntu.com/8.04/serverguide/C/apparmor.html">AppArmor  </a>is preventing access.  If you type &#8216;ls -la /etc/apparmor.d&#8217; you&#8217;ll see the following:<br /><pre>drwxr-xr-x   8 root root  4096 2011-05-15 19:18 ./<br />drwxr-xr-x 141 root root 12288 2011-05-15 18:20 ../<br />drwxr-xr-x   3 root root  4096 2011-04-11 18:38 abstractions/<br />drwxr-xr-x   2 root root  4096 2011-05-15 17:38 cache/<br />drwxr-xr-x   2 root root  4096 2010-10-07 11:06 disable/<br />drwxr-xr-x   2 root root  4096 2010-08-06 23:19 force-complain/<br />-rw-r--r--   1 root root   986 2010-09-13 03:07 gdm-guest-session<br />drwxr-xr-x   2 root root  4096 2011-05-15 17:38 local/<br />-rw-r--r--   1 root root  2052 2010-08-06 23:18 sbin.dhclient3<br />drwxr-xr-x   3 root root  4096 2011-04-11 18:38 tunables/<br />-rw-r--r--   1 root root  2052 2010-09-27 17:58 usr.bin.evince<br />-rw-r--r--   1 root root  4006 2011-04-29 04:00 usr.bin.firefox<br />-rw-r--r--   1 root root  4158 2010-10-01 04:58 usr.sbin.cupsd<br />-rw-r--r--   1 root root   989 2010-11-10 00:51 usr.sbin.mysqld<br />-rw-r--r--   1 root root  1172 2010-08-06 12:45 usr.sbin.tcpdump<br /></pre>If you open up usr.sbin.mysqld, and add the new directory to the list, your problems will be solved.  Something like:<br /><br /><pre> /mysql-data/ r,<br />/mysql-data/** rwk,<br /></pre></div>
 <h2>Comments</h2>
 <div class='comments'>
@@ -182,15 +124,42 @@ Glad I could help.</div>
 Hey !<br />I was in the exact same situation than you.<br />Thank you very much for this piece of information, i&#39;m pretty unaware of apparmor and wasn&#39;t aware of this configuration (i usually put all my application datas files on a separate partition, including the mysql datas).</div>
 </div>
 </div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[Tips for connecting to Github private repositories with Hudson/Jenkins]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/05/04/tips-for-connecting-to-github-private/"/>
-    <updated>2011-05-04T21:41:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/05/04/tips-for-connecting-to-github-private</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/05/04/tips-for-connecting-to-github-private/">Tips for Connecting to Github Private Repositories With Hudson/Jenkins</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-04T21:41:00-05:00" pubdate data-updated="true">May 4<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 I recently created a private repository on GitHub, and wanted to create a build for it on my Jenkins server.  I ran into some interesting problems that I couldn&#8217;t find reasonable solutions to via google, so I thought I would write about my experience.<br /><br />The first and most important thing to keep in mind is that <span style="font-weight: bold;">there are no settings in Jenkins to control or manage SSH keys for Git</span>.  You might get confused when you see the SSH section in the general settings, thinking you can upload your git RSA key there and it will work.  It won&#8217;t.  The only thing that will work is setting it in the .ssh directory of the user that is running Jenkins.  If you&#8217;re running it standalone, it will be the Jenkins user.  In the case of a standard Ubuntu install, this was in /var/lib/jenkins/.ssh.  If you are running Jenkins inside of a tomcat container, then it will be the tomcat user. (tomcat6 generally in Linux)<br /><br />The second thing I learned is: If you&#8217;re running Jenkins on Windows, it&#8217;s going to be painful.  Mind you, I&#8217;m not running it that way, but nearly every single Google result on this issue was coming back with issues for Windows.  It&#8217;s not really even Jenkins fault either.  I&#8217;ll stop short of bashing Windows, but if you&#8217;ve ever had to deal with running any type of service on Windows, you&#8217;re already familiar with the pain anyway.<br /><br />And the final lesson I learned?  You can&#8217;t use a passphrase in your RSA key file.  I lost hours to this one.  I thought I had some other issue with the key.  Until I stumbled on <a href="http://gibbston.net/?p=10">this blog post</a>.  It makes sense when you think about it.  When you&#8217;re running git on your machine you might get prompted for access to a keychain, but after that its seamless so it can be easy to forget that its there.  If you follow the default instructions for creating the key on github, it will guide you to create the passphrase.  Ignore that and follow the advice on the previously mentioned post.  Git should work without issue after that.  I would still recommend using a passphrase for your personal account though.</div>
 <h2>Comments</h2>
 <div class='comments'>
@@ -200,15 +169,42 @@ I recently created a private repository on GitHub, and wanted to create a build 
 For Windows, this blog helped me: http://element34.ca/blog/jenkins-remote-windows-nodes-and-private-github-repos</div>
 </div>
 </div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[Grails Envers Plugin]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/04/22/grails-envers-plugin/"/>
-    <updated>2011-04-22T12:55:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/04/22/grails-envers-plugin</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/04/22/grails-envers-plugin/">Grails Envers Plugin</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-22T12:55:00-05:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 <h3><b>***Update -&nbsp;4/11/2013***</b></h3><h4>I finally got around to updating and publishing this plugin:&nbsp;<a href="http://www.lucasward.net/2013/04/grails-envers-plugin-update.html">http://www.lucasward.net/2013/04/grails-envers-plugin-update.html</a></h4><br /><br />I recently needed to add auditing to my grails application and decided to use envers, mostly for its ability to keep updates to multiple hibernate objects tied together in a way that is query-able afterwards.  Unfortunately, because Grails exerts somewhat tight control of Hibernate, and because of how Envers was implemented, getting it to work with grails can be a bit tricky.  I did a cursory glance around and couldn&#8217;t find anyone that had created a plugin to help with Envers and Grails.  So while implementing it in my application, I wrote the envers specific code as a plugin, which I have published on github:<br /><br /><a href="https://github.com/lucaslward/grails-envers-plugin">https://github.com/lucaslward/grails-envers-plugin</a><br /><br />Eventually, I need to write actual documentation for it, and try and get it in the official grails plugin repository.  However, for now, I&#8217;ll write up how to use it based on the integration tests.<br /><br />If you&#8217;re pulling it down from the git repo above, you need only do a simple &#8216;grails package-plugin&#8217;, which will create a zip file, which can be then be installed into your grails application via: &#8216;grails install-plugin /path/to/zip/grails-envers-plugin-0.1.x.zip&#8217;.  The plugin sets up envers via Hibernate event listeners, and provides gorm style dynamic methods that can be used to query for revisions.<br /><br />In order to configure your domain objects to use Envers, you need to annotate them with @Audited.  (I haven&#8217;t written any code to try and make that work with static members a la gorm)  I&#8217;ll use the sample domain from the plugin:<br /><pre class="prettyprint">@Audited<br />class Customer {<br /><br />  String email<br />  String name<br />  Address address<br />  SortedSet<orderentry> orders = new TreeSet<orderentry>()<br /><br />  static constraints = {<br />    address (blank: true, nullable: true)<br />    address component: true<br />  }<br /><br />  static mapping = {<br />    orders cascade: "all,delete-orphan"<br />  }<br />}<br /><br />@Audited<br />class Address {<br />  String city<br />  String zip<br />}<br /><br />@Audited<br />class OrderEntry implements Comparable<orderentry>{<br /><br />  Date date<br />  double amount<br />  int numberOfItems<br />  Customer customer<br /><br />  static belongTo = [customer:Customer]<br /><br />  @Override<br />  int compareTo(OrderEntry o) {<br />    date.compareTo(o.date)<br />  }<br />}</orderentry></orderentry></orderentry></pre>In this example, I have three domain classes: Customer, Address, and OrderEntry.  Customer in this class is the main class, who has a one to one relation ship with an Address, and a collection of Orders.  Now, let&#8217;s assume that we create a customer with an address, then modify the customer and the address twice in separate transactions:<br /><br /><pre class="prettyprint">Customer customer<br />Customer.withTransaction {<br />  def address = new Address(city: "Chicago", zip: "60640")<br />  address.save()<br />  customer = new Customer(name: "PureGorm", email: "tester@gorm.org", address: address)<br />  customer.save(flush: true)<br />}<br /><br />Customer.withTransaction {<br />  customer = Customer.findByName("PureGorm")<br />  customer.email = "tester2@gorm.org"<br />  customer.address.city = "New York"<br />  customer.save(flush: true)<br />}<br /><br />Customer.withTransaction {<br />  customer = Customer.findByName("PureGorm")<br />  customer.email = "tester3@gorm.org"<br />  customer.address.zip = "10003"<br />  customer.save(flush: true)<br />}</pre><br /><span style="font-style: italic;">Note: If you&#8217;re trying to test envers in your application you have to turn off transactions for your test and wrap individual calls in transactions as above. (with an appropriate tear-down to clean up afterwards of course)</span><br /><br />In this scenario, we should have 3 entries in the audit tables for Customer and Address (customer_aud and address_aud respectively).  We can query for this methods with the findAllRevisions dynamic method:<br /><br /><pre class="prettyprint">def results = Customer.findAllRevisions()<br /><br />assert results.size() == 3<br />def r = results[0]<br />assert r.name == "PureGorm"<br />assert r.email == "tester@gorm.org"<br />assert r.address.city == "Chicago"<br />assert r.address.zip == "60640"<br />assert r.revisionType == RevisionType.ADD<br />r = results[1]<br />assert r.email == "tester2@gorm.org"<br />assert r.address.city == "New York"<br />assert r.revisionType == RevisionType.MOD<br />r = results[2]<br />assert r.email == "tester3@gorm.org"<br />assert r.address.zip == "10003"<br />assert r.revisionType == RevisionType.MOD</pre><br /><br />As you can see, findAllRevisions returns an array of three results. The plugin will automatically take the envers RevisionEntity and RevisionType, and set them on the returned revisions, which is how revisionType is being checked.  As you can see, all three revisions are present.  By default its sorted by the earliest revision first.  First is an add,  followed by two &#8216;mods&#8217; (update).  The revision entity is also accessible via the revisionEntity property: r.revisionEntity.getRevisionDate().  It&#8217;s also worth noting that even a custom envers RevisionEntity will be accessible this way. (See the envers documentation for more details on how to do this)<br /><br />findAllRevisions also supports sorting in the same way as gorm queries.  Assuming the same audit trail as above, you could query it this way:<br /><br /><pre class="prettyprint">def results = Customer.findAllRevisions(sort:"email",order:"asc")<br /><br />assert results.size() == 3<br />assert results[0].email == "tester2@gorm.org"<br />UserRevisionEntity entity = results[0].revisionEntity<br />assert entity.getUserId() == currentUser.id<br />assert results[0].revisionEntity.getUserId() == currentUser.id<br />assert results[1].email == "tester3@gorm.org"<br />assert results[2].email == "tester@gorm.org"</pre><br /><br />You still get back 3 results.  But this time the first result is the first update, followed by the second, following by the initial create.  This is because its being sorted by email ascending.<br /><br />As with sorting, you can also use max and offset:<br /><br /><pre class="prettyprint">    <br />def results = Customer.findAllRevisions(max:1)<br /><br />assert results.size() == 1<br />assert results[0].email == "tester@gorm.org"<br /><br />results = Customer.findAllRevisions(max:1,offset:1)<br /><br />assert results[0].email == "tester2@gorm.org"<br /><br />results = Customer.findAllRevisions(max:1,offset:2)<br /><br />assert results[0].email == "tester3@gorm.org"</pre><br /><br />Besides sorting and paginating, you can also search for revision by property name:<br /><br /><pre class="prettyprint">Customer.findAllRevisionsById(customer.id)<br /><br />Customer.findAllRevisionsByAddress(customer.address)<br /><br />Customer.findAllRevisionsByName("PureGorm",[sort:"email",order:"asc", max:2])</pre><br /><br />The first case above is searching by id, and requires a long.  The second is searching by the address, which requires an attached hibernate entity.  The final is searching by a simple property name, in this case: &#8220;PureGorm&#8221;, with some additional sorting, etc tacked on.  As with gorm, you can use any property name on the object to query by.  At this point, the plugin only supports querying by one property.  If you need to query by more, you will need to use the Envers classes directly. (i.e. AuditReader)<br /><br />The final method available statically is getCurrentRevision():<br /><br /><pre class="prettyprint">Customer.getCurrentRevision()</pre><br /><br />Which gets the current revision number.  Meaning, what is the last revision of any customer?<br /><br />There are also two methods that are applicable on domain class instances as well:<br /><br /><pre class="prettyprint">     <br />List<number> revisions = customer.getRevisions()<br />assert revisions != null<br />assert revisions.size() == 3<br /><br />Customer oldCustomer = customer.findAtRevision(revisions[1])<br />assert oldCustomer.email == "tester2@gorm.org"<br />assert oldCustomer.address.city == "New York"</number></pre><br /><br />The first method will return all revisions of a particular class.  (The same as Customer.findAllRevisionById(customer.id))  And the second will find a particular customer at a particular revision.<br /><br />There is certainly some functionality I&#8217;m missing here, as I&#8217;m using the integration tests as an example.  I will add more blog entries on the subject as I discover the corner cases I have missed.  Hopefully, I can also get time to write actual documentation, and get the plugin in the official repository as well.</div>
 <h2>Comments</h2>
 <div class='comments'>
@@ -348,25 +344,79 @@ Okay - sorted. Just need to add:<br />&quot;import org.hibernate.envers.Audited&
 G&#39;day Lucas<br />Using eclipse (STS) and running through the blog, after installing the plugin, and attempting to implement the Customer class, the @Audited annotation is marked as an error &#8230; is there some extra configuration I need to do?</div>
 </div>
 </div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[When working with Ext JS, pay attention to the cookies]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/04/08/when-working-with-ext-js-pay-attention/"/>
-    <updated>2011-04-08T14:04:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/04/08/when-working-with-ext-js-pay-attention</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/04/08/when-working-with-ext-js-pay-attention/">When Working With Ext JS, Pay Attention to the Cookies</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-08T14:04:00-05:00" pubdate data-updated="true">Apr 8<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 We use Ext Js as our main Javascript library at Fundspire.  There&#8217;s a couple of really cool features we use a lot.  One is the GridPanel.  It gives you a nice looking &#8216;table&#8217; with sorting, column resizing, etc.  There are also some interesting ways to make multiple &#8216;panes&#8217; in your application.  One example being the border layout. (The <a href="http://dev.sencha.com/deploy/dev/examples/layout-browser/layout-browser.html">layout browser</a> shows all the layouts pretty well)  A good example is the official &#8216;forum example&#8217; from Ext Js: <a href="http://dev.sencha.com/deploy/dev/examples/forum/forum.html">http://dev.sencha.com/deploy/dev/examples/forum/forum.html</a>  I&#8217;m still relatively new to the framework, but have been able to do some interesting things with it.  After a couple more months I hope to write up a more detailed review.<br /><br />I&#8217;ve been working with a lot of these components this week and was having a lot of trouble manipulating the column and border size defaults.  My changes just didn&#8217;t seem to have an impact.  We use jawr, which renames the javascript when there&#8217;s changes to force a reload, so that wasn&#8217;t the issue.  It turns out that the border and column size information is stored in a cookie on the user&#8217;s browser!  It&#8217;s something that&#8217;s easily setup via an Ext Js <a href="http://dev.sencha.com/deploy/ext-4.0-beta2/docs/api/Ext.state.CookieProvider.html">CookieProvider</a>  Once you have a cookie provider setup, your state across a lot of components is saved automatically.  Which, if you think about it is pretty slick.  If someone is using a smaller monitor they can change the sizes to be what they want and not have to worry about it again.  However, I went down a lot of rabbit holes when my changes didn&#8217;t appear to be having an affect, and I haven&#8217;t seen this behavior documented anywhere in the Api docs for the components I&#8217;m using.  I knew we were saving state in cookies, but didn&#8217;t realize that it included these components automatically.   So, if you&#8217;re using Ext Js and your layout changes don&#8217;t appear to be having an effect, make sure that it&#8217;s not storing a cookie to save that information.<br /><span style="font-weight: bold;"></span></div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[Accessing the identifier of a lazy loaded association in grails without another database call]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/04/07/accessing-identifier-of-lazy-loaded/"/>
-    <updated>2011-04-07T15:49:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/04/07/accessing-identifier-of-lazy-loaded</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/04/07/accessing-identifier-of-lazy-loaded/">Accessing the Identifier of a Lazy Loaded Association in Grails Without Another Database Call</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-07T15:49:00-05:00" pubdate data-updated="true">Apr 7<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 I ran into a bit of a weird scenario recently with grails.  I have a couple of classes similar to those below:<br /><br /><pre class="prettyprint">class Foo {<br />Bar bar<br />}<br /><br />class Bar {<br />static hasMany = [foos: Foo]<br />}<br /></pre><br /><br />Essentially, I have a many to one relationship.  Now, consider the following code:<br /><br /><pre class="prettyprint">Foo foo = Foo.get(1)<br />Bar bar = foo.bar<br /></pre><br /><br />Assuming that there is actually a bar set on this particular foo, what will you get?<br /><br />You&#8217;ll get the actual Bar, completely instantiated.  Now, imagine the exact same scenario in normal java with the exact same equivalent hibernate settings via annotations. (I&#8217;m too lazy to model what that would look like)  What would you get back for a similar call?  You would get back a proxy!  Then, if you called something on the proxy, hibernate would go and fetch the actual object for you.<br /><br /><span style="font-weight: bold;">Gorm unwraps the proxy when the object itself is called via a property.</span><br /><br />If you take a look at the HibernatePluginSupport class, which configures all of the dynamic Gorm methods (and the first place I go when I want to see how a particular method is actually working) you will see this in action:<br /><br /><pre class="prettyprint">static final LAZY_PROPERTY_HANDLER = { String propertyName -&gt;<br />  def propertyValue = PropertyUtils.getProperty(delegate, propertyName)<br />  if (propertyValue instanceof HibernateProxy) {<br />      return GrailsHibernateUtil.unwrapProxy(propertyValue)<br />  }<br />  return propertyValue<br />}<br /><br />/**<br /> * This method overrides a getter on a property that is a Hibernate proxy <br /> * in order to make sure the initialized object is returned hence avoiding <br /> * Hibernate proxy hell<br /> */<br />static void handleLazyProxy(GrailsDomainClass domainClass, <br />                            GrailsDomainClassProperty property) {<br />    String propertyName = property.name<br />    def getterName = GrailsClassUtils.getGetterName(propertyName)<br />    def setterName = GrailsClassUtils.getSetterName(propertyName)<br />    domainClass.metaClass."${getterName}" = <br />        LAZY_PROPERTY_HANDLER.curry(propertyName)<br />    domainClass.metaClass."${setterName}" = { <br />        PropertyUtils.setProperty(delegate, propertyName, it)  <br />    }<br /><br />    for (GrailsDomainClass sub in domainClass.subClasses) {<br />        handleLazyProxy(sub, sub.getPropertyByName(property.name))<br />    }<br />}<br /></pre>So, anytime you access your properties, the above code is going to unwrap it.<br /><br />What whoever wrote this is trying to avoid is the &#8216;proxy hell&#8217; mentioned in the comment.  The hibernate docs have a good explanation of it:<br /><br /><a href="http://docs.jboss.org/hibernate/core/3.3/reference/en/html/performance.html#performance-fetching-lazy">http://docs.jboss.org/hibernate/core/3.3/reference/en/html/performance.html#performance-fetching-lazy</a><br /><br />As does the Grails docs:<br /><br /><a href="http://grails.org/doc/latest/guide/5.%20Object%20Relational%20Mapping%20%28GORM%29.html#5.5.2.8%20Eager%20and%20Lazy%20Fetching">http://grails.org/doc/latest/guide/5.%20Object%20Relational%20Mapping%20%28GORM%29.html#5.5.2.8%20Eager%20and%20Lazy%20Fetching</a><br /><br />They&#8217;re more eagerly fetching the lazy relationships than Hibernate does to avoid some of the instanceof check issues outlined in the above links.<br /><br />Now, back to my issue.  What happens if you want to obtain the identifier of your relationship without actually resulting in a database call to get it?  The proxy has the identifier already, that&#8217;s how it loads it up when you call it.  In pure hibernate there&#8217;s a few ways to do it:<br /><ol><li>Session.getIdentifier</li><li>entity.getId() (<a href="http://256.com/gray/docs/misc/hibernate_lazy_field_access_annotations.shtml"></a><a href="http://256.com/gray/docs/misc/hibernate_lazy_field_access_annotations.shtml">assuming you are using property based configuration</a>)</li><li>Cast it to a HibernateProxy, get the LazyLoadInitializer and get the Identifier from it</li></ol>The problem with all of these solutions is that you have to get around the Gorm code above that unwraps any properties when you call a getter.  You can&#8217;t just add setBar and getBar.  However, you can add another method that can get &#8216;raw&#8217; access to the field.  And before anyone posts a comment about it you can&#8217;t use load either because it requires the id, and that&#8217;s the whole point of this exercise (getting the id that is). <br /><br />I didn&#8217;t find this out until I had wasted quite a few hours, but apparently this was a known issue: <a href="http://jira.grails.org/browse/GRAILS-2570">http://jira.grails.org/browse/GRAILS-2570</a> I never saw this when googling for it originally, but you can essentially say:<br /><br /><pre class="prettyprint">foo.barId</pre><br /><br />And you will get the id of the bar without the proxy being unwrapped.  I&#8217;m not sure this is referenced anywhere in the docs though.</div>
 <h2>Comments</h2>
 <div class='comments'>
@@ -386,35 +436,116 @@ Great post, thanks! Already bookmarked this for future reference!</div>
 Thanks for posting this!</div>
 </div>
 </div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[New Desktop]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/04/06/new-desktop/"/>
-    <updated>2011-04-06T10:03:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/04/06/new-desktop</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/04/06/new-desktop/">New Desktop</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-06T10:03:00-05:00" pubdate data-updated="true">Apr 6<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 In my new gig at <a href="http://www.fundspire.com/">Fundspire</a>, I generally work from home.  For awhile this has been on my 4 year-old Macbook Pro.  However, during my time at ThoughtWorks, I got extremely accustomed to using extremely powerful desktop machines running Ubuntu.  In fact, I think the ones I used on my last project were running two xeon processors.  Regardless, rather than get a new laptop, since I&#8217;m working from home I decided to build a new desktop.  I&#8217;ve built a number of machines over the years, and it&#8217;s always been a favorite hobby of mine.  I enjoy spending time getting back up to speed with what all the major chipsets are, and the actual build can be a lot of fun too.  Below, I&#8217;m going to list out everything I bought and why, with a total at the end.  All of the prices and links are to <a href="http://www.newegg.com/">NewEgg</a>.  I&#8217;ve been using them for years and have always been happy with their prices, selection and service.<br /><br /><span style="font-weight: bold;font-size:130%;" >Case</span><br /><br />There&#8217;s two areas I never scrimp on when building a new computer: The motherboard and the case.  The case can make the build and future upgrades to the machine simple, or a nightmare.  When looking for a case, three things are important to me:<br /><ol><li>Cable management.  Besides the whole airflow thing, it makes it a lot easier to work inside of the case, or do simple upgrades when the cables aren&#8217;t in a huge jumble in front of the motherboard.  I can&#8217;t count the number of times I accidentally knocked a cable loose and didn&#8217;t realize it.</li><li>Sound proofing.  Maybe I&#8217;ve just been using laptops too long, but I&#8217;m really over having a tower that sounds like a jet taking off when I turn it on.</li><li>Lots of space for additional drives, etc.</li></ol>I have no intentions of overclocking, so I&#8217;m not particularly worried if it has things like water cooler hookups or whatever.  And I really don&#8217;t want <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16811103028">a light show in my office</a>.  So, I went with a full tower by <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16811352006">Fractal Design</a>.<br /><br /><span style="font-size:130%;"><span style="font-weight: bold;">CPU</span></span><br /><br />Since the CPU really determines the motherboard nowadays, I had to decide that next.  However, since the new Intel Sandy Bridge processors came out a couple of months ago, it was a no-brainer.   I went with the <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16819115070">Core i7 Sandy Bridge 2600K</a>.  The K in this instance means the chip has an unlocked modifier, which is why all the overclockers you see tend to get either it or the i5.  And while I&#8217;m not going to overclock it, there was a combo deal on my motherboard for the K version, which would normally be $20 more than the regular 2600 variant, making it the same price, so why not?<br /><br /><span style="font-size:130%;"><span style="font-weight: bold;">Motherboard</span></span><br /><br />This was the most difficult spot for me.  As I said above, it&#8217;s probably the most important piece in the system, and completely affects how you can upgrade in the future, so it&#8217;s important.  The first thing I noticed when getting back into the latest hardware was how much it seems like every generation of new processors from either Intel or even AMD seems to have a completely different socket.  Maybe they&#8217;re more interchangeable than I think, but it at least seems pretty specific.  For instance, take a look at this wikipedia page: <a href="http://en.wikipedia.org/wiki/List_of_Intel_Core_i7_microprocessors">http://en.wikipedia.org/wiki/List_of_Intel_Core_i7_microprocessors</a>.  Here&#8217;s the sockets of all the different Intel i7 chips:<br /><br />Lynnfield: LGA1156<br />Bloomfield/Gulftown: LGA 1366<br />Sandybridge: LGA1155<br /><br />Obviously, I wanted to go with an LGA1155 socket motherboard, since that&#8217;s the chip I got, but it&#8217;s really easy to get confused.  There&#8217;s also a noticeable difference in the motherboards for Bloomfield processors.  Most of the them are triple channel.  While all the newer Sandy Bridge are all dual channel.  It&#8217;s a bit confusing at first, but SB represented a pretty big change in the memory controller.  Namely, it&#8217;s on the processor itself now and not the northbridge.  That being the case, the only option for motherboards is whatever the chip has, which is dual channel.  Also, from the numbers I&#8217;ve read, it seems that SB chipsets running 1333 DDR3 have higher memory thoroughputs than the previous generation triple channel setups, so it seems to work out.<br /><br />I went with Gigabyte for my motherboard: <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16813128478">http://www.newegg.com/Product/Product.aspx?Item=N82E16813128478 </a><br /><br />I really just wanted something that would support a lot of memory for the future, (This one goes up to 32 GB) SATA III (6.0 GBs) and USB 3.0 ports.  I also tend to favor the &#8216;enthusiast&#8217; motherboards a bit more, as their tendency to be used in overclocking setups means they have gratuitous amounts of heatsinks on all the chips.  Having overheated more than one motherboard in the past, it&#8217;s nice to have that even if you&#8217;re not going to overclock.<br /><br /><span style="font-size:130%;"><span style="font-weight: bold;">Video Card</span></span><br /><br />I&#8217;m going to be running Ubuntu, so the video card selection is extremely important.  Video cards and linux have always had a checkered past, and even in 2011 you can easily pick up a card that doesn&#8217;t work right with a particular kernel or something.  (It happened to me last year with a Fedora setup I had)  Personally, I think the only option is an NVidia setup.  I used to use Radeons exclusively, but starting with something like the Geforce 8xxx chipsets, Nvidia added this thing called <a href="http://en.wikipedia.org/wiki/PureVideo_HD#PureVideo_HD">PureVideo</a>.  This has support for<a href="http://en.wikipedia.org/wiki/VDPAU"> VDPAU (Video Decode and Presentation API for Unix)</a> Which allows *nix machines to use hardware decoding of video on the video cards themselves.  With that in mind, I bought a <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16814130579">Geforce GT 430</a>.  It was introduced last fall, is extremely cheap and focuses on being able to push video, which is all I want.  I watch mlb.tv on another screen while coding sometimes, without hardware video decoding, it would take up a lot of resources.<br /><br />Everything else is pretty straightforward.<br /><br />Powersupply: <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16817341018">OCZ ModXStream Pro 700W</a> You can now get &#8216;modular&#8217; PSUs, which means that you only have the cables you plug into the unit, and don&#8217;t have a tangle of wires for all the connections you&#8217;re not currently using.<br /><br />SSD: <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16820148357">Crucial RealSSD 64GB</a> Who in their right mind would build a system today and not use an SSD?  Especially if you&#8217;re a programmer.  I went with 64 Gb to save money.  It&#8217;s enough to run ubuntu on the SSD, and any code projects.  For everything else, I picked up a <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16822136769">normal platter drive</a> for $40.<br /><br />Ram: <a href="http://www.newegg.com/Product/Product.aspx?Item=N82E16820145315">4 x 4GB DDR3 PC1333</a> (I did a quantity of 2 on the setup I linked to for a total of 16 GB)  Most of the nicer SandyBridge setups support faster ram, but since the sandy bridge architecture is at 1333, I&#8217;m assuming they&#8217;re getting those speeds by overclocking, and it wasn&#8217;t something I wanted to deal with.<br /><br />Everything else is pretty normal, I picked up a new DVD drive for $20, mostly because I needed one with a SATA hookup.  (All my existing ones are PATA)  I also picked up a heatsink, thermal paste, etc as well.  They&#8217;re generally cheap and worth it to make sure you don&#8217;t fry your cpu.  With all of that, the total including shipping was: <span style="font-weight: bold;">$1,337.62</span><br /><br />It&#8217;s not too bad for what is essentially a top of the line system.  The only way to go higher is to get into server grade territory, with two CPUs and 12 ram slots.  You could reduce the cost on the setup I have by going i5 and halving the ram, but that only saves you $200, and as a programmer, most of my work is CPU and Ram bound so I think it&#8217;s money well spent.  You can also go cheaper on the motherboard and the case, but you&#8217;ll always regret it.  Of course, if you also want to play games on the computer, you&#8217;ll probably want to dump way more money than I did in a video card.</div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[Excluding jars from a Grails generated war file]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/03/24/excluding-jars-from-grails-generated/"/>
-    <updated>2011-03-24T17:07:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/03/24/excluding-jars-from-grails-generated</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/03/24/excluding-jars-from-grails-generated/">Excluding Jars From a Grails Generated War File</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-24T17:07:00-05:00" pubdate data-updated="true">Mar 24<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 Yesterday, I posted about how to <a href="http://www.lucasward.net/2011/03/upgrading-grails-13x-to-use-hibernate.html">upgrade hibernate versions in grails</a>.  This solution worked great for me locally. (i.e. using run-app) But we were still getting weird issues in our staging environment.  It&#8217;s not uncommon for this kind of thing to happen, and I used my local tomcat setup to try and nail down the problem.  When I cracked open the WAR, I found two version of hibernate, 3.3.1 and 3.3.2.  Upon closer inspection of the problem, it turned out to be the same original issue I had upgraded Hibernate to fix, somewhat hidden by some additional &#8216;noise&#8217; in the log file.  I tried about 10 different things to get the war to generate correctly, until I stumbled onto this blog post:<br /><br /><a href="http://www.anyware.co.uk/2005/2009/01/21/excluding-files-from-a-war-with-grails-the-right-way/">http://www.anyware.co.uk/2005/2009/01/21/excluding-files-from-a-war-with-grails-the-right-way/</a><br /><br />Grails gives you the option to declare a closure to modify the war resources.  I added the following to the top of my buildConfig.groovy, and it fixed the issue:<br /><br /><pre class="prettyprint"><br />grails.war.resources = { stagingDir -><br />  delete(file:"${stagingDir}/WEB-INF/lib/hibernate-core-3.3.1.GA.jar")<br />}<br /></pre></div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[Upgrading Grails 1.3.x to use Hibernate 3.3.2]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/03/23/upgrading-grails-13x-to-use-hibernate/"/>
-    <updated>2011-03-23T15:19:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/03/23/upgrading-grails-13x-to-use-hibernate</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/03/23/upgrading-grails-13x-to-use-hibernate/">Upgrading Grails 1.3.x to Use Hibernate 3.3.2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-23T15:19:00-05:00" pubdate data-updated="true">Mar 23<span>rd</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 While using Hibernate Envers, I ran into an issue that was fixed in Hibernate 3.3.2.  Unfortunately, Grails is using Hibernate 3.3.1.  Luckily, it&#8217;s fairly straightforward to exclude and declare a new dependency in your BuildConfig.groovy:<br /><br /><pre class="prettyprint"><br />inherits("global") {<br /> excludes 'hibernate'<br />}<br />dependencies {<br /> compile ('org.hibernate:hibernate-core:3.3.2.GA'){<br />     excludes 'ehcache', 'xml-apis', 'commons-logging'<br /> }<br />}<br /></pre><span style="font-weight: bold;">Update:</span> turns out it&#8217;s not as straightforward as I thought.  The above will work fine with &#8216;grails run-app&#8217; but the 3.3.1 version will still be in the War file: <a href="http://www.lucasward.net/2011/03/excluding-jars-from-grails-generated.html">http://www.lucasward.net/2011/03/excluding-jars-from-grails-generated.html</a> You can fix that by adding the following to your BuildConfig.groovy:<br /><br /><pre class="prettyprint"><br />grails.war.resources = { stagingDir -><br /> delete(file:"${stagingDir}/WEB-INF/lib/hibernate-core-3.3.1.GA.jar")<br />}<br /></pre><br /><br />Unfortunately, in the 3.3.2 release, &#8220;“org.hibernate.dialect.DialectFactory” was moved to “org.hibernate.dialect.resolve.DialectFactory”.  Which was part of the following issue: <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-2933">http://opensource.atlassian.com/projects/hibernate/browse/HHH-2933</a><br /><br />This is apparently an issue many have been seeing: <a href="http://grails.1312388.n4.nabble.com/update-hibernate-version-td3002449.html">http://grails.1312388.n4.nabble.com/update-hibernate-version-td3002449.html</a><br /><br />While it may seem crazy that the Hibernate team moved something to a new package in a point release.  I&#8217;m pretty sure they consider this class to be internal and not part of their API.  The issue the change was made in was to expose to users a way to resolve their own dialects programmatically.  Which, if you look at where the Grails Hibernate plugin is creating the offending spring bean, is the same thing Grails is doing:<br /><br /><pre class="prettyprint"><br />if (ds &amp;&amp; ds.dialect) {<br />  if (ds.dialect instanceof Class) {<br />      hibProps."hibernate.dialect" = ds.dialect.name<br />  }<br />  else {<br />      hibProps."hibernate.dialect" = ds.dialect.toString()<br />  }<br />}<br />else {<br />  dialectDetector(HibernateDialectDetectorFactoryBean) {<br />      dataSource = ref("dataSource")<br />      vendorNameDialectMappings = vendorToDialect<br />   }<br />   hibProps."hibernate.dialect" = dialectDetector<br />}<br /></pre><br /><br />The above is taken from HibernatePluginSupport.groovy, line 128. (At least in Grails 1.3.6)  Essentially they&#8217;ve written a Spring bean to programmatically determine the dialect by calling the DialectFactory themselves.  You can bypass this issue completely by specifying your dialect, rather than having it detected.  If you&#8217;re using mysql, it looks something like:<br /><br /><pre class="prettyprint"><br />dataSource {<br />driverClassName = "com.mysql.jdbc.Driver"<br />dialect = "org.hibernate.dialect.MySQLDialect"<br />}<br /></pre></div>
 <h2>Comments</h2>
 <div class='comments'>
@@ -429,25 +560,79 @@ I&#39;ll see if I can dig for the issue I found that was causing issues in Enver
 Can you provide any details on the Envers issue that triggered this upgrade?  I&#39;m trying to use Envers on a Grails project and having issues.</div>
 </div>
 </div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[The Programmer's Time Paradox]]></title>
-    <link href="http://lucaslward.github.io/blog/2011/03/17/programmers-time-paradox/"/>
-    <updated>2011-03-17T23:12:00-05:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/03/17/programmers-time-paradox</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/03/17/programmers-time-paradox/">The Programmer&#8217;s Time Paradox</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-17T23:12:00-05:00" pubdate data-updated="true">Mar 17<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 At the beginning of this week I started work on a new feature.  For the purposes of this post it doesn&#8217;t matter what the feature was, but  I started in on it on Monday and things went extremely well.  I was in the zone.   It&#8217;s hard to describe, but I think if you&#8217;re a programmer you&#8217;ll understand the feeling.  I started out with just the right amount of testing in the right places, built something simple and added on top of it, while refactoring periodically as I discovered new angles on the problem.  Everytime I moved forward, I was able to run my tests and tell immediately that my last fix had broken something.  I was moving forward in small steps and it was all falling together nicely.<br /><br />And then I got greedy.  I suppose it makes me a dork to admit it, but I was having fun.  I had been somewhat behind on the feature because I was debating on a couple different paths, but now that I had chosen, I was moving forward with wreckless abandon.  It&#8217;s somewhat intoxicating to be in the zone.  So, I pushed myself hard.  I worked from around 9 AM until 1 or 2 in the morning every night for 3 days straight.  (I work from home, so it&#8217;s a bit easier to work later like that)<br /><br />This morning I woke up begrudgingly.  The comforter was very, very heavy.  It was the weird programmer kind of fatigue, where you&#8217;ve done nothing but sit on your but all day, but your mind has been going too fast for too long, so you feel mentally exhausted but physically fine.  When you hit that point, no amount of coffee is going to make it better.  Now, I&#8217;ve been on some pretty hellish death marches before.  Some of them spanned months, so it&#8217;s not like working hard for 3 days is all that terrible.  But the programming gods are vengeful.  I might have been tired, but I was excited to get the feature working.  I was in the home stretch.  My sister is coming to town this weekend and it&#8217;s her first time in Chicago since turning 21, so I wanted to get this thing done and party like it was&#8230;2003?<br /><br />So I got sloppy.  I ran into a weird bug.  It was a NullPointerException with no stack trace.  Which sometimes interchanged itself with an InovcationTargetException.  When you see something like that happen, it&#8217;s time to stop the production line.  I should have stopped, immediately, and attempted to recreate the conditions in my testing setup.  I had a perfect, isolated, test suite setup where I could have recreated this thing in a controlled environment, but I didn&#8217;t do that.  Instead, I fiddled with idea after idea.  They were all well informed, reasonable things to be trying.  But when you&#8217;re doing this kind of thing inside your application, there can be too many factors.  Production code is complicated, and there&#8217;s just too many variables.<br /><br />At around 6PM I stopped myself, and did what I should have done in the first place.  In an integration test, I slowly recreated the problem, piece by piece.  Within 15 minutes I had found the problem.  I forgot to put an annotation on a particular class.<br /><br />I. forgot. an. annotation&#8230;..$#$%#$%#$!!!!!!!!!!!<br /><br />I suppose I could get mad at the guy who wrote the open source framework I was using.  But I would be one heck of a hypocrite if I did.  I can&#8217;t imagine how many people have been in the same situation with Spring Batch, and probably felt the same way about me.  I hit a scenario he didn&#8217;t think of, so there wasn&#8217;t specific error handling for it, and the results were nondeterministic.<br /><br />No, I was tired.  I pushed myself too hard and I made a stupid mistake, and the funny thing is, I lost all of the time I had saved by working so much! Awesome.<br /><br />And when has that not been the case?  I can&#8217;t think of time where I worked too many hours and this exact same thing hasn&#8217;t happened.  I was tired and made a stupid mistake.  A mistake that I would have easily caught if fully rested.  And that mistake had cost all the time I had spent working late.  And it&#8217;s compounded by the number of people overworking themselves.  The more people doing it, the worse the effect is.  Because your stupid mistake made while trying to fix someone else&#8217;s stupid mistake quickly snowballs.<br /><br />But sometimes, it&#8217;s just hard to grok.  I don&#8217;t think the human mind is fully capable of thinking that way.  If you&#8217;re running somewhere, running faster gets you there quicker, baring the limits of endurance.  But overall, if you can run faster, running faster will get you there sooner.  Or at least is seems that way when you&#8217;re coding at 1 in the morning on an interesting problem.  And I know all about sustainable pace, and I agree with it fully.  And I wasn&#8217;t under the spell of an evil project manager either.  It&#8217;s a small company, and I&#8217;m the CTO.  The only drive I have is to get features done quicker to support our sales efforts.  And I know, from personal experience, what happens when programmers work unsustainable paces.<br /><br />You know what it&#8217;s like?  It&#8217;s like white castle.  At least once or twice a year I&#8217;ll decide eating at White Castle is a good idea.  I may or may not be sober when I make this decision, but I make it anyway.  And I pay for it.  The next day you wake up and you *know* you made a terrible mistake.  And for days, maybe even weeks, you&#8217;ll swear to never eat at white castle again.  But then you&#8217;ll be at your cousin&#8217;s wedding and there just so happens to be a white castle within walking distance, and the terrible cycle repeats itself.</div>
-]]></content>
-  </entry>
+</div>
   
-  <entry>
-    <title type="html"><![CDATA[Grails Testing issue when rendering as 'text/json']]></title>
-    <link href="http://lucaslward.github.io/blog/2011/03/09/grails-testing-issue-when-rendering-as/"/>
-    <updated>2011-03-09T13:40:00-06:00</updated>
-    <id>http://lucaslward.github.io/blog/2011/03/09/grails-testing-issue-when-rendering-as</id>
-    <content type="html"><![CDATA[<div class='post'>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/03/09/grails-testing-issue-when-rendering-as/">Grails Testing Issue When Rendering as &#8216;Text/json&#8217;</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-09T13:40:00-06:00" pubdate data-updated="true">Mar 9<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
 I ran into this issue while unit testing my controllers (many of which only return JSON) in Grails.  I&#8217;ve reported the issue to grails: <a href="http://jira.codehaus.org/browse/GRAILS-7339">http://jira.codehaus.org/browse/GRAILS-7339</a> but it&#8217;s also worth noting here, so anyone else left scratching their head as to why the rendering doesn&#8217;t appear to be working in their unit tests can find the workaround as well:<br /><br />If you are writing a unit or integration test in grails and mocking the controller, which can be done either by extending ControllerUnitTestCase (or using mockController) you might run into this issue.  As you probably know, there are multiple ways to render JSON in grails.  One is to take a normal map and render as JSON:<br /><br /><pre class="prettyprint"><br />def jsonMap = [success:true]<br />render jsonMap as JSON<br /></pre><br /><br />This will work fine everywhere, because you&#8217;re effectively passing it in as a converter.  However, if you use the more verbose (and in many ways more powerful) rendering, you will run into issues:<br /><br /><pre class="prettyprint"><br />render(contentType: "text/json") {<br />  success(true)<br />  results {<br />    result.each {<br />    def period = it.getPeriod() <br />    b(id: it.id,name: it.name)<br />    }<br />  }<br />}         <br /></pre><br /><br />In my case, my test looks like this:<br /><br /><pre class="prettyprint"><br />assert JSON.parse(this.controller.response.contentAsString)?.success == true<br /></pre><br /><br />This won&#8217;t work, because the content on the mock response will be null.  With a little digging into how mockController() works, you will find the problem lies in MockUtils.  Specifically, in the method that handles a map with render options and a closure:<br /><br /><pre class="prettyprint"><br />clazz.metaClass.render = {Map map, Closure c -><br />  renderArgs.putAll(map)<br /><br />  switch(map["contentType"]) {<br />    case null:<br />    break<br /><br />    case "application/xml":<br />    case "text/xml":<br />      def b = new StreamingMarkupBuilder()<br />      if (map["encoding"]) b.encoding = map["encoding"]<br /><br />      def writable = b.bind(c)<br />      delegate.response.outputStream << writable<br />      break<br /><br />    default:<br />      println "Nothing"<br />      break<br />  }<br />}<br /></pre><br /><br />As you can see, the case of &#8216;text/json&#8217; isn&#8217;t handled.  I was able to workaround this issue by creating a custom unit test case class to extend from the Grails ControllerUnitTestCase:<br /><br /><pre class="prettyprint"><br />class CustomControllerTestCase extends ControllerUnitTestCase{<br /><br />    protected void setUp() {<br />        super.setUp()<br />        controller.class.metaClass.render = {Map map, Closure c -><br />            renderArgs.putAll(map)<br /><br />            switch(map["contentType"]) {<br />            case null:<br />                break<br /><br />            case "application/xml":<br />            case "text/xml":<br />                def b = new StreamingMarkupBuilder()<br />                if (map["encoding"]) b.encoding = map["encoding"]<br /><br />                def writable = b.bind(c)<br />                delegate.response.outputStream << writable<br />                break<br /><br />            case "text/json":<br />                new JSonBuilder(delegate.response).json(c)<br />                break<br />            default:<br />                println "Nothing"<br />                break<br />            }<br />        }<br />    }<br /><br />}<br /></pre><br /><br />Since it&#8217;s groovy, you could pretty much replace this anywhere by overriding your mock controller&#8217;s meta class.</div>
 <h2>Comments</h2>
 <div class='comments'>
@@ -462,7 +647,88 @@ you saved my day :-)</div>
 Thanks Lucas, this problem looked like it was going to start eating up the rest of my afternoon. Your solution did the trick.</div>
 </div>
 </div>
-]]></content>
-  </entry>
+</div>
   
-</feed>
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/3/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

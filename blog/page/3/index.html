@@ -1,0 +1,662 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="One of the great things about Grails is how easy it is to do integration testing. When running the integration tests, the grails container will be &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/page/3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/03/09/disabling-spring-security-for-grails/">Disabling Spring Security for Grails Integration Testing</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-09T10:09:00-06:00" pubdate data-updated="true">Mar 9<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+One of the great things about Grails is how easy it is to do integration testing.  When running the integration tests, the grails container will be started up, including an in-memory version of hsqldb. (and it looks to go to h2 in 1.4)  When you combine that with controller mocking, you can easily test from you controller down to the database.  However, because you&#8217;re getting your entire system, minus only the web server, it can take a while to startup.  It&#8217;s not too bad for a CI build, but can get annoying when you&#8217;re writing and running tests in your development environment.  One of the big culprits in terms of time is spring security.  I&#8217;m not sure why that is, but it is possible to disable it in your integration test environment.  The first step is to set the active configuration property to false in Config.groovy:<br /><br /><pre class="prettyprint"><br />test {<br />  grails.plugins.springsecurity.active = false        <br />}<br /></pre><br /><br />Now, when you run &#8216;grails test-app integration:&#8217; you should see something like this:<br /><br /><pre><br />grails test-app integration:<br />Welcome to Grails 1.3.6 - http://grails.org/<br />Licensed under Apache Standard License 2.0<br />Resolving dependencies...<br />Dependencies resolved in 5123ms.<br />Environment set to test<br />Starting integration test phase ...<br />Spring Security is disabled, not loading<br /></pre><br /><br />The important thing to notice is the last line: <b>Spring Security is disabled, not loading</b><br /><br />Of course, there&#8217;s now a new problem, any code you have that is referencing springSecurityService will now fail.  In general, the most likely method to cause an issue is getCurrentUser().  However, it&#8217;s simple to create a quick stub for it:<br /><br /><pre class="prettyprint"><br />class StubSpringSecurityService {<br /><br />    def currentUser<br /><br />    Object getCurrentUser() {<br />        return currentUser<br />    }<br /><br />    String encodePassword(String password, salt = null) {<br />        return password<br />    }<br /><br />}<br /></pre><br /><br />In my case, I only needed to stub getCurrentUser() and encodePassword, however, you may need to add more, and the general approach can be applied to any additional methods you may need.  It is also worth noting that I debated about using something like stubFor, but decided it was more straightforward to make a simple stub.<br /><br />Now that you have a stub, you need to make sure that it&#8217;s being set in the test environment.  You can do this by adding the following to resources.groovy:<br /><br /><pre class="prettyprint"><br />if (GrailsUtil.environment == "test"){<br />  springSecurityService(StubSpringSecurityService)<br />}<br /></pre><br /><br />Now for the last step, setting up the current user in your bootstrap:<br /><br /><pre class="prettyprint"><br />if (GrailsUtil.environment == "test") {<br />      def testUser = new User()<br />      testUser.save(failOnError: true)<br />      springSecurityService.currentUser = testUser;<br />}<br /></pre><br /><br />Any code running during an integration test, will now get back the saved user if it calls getCurrentUser()</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Rajkumar</div>
+<div class='content'>
+I solved this problem. The problem is I was having my Stub file under test/integration directory. <br /><br />Now, I want to enable the springsecurity plugin when I am running functional test using selenium RC , how to do it ?  But, I want it to be disabled during the unit and integration test.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Tough to say. It looks like there may be an issue with the code you added to your resources.groovy. Can you paste that into a comment?</div>
+</div>
+<div class='comment'>
+<div class='author'>Rajkumar</div>
+<div class='content'>
+Hi , I am getting the following error when I followed the steps your mentioned.<br /><br />2011-09-22 21:15:44,831 [main] ERROR spring.GrailsRuntimeConfigurator  - [RuntimeConfiguration] Unable to load beans from resources.groovy<br />groovy.lang.MissingPropertyException: No such property: org for class: resources<br /><br /><br />What could be the reason?</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/02/28/javascript-tip-of-month/">Javascript Tip of the Month</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-28T14:52:00-06:00" pubdate data-updated="true">Feb 28<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+I was reading an article I saw linked to from a blog I follow:<br /><a href="http://devblog.blackberry.com/2011/02/thanks-for-the-open-letter-to-rim-developer-relations/"><br />http://devblog.blackberry.com/2011/02/thanks-for-the-open-letter-to-rim-developer-relations/</a><br /><br />Ironically, it&#8217;s a response to an open letter to RIM about how difficult it is to use their PlayBook developer tools.  I was doing other things when I noticed that page will still loading, so I took a quick peak into the html, and saw this:<br /><br /><pre><br />&lt;script src="http://code.jquery.com/jquery-latest.js"&gt;&lt;/script&gt;<br />&lt;script src="http://dev.jquery.com/view/trunk/plugins/validate/jquery.validate.js" type="text/javascript"&gt;&lt;/script&gt;<br /></pre><br /><br />This should go without saying, but don&#8217;t do that!  That&#8217;s not the only offense, but certainly the most costly in terms of loading a page.  There is actually another section that reference jquery locally, so I&#8217;m not sure how that got in there, but it has a pretty huge negative impact to have to download the unminified version of jquery from jquery.com.</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/02/10/case-sensitivity-mysql-and-spring-batch/">Case Sensitivity: MySQL and Spring Batch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-10T11:25:00-06:00" pubdate data-updated="true">Feb 10<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+I&#8217;ve been having some fun lately with multi-platform development.  Personally, I develop on a Mac.  However, I also have an Ubuntu workstation that runs a MySQL  instance among other things that I can connect to at home.  It&#8217;s a nice setup, since production is ultimately running on ubuntu server and I have always advocated developing on an environment as close to production as possible.  (Our build server is Ubuntu as well)  However, one of the other devs uses Windows and has MySQL installed on his Windows machine as a development environment.  This can create interesting case-sensitivity problems.  Anyone using the default Mac setup (HSF+) or Windows have case-insensitive file systems.  (Although, I run a case-sensitive variant of HSF+ on my mac)  This can be important if you are also running MySQL on that system, <a href="http://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html">as described below</a>:<br /><br /><blockquote>In MySQL, databases correspond to directories within the data directory. Each table within a database corresponds to at least one file within the database directory (and possibly more, depending on the storage engine). Consequently, the case sensitivity of the underlying operating system plays a part in the case sensitivity of database and table names. This means database and table names are not case sensitive in Windows, and case sensitive in most varieties of Unix. </blockquote><br /><br />This can be especially interesting in Spring Batch.  By default, <a href="http://static.springsource.org/spring-batch/2.0.x/reference/html/metaDataSchema.html">SB uses all uppercase table names</a>.  An example being BATCH_JOB_EXECUTION.  If for example, your windows colleague creates the tables in lower case on his Windows system, they will work fine for him/her, since the underlying file system isn&#8217;t case sensitive.  However, if you take a data dump from his system and put it into your linux mysql instance, running batch jobs will result in the following error:<br /><br /><pre><br />com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table 'dbmaster.BATCH_JOB_INSTANCE' doesn't exist<br /></pre><br /><br />Or something similar.  What could get even wackier is if you change the prefix of your Spring Batch tables.  Setting the prefix to something like &#8216;awesome&#8217;, would result in SB querying for a table such as &#8216;awesome_JOB_EXECUTION&#8217;, which again, would work fine on Windows but blow up anywhere else.  (Unless you happened to create the table in alternating caps)<br /><br />There are some options, however.  There is a property in MySQL called &#8216;lower_case_table_names&#8217; that allows you to configure how MySQL deals with table name resolution:<br /><br /><ul><li>0 - tables are stored on disk using the letter case defined in your create table statements and all checks are case sensitive.  (This setting could be problematic on non-case sensitive systems)</li><li>1 - all table names are stored on disk as lowercase regardless of how you define them in your create statement, and any table names in queries will be converted to lower case</li><li>2 - table names are stored as defined in the create statement but mysql converts them to lowercase on lookup.  Which obviously won&#8217;t make a difference on a case-insensitive system.</li></ul><span style="font-size:85%;"><span style="font-style: italic;">Note: lower_case_table_names was introduced in MySQL 4.0.17</span><br /></span><br />On my ubuntu install of MySQL lower_case_table_names is set to 0, which I assume to be the default.  However, you can check your system easily by entering: &#8216;show variables;&#8217; into mysql.<br /><br />On my local ubuntu instance I create a file called: &#8220;/etc/mysql/conf.d/lower_case_table_names.cnf&#8221;.  The .cnf ending is important, as that is what my.cnf is setup to look for, at least in my setup.  In the file is the following:<br /><br /><pre><br />[mysqld]<br />lower_case_table_names=1<br /></pre><br /><br />The [mysqld] is important as there are numerous engines which are configured in the same file.  For example, you can all create settings for mysqldump specifically as well.  Next time you bounce mysql, if you make another call to &#8216;show variables&#8217; you should see the updated setting.  After this change, even though Spring Batch is making SQL statements in all caps and the tables are actually stored in lower case, the queries will still work.<br /><br /><span style="font-weight: bold;">Amazon RDS</span><br /><br />It&#8217;s worth noting that if you use Amazon&#8217;s RDS service that you must use their web console (or command line tools) to modify this setting.  It&#8217;s under parameter groups.  The following guide from amazon should help you: <a href="http://aws.amazon.com/articles/2935">http://aws.amazon.com/articles/2935</a></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Eduardo Rezende</div>
+<div class='content'>
+I lost more than 4 hours looking for solvin this, locally works fine but when in AMAZON RDS, I got that tables doesnt exist! Solved by creating a new DB Parameter Group&#8230; <br /><br />Thanks very much for the tip!</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/02/03/sharing-overload/">Sharing Overload?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-03T23:57:00-06:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+First: Watch this hilarious VW spot on YouTube: <a href="http://www.youtube.com/watch?v=R55e-uHQna0">http://www.youtube.com/watch?v=R55e-uHQna0</a><br /><br />Second: Press the share button below the clip.<br /><br /><a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://3.bp.blogspot.com/_Skp1fAaSV2U/TUuW9YsQySI/AAAAAAAAAAU/-YDH6R6CVOo/s1600/Screen%2Bshot%2B2011-02-03%2Bat%2B11.57.22%2BPM.png"><img style="display:block; margin:0px auto 10px; text-align:center;cursor:pointer; cursor:hand;width: 400px; height: 184px;" src="http://3.bp.blogspot.com/_Skp1fAaSV2U/TUuW9YsQySI/AAAAAAAAAAU/-YDH6R6CVOo/s400/Screen%2Bshot%2B2011-02-03%2Bat%2B11.57.22%2BPM.png" border="0" alt=""id="BLOGGER_PHOTO_ID_5569711345518037282" /></a><br /><br />On the top we&#8217;ve got how many people shared this link on twitter, facebook or buzz.  Do we really care about that?<br /><br />Then the most important bit, the actual link, which we can shorten.  Although I don&#8217;t know why, doing so cuts the size down by 25%.  I&#8217;ve always thought YouTube links were some of the simplest out there: youtube.com?watch?v=SomeRandomNumber.  &#8220;Shortening&#8221; it turns it into: youtu.be/SomeRandomNumber.  Go Belgium I guess.<br /><br />And then there&#8217;s no less than 9 places I can share it.  Half of them I haven&#8217;t heard of.  And really, Myspace?<br /><br />Can I just have a link?</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/02/01/speculative-generality/">Speculative Generality</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-01T15:11:00-06:00" pubdate data-updated="true">Feb 1<span>st</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+In my <a href="http://www.lucasward.net/2011/01/velocity-anchors.html">last post</a> I talked about Velocity Anchors, and how applying metaphors such as technical debt takes away from the real problem, that developers want to get stuff done, and there&#8217;s things slowing them down.  I also mentioned a couple of causes, WTF and Code Jenga.  WTF representing code that developers waste time having to figure out before they can get stuff done, and Code Jenga being the fear that even the smallest change will cause cascading failures and a lot of wasted time figuring out the problem.  Time that could better be spent getting stuff done.  To continue the series, I&#8217;d like to talk about one of the biggest causes of WTFs: Speculative Generality*.  What speculative generality means is the inclination to speculate that some piece of functionality will be generally useful.  I found a great illustration of this concept recently, even if it wasn&#8217;t named that, from the chaosinmotion blog: <a href="http://chaosinmotion.com/blog/?p=622">How (not) to write factorial in java</a>.  Its a great post that uses some solid coding examples to illustrate the point, and I think his conclusion really nails it:<br /><p></p><blockquote><p>The biggest complaint I have with many Java developers is that they  develop a whole bunch of really bad habits. Specifications are unclear,  or they think someday the code may need to be extended into a different  direction. So they write a whole bunch of overblown architectural  nonsense, sight unseen, thinking that the additional crap someday will  help out and make things easier. And Java as a language lends itself to  doing this very quickly and easily, so that (as the theory goes) it’s  easy for us to build architectures that will someday make it easier on  us in the future.</p> <p>But the future never gets easier, does it?</p></blockquote><p></p>Later, in responding to comments, he presents his theory on why this tends to happen so often in programming:<br /><br /><p></p><blockquote><p>Java is simple to program. With a good IDE like Eclipse, Java is a  pleasure to write programs in. It’s also quite easy to write some very  complicated algorithms, and building a client/server stack is absolutely  trivial.</p> <p>But programmers like complexity. We <i><b>like</b></i> things that  are complicated: the flashing complicated lights on the control panels  on Star Trek, or the joys of figuring out a complicated calculator with  nearly a hundred buttons or playing with cell phones that have dozens of  modes and menus and buttons. Programmers are puzzle solvers, and we  love puzzles. We love taking things apart, putting things together  again: many of us are the ones who were punished at 8 for disassembling  the family computer or television set or radio, despite the fact that we  nearly put it together in working order.</p> <p>We love complexity.</p></blockquote><p></p>His essential theory is that Java is easy to crank out code and that deep down developers love complexity.  There&#8217;s probably something to that.  However, with the exception of assembler, there hasn&#8217;t been a real restriction in programming that prevents developers from writing too much code, at least programmatically.  Perhaps years ago when you had to code in punch cards and mail them off to be compiled, or wait for cpu cycles on a mainframe, then your development environment was limiting you.  Nowadays, I think any language could be guilty of making it easy to slap around a lot of architecture or abstractions you may not need.  I also agree fundamentally with his argument about certain programmers loving complexity.  There is certainly some nerd pride there, and in some cases legitimate attempts by developers to make themselves too necessary to fire.  However, for the sake of argument, let&#8217;s assume all developers are acting with integrity.  That they&#8217;re not doing something malicious to guarantee themselves a job, but are honestly doing what they think is right.<br /><br />In my experience, what has caused the majority of the type of code he describes in his blog is the statement I&#8217;ve heard every-time I&#8217;ve questioned overly complex code: &#8216;I <span style="font-weight: bold;">know</span> that we&#8217;re going to need to do X in the future&#8217;  There&#8217;s always something that the developer just knows for 100% sure will need to be done.  Next month we&#8217;ll need to be able to swap in a new implementation of this algorithm.  There might be a performance issue, so we&#8217;ll definitely need to be able to swap out this strategy.  I know there could be a lot of references in response to this that: <a href="http://en.wikipedia.org/wiki/You_ain%27t_gonna_need_it">You ain&#8217;t gonna need it.</a>  However, I don&#8217;t think that gets to the heart of the issue.  I think the more important question is what&#8217;s causing them to think that they are going to need it?  Why aren&#8217;t they thinking about the complexity cost they&#8217;re putting into the code?  The technical debt they&#8217;re adding.  Or WTF count, or whatever.  The fact that the next developer in 6 months has to figure out why you made something simple into a pluggable architecture, figure out how it works, and then try and bolt code onto it.  Why?<br /><br /><span style="font-size:130%;"><span style="font-weight: bold;">Architecture Astronauts</span></span><br /><br />One motivation certainly comes from the <a href="http://www.joelonsoftware.com/items/2008/05/01.html">architecture astronaut</a> camp.  You can spot these types  in a few ways.  Sometimes they&#8217;ll come out and say: &#8220;I prefer providing frameworks, not mucking around with business rules&#8221;.  They&#8217;ll usually also exist in some kind of special architecture group that delivers &#8216;frameworks&#8217; to &#8216;business groups&#8217;.  They&#8217;re also at varying levels of the organization.  Some &#8216;enterprise architects&#8217; make decisions to use things like SoA or to split your web application into 10 war files or a host of other decisions that lead to complexity.  Their heart is usually in the right place, and they honestly believe they&#8217;re making things better, but they&#8217;re usually so separated from delivering actual functionality, to actual end users, that they don&#8217;t realize how much pain and complexity they&#8217;re causing.  They don&#8217;t have to deal with the outcomes.  There are also architects actually writing framework code.  But when you&#8217;re an architect, architecture is the solution to every problem.  You look for additional places to add architecture.  You also almost never have to actually use it, so you don&#8217;t feel the pain.  And finally, there&#8217;s the cause I&#8217;ve heard most often: &#8216;The average developers here aren&#8217;t capable enough to work with [insert technology here] so we need to provide an architecture to make it easier for them&#8221;.  Even though it sounds like it, in most cases they aren&#8217;t trying to belittle their coworkers.  In many organizations architects are the senior developers and &#8216;application developers&#8217; are the junior developers, at least from an experience perspective.  There could even be a case where architects are on-shore and application developers are off-shore, which is a whole other level of organizational pain.  However, my main point is that they live outside of delivering business value.  Their job is to deliver complex frameworks.  I&#8217;ll leave out the organizational challenges that often lead to these positions being created, but in my experience its one of the biggest causes of overly complex code.  I could talk for a long time about this particular subject, but I&#8217;ll try and stay on topic and move on to the next cause of speculative generality.<br /><br /><span style="font-size:130%;"><span style="font-weight: bold;">Inability to effectively refactor the codebase<br /></span></span><br />Even when working with an application developer who is focused on actually delivering working code to end users and truly wants to deliver it quickly, you will find they have implemented a crazy abstraction for no good reason.  As I mentioned earlier in this post, the common reasoning is:  &#8216;I know I&#8217;m going to need feature x, so I created the strategyfatoryplugabblewidget&#8217;.  Ok then you say, why can&#8217;t you add that new feature next month when you need it?  In my experience, the true reason is generally because they know they&#8217;ll be afraid to next month.  The codebase is finicky, there aren&#8217;t a lot of tests, the feature they&#8217;re working on right now will have been signed off on, whatever.  Bottom line is, they won&#8217;t want to change it in the future for fear of breaking the existing functionality.  The overall system makes it difficult to refactor any code at all.  So, anytime they put in any new feature, they try and future proof all of it, so they just need to add one new class, or extend one abstract class or implement some interface and wire it in with spring.  Whatever it is, they never change or improve the existing codebase.  Their coding is just one long exercise in bolting in new classes and fixing bugs in existing code.  Sometimes the motivation can be worthwhile.  They don&#8217;t want to waste time &#8216;refactoring&#8217;, they want to provide new functionality.  Of course, this generally leads to complex and buggy code, which eventually catches up with them, causing work to grind to a halt, but they don&#8217;t want to think about that now.  And in their defense, without reasonable automated testing or an army of manual testers, refactoring code is really really hard.  And the longer you let things go, the harder it is to refactor.  It&#8217;s a vicious cycle.<br /><br />So what&#8217;s the conclusion here?  Of course, keeping hammering on the yagni principles.  Continue to push to make sure you&#8217;re doing the simplest thing that could possibly work.  However, make sure you code is reasonably easy to refactor.  Encourage refactoring in whatever way you can.  Although, it&#8217;s probably a separate post in and of itself about how to work refactoring into a general feature development cycle, but it can be done.  And ditch the architects.  Everyone is delivering business value, everyone is feeling the same pain.  And don&#8217;t accept complexity just because the code works.  It has it&#8217;s own cost.<br /><br /><span style="font-style: italic;font-size:85%;" >* Credit where credit is due, I got this term from Ram Singaram, a former colleague at ThoughtWorks. </span></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Interesting. I heard it from a Colleague that has worked at ThoughtWorks for a long time, so it&#39;s possible he got it from Martin directly or simply reading that book. Since he was the first person I heard it from, I gave him the attribution just to be fair. I have read that refactoring book though, if even an umber of years ago, so I&#39;m surprised I didn&#39;t recognize it.</div>
+</div>
+<div class='comment'>
+<div class='author'>Dana</div>
+<div class='content'>
+Do you suspect your colleague invented the term &quot;Speculative Generality&quot;? It&#39;s been around quite a while.<br /><br />http://c2.com/cgi/wiki?SpeculativeGenerality<br /><br />http://books.google.com/books?id=1MsETFPD3I0C&amp;pg=PA83</div>
+</div>
+<div class='comment'>
+<div class='author'>Dana</div>
+<div class='content'>
+This comment has been removed by the author.</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/01/26/velocity-anchors/">Velocity Anchors</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-26T13:37:00-06:00" pubdate data-updated="true">Jan 26<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+A former colleague of mine from my ThoughtWorks days, <a href="http://nomadic-developer.com/">Aaron Erickson</a> recently wrote a <a href="http://nomadic-developer.com/2011/01/26/velocity-101-get-the-engineering-practices-right/">blog post</a> about Engineering practices and how they impact a project&#8217;s velocity.  The post is good, and talks about some common engineering practices to help improve velocity.  However, the problem I&#8217;ve found on numerous projects, regardless of their level of engineering maturity is that they often don&#8217;t see that they even have any velocity issues.  The closest most projects get to is: &#8216;We want to release by date x, with feature-set y and at our current velocity that isn&#8217;t possible&#8217;.  Aaron&#8217;s post is a an example of positive ways to improve velocity, rather than the unsustainable practices of throwing more people at it or making everyone work 100+ hours a week.  But what really is the proverbial anchor slowing the velocity ship down?<br /><br /><span style="font-weight: bold;font-size:130%;" >Technical Debt?</span><br /><br />Martin Fowler wrote a recent blog post related to software craftsmanship where he talked about how much he hates <a href="http://martinfowler.com/bliki/MetaphoricQuestioning.html">using metaphors</a> to describe software development.  Technical debt is an often used metaphor for describing what is essentially causing velocity anchors in the codebase.  This is of course completely separate from process issues. (7 design meetings and signoff sessions before even starting to code will kill the velocity of even the cleanest codebase)  It&#8217;s a tempting metaphor to use.  Everyone understands the concept of debt from their own lives.  Your income is severely handicapped if every month a large percentage has to go to paying down debt.  The same can be applied mentally too, paying down debt every-time you code.  However, there&#8217;s a number of problems with using this metaphor.<br /><br /><span style="font-weight: bold;">People don&#8217;t understand debt</span><br /><br />Earlier I said &#8220;Everyone understands the concept of debt from their own lives&#8221; No, no they don&#8217;t.  Especially not in America.  In many ways our attitude towards debt in our personal lives mirrors the problems in codebases.  Can&#8217;t afford the new TV?  It&#8217;s cool, Best Buy has financing.  In fact, in many ways the concept of &#8220;I&#8217;m taking on acceptable debt now to get a feature out, and I&#8217;ll totally going pay it off next quarter&#8221; is what gets most companies into trouble in the first place.<br /><br /><span style="font-weight: bold;">The code fairies don&#8217;t send you a bill</span><br /><br />A credit card bill is tangible.  They mail you a piece of paper that says: &#8220;You have to pay this much right now or bad stuff is going to happen.&#8221;  And you know exactly what that bad stuff is.  Everyone knows what the end of this path is, and speaking as someone who has recently watched family go through it, bankruptcy sucks.  There is no such obviously painful end point to accumulating too much debt in your code.  The only thing I can tell you is: you&#8217;ll know it when you see it.  When you&#8217;ve spent years working on a codebase, and have a small percentage of the features you want done, and your retention rate is falling rapidly, you&#8217;ll know you have too much debt.  However, its really hard to make someone understand that when they&#8217;re staring at all the screens in best buy.<br /><br /><span style="font-weight: bold;">Software development is subjective</span><br /><br />Is that piece of code technical debt or a really clever architecture?  I bet you could take any random snippet from your codebase and ask two developers whether its technical debt or not and get two completely different answers.  Usually because one of them thinks you&#8217;ll &#8220;definitely need to let users add their own custom widgets in the future&#8221;.  (I&#8217;ll save the speculative generality rant for another day)  My point is that you could spend a lot of time trying to define what is debt vs. &#8216;good architecture&#8217; and end up being one of those people who hasn&#8217;t actually written code in years and has a calendar where every hour is triple booked.<br /><br />Its not really that hard of a concept really.  I&#8217;m not sure it even needs a metaphor.  Your developers are trying to get stuff done.  There&#8217;s a bunch of crap in the way making that take longer than it rightfully should.  If  you care about developer productivity, you try and hunt it down and fix it. If you don&#8217;t, then stop reading this and get back to your gant chart.  I bet if you put one more developer on that task the earn/burn ratio will look way better.  (Another rant for another day though)<br /><br />So, what are some of the things getting in the way of getting stuff done?<br /><br /><span style="font-weight: bold;">WTF?</span><br /><br />That&#8217;s the sound your developer makes when they are looking at a piece of code and can&#8217;t figure out what it&#8217;s doing.  it might be a bug fix or a new feature or whatever.  The bottom line is that they&#8217;re trying to get something done, but instead they spend hours digging through file after file trying to figure out why there are 7 variables named &#8216;chart&#8217; that all mean completely different things depending upon which part of the application they&#8217;re used in.  It&#8217;s a simple equation.  The number of WTFs is inversely proportional to developer productivity.  We could probably even make a Sonar widget for it.<br /><br /><span style="font-weight: bold;">Code Jenga</span><br /><br />Have you ever touched a piece of code to make what seemed like a simple bug fix only to realize that you just committed an atrocity?  One variable changes, and now the login page has no text?  It makes developers afraid to do anymore than the bare minimum required.  And if anything more is required, it takes forever, because they now have to climb the mountain of WTFs to accomplish the feature/bug fix.<br /><br />I&#8217;m sure I could come up with some more if I kept thinking about it.  But then I&#8217;ve seen plenty of teams brought to their knees because they spend the entire time arguing about which design pattern to use, or what&#8217;s the most productive IDE, or which BBQ restaurant is best. <br /><br />The only thing I&#8217;ve ever seen work is empowering developers* to make the right decision when the time comes.  They know the codebase, they know what&#8217;s slowing them down, let them make the decision.  Yes, stuff still has to get done.  Yes, releases still need to get out.  But by and large, if you let developers code and focus on solving business problems, most of the time they&#8217;ll make the right call.<br /><br />*Architects aren&#8217;t developers.  If they aren&#8217;t solving business problems, they&#8217;re not a developer.  I know, a bit hypocritical coming from someone who wrote a framework.<br /><br />Unless you have a team full of developers who don&#8217;t realize all the little things out of their day that&#8217;s killing their velocity.  15 minutes to do a build?  7 properties files to update for each change?  10 Different components that all inter-depend upon each other and require a certain build order for no good reason?  People get used to the craziest things, and unless someone points it out to them, won&#8217;t even notice.  And even if you do, they might just shrug and say: &#8216;I don&#8217;t mind&#8217;.  Then again, telling them they have too much technical debt doesn&#8217;t help much either.<br /><br />And maybe that&#8217;s my point really.  Regardless of all the engineering practices or programming language, or IDEs, there&#8217;s no guarantees.  Switching to Ruby won&#8217;t make your project ship on time.  Using TDD doesn&#8217;t mean you won&#8217;t have quality issues.  Meticulously planning every second of every day of the project from now until completion doesn&#8217;t mean you&#8217;ll make that date either.  The only thing you can do is focus on getting stuff done, hire the best, most passionate people you can, and hope for the best.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>yulumule</div>
+<div class='content'>
+Thank you for sharing the info. I found the details very helpful.<br /><br /><a href="http://consultantmediconline.com#785" rel="nofollow">cheap nolvadex</a></div>
+</div>
+<div class='comment'>
+<div class='author'>wuliinge</div>
+<div class='content'>
+Super-Duper site! I am loving it!! Will come back again â taking your RSS feeds also, Thanks.<br /><br /><a href="http://yourdoctorpharmacy.com/#453" rel="nofollow">cheap clomid</a></div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@Fabio<br /><br />That&#39;s a nice way of organizing issues.  I agree that it&#39;s really helpful when deciding how to tackle them to look effort vs. value or in the way you described it, pain reduction.  However, I suppose I&#39;m arguing that the technical debt metaphor isn&#39;t really helping us.  What you really have is a &#39;wall of stuff slowing us down&#39;  I think telling &quot;Management&quot; that it&#39;s slowing you down is the key message.  It doesn&#39;t matter what the metaphor used is, it&#39;s slowing you down.  I think its too easy for certain types to think of acceptable debt, which I suppose is true, but it beside the point.<br /><br />Thanks for the congratulations..<br /><br />@jcobbers<br /><br />I agree and I think it gets to the point of &#39;why we&#39;re being slowed down&#39;.  The answer in this case is: &quot;because it takes us hours to figure out what this piece of code is doing for no good reason&quot;</div>
+</div>
+<div class='comment'>
+<div class='author'>jcobbers</div>
+<div class='content'>
+I&#39;ve heard the technical debt can be measured as a rate of WTF&#39;s per minute out of developers mouths.</div>
+</div>
+<div class='comment'>
+<div class='author'>Fabio Pereira</div>
+<div class='content'>
+Very good post Lucas! Congratulations.. I completely agree that people don&#39;t understand their debt and it&#39;s hard for them to know where to start in terms of &quot;paying&quot;. On a previous project we created this Tech Debt Wall as part of a retrospective and it helped us a lot in terms of prioritising and maximising our efforts in fixing tech debt&#8230;<br />http://fabiopereira.me/blog/2009/09/01/technical-debt-retrospective/<br />Congratulations once again for the post.. very well written.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Thanks for the compliment!  I&#39;ll be sure to add your blog to my RSS feed.<br /><br />I suppose I really should get on this twitter thing everyone keeps talking about&#8230;</div>
+</div>
+<div class='comment'>
+<div class='author'>Carol Dekkers</div>
+<div class='content'>
+Lucas,<br /><br />Excellent posting and I&#39;m going to reference it in a future one of my own posts (http://musingsaboutsoftwaredevelopment.wordpress.com).<br /><br />It&#39;s great to find insightful and coherent writing like this one.  (I&#39;ve tweeted it already @caroldekkers).<br /><br />Thanks for putting your keystrokes to blog (rather than pen to paper). I&#39;m looking forward to future posts.<br /><br />Carolt</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/01/26/new-job/">New Job</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-26T13:28:00-06:00" pubdate data-updated="true">Jan 26<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+This post should have been made a month ago, so I apologize for the delay.  However, last month I left <a href="http://www.thoughtworks.com">ThoughtWorks</a> to pursue an opportunity a start-up called <a href="http://www.fundspire.com">Fundspire</a>.  I have accepted the position of CTO there and will be leading the technical direction of the software.  It&#8217;s a small company, so that&#8217;s really a fancy way of saying that I&#8217;ll be the one coding.  I plan to continue blogging and contributing to open source, with the same blessing from Fundspire as I received from ThoughtWorks.  The Fundspire solution has been implemented in Grails on Amazon EC2, so there should be more posts in the future around those technologies.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Thanks for the heads up Roshan.  I&#39;m still getting a handle on the new codebase.  The messaging issues you mentioned are fixed and will be in our next release.</div>
+</div>
+<div class='comment'>
+<div class='author'>Roshan Shrestha</div>
+<div class='content'>
+Registration page (https://app.fundspire.com/fundapp/register/index) gives these erros:<br /><br /># Property [email] of class [class com.fundspire.grails.security.RegistrationCmd] cannot be blank<br /># Property [company] of class [class com.fundspire.grails.security.RegistrationCmd] cannot be blank</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/12/14/groovy-puzzler/">Groovy Puzzler</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-12-14T19:52:00-06:00" pubdate data-updated="true">Dec 14<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+Consider the following code snippet:<div><br /><pre class="prettyprint"><br />def A = "A"<br />def B = "B"<br /><br />def map = ["${A}":1, (B):2, C:3]<br /><br />println map<br />println map[A]<br />println map[B]<br />println map["C"]<br />println map[C]<br /></pre><br /><br />What will be output?<br /><br />The first thing to consider is, what will groovy think the map is, given the 3 different ways entry are created.  However, printing it will return:<br /><br /><pre class="prettyprint"><br />[A:1, B:2, C:3]<br /></pre><br /><br />Looks like it all ended up being the same thing, no?<br /><br />Now consider what attempting to print a, b and c will give you:<br /><br /><pre class="prettyprint"><br />null<br />2<br />3<br />Exception thrown<br /><br />groovy.lang.MissingPropertyException: No such property: C for class: ConsoleScript27<br /> at ConsoleScript27.run(ConsoleScript27:10)<br /></pre><br /><br />Now, let&#8217;s think about what we&#8217;ve done here.  With A, we&#8217;ve added it using the normal syntax for dereferencing an object inside of a string, by surround it with ${} inside the string itself, somewhat similar to JSTL.  This is returning the string &#8216;A&#8217; correctly, but when attempting to reference it, it&#8217;s not found, thus returning null.</div><div><br /></div><div>With B, the correct way to dereference and object was used, by surrounding it with a parens.  This works as expected, and the referring object can even be used as a key.</div><div><br /></div><div>C used the string property approach.  That is, groovy treated it as the literal string &#8216;C&#8217;.  This is why referencing it as a [&#8220;C&#8221;] worked and [C] caused an exception.</div><div><br /></div><div>The following groovy page contains all you need to know about map manipulation in groovy: <a href="http://groovy.codehaus.org/JN1035-Maps"> http://groovy.codehaus.org/JN1035-Maps</a></div><div><br /></div><div>Next, let&#8217;s consider some of the very useful operations that groovy adds to normal java collections.  In this case, <a href="http://groovy.codehaus.org/groovy-jdk/java/util/Collection.html#max%28%29">max()</a>.  What will the following return?</div><pre class="prettyprint">def someList = ["75", 32, 3.2]<br /><br />println someList.max {item -><br /> return null<br />}<br /></pre><div>The answer is &#8220;75&#8221;.  This is because it&#8217;s the first item in the list.  If the closure passed to the max method returns null, the first item in the collection will be returned.</div><div><br /></div><div>Now, imagine the following scenario.  You mess up how you reference the map, inadvertently causing null to be returned for all calls.  You then use this map in a closure for the max method.  You don&#8217;t catch any of this because in your unit test the first element should be the max.  Now, imagine the list you&#8217;re operating on was obtained from a database via GORM, which means the order will vary from call to call, since there is no order guarantee without an orderby clause, which isn&#8217;t there.  So, on the webpage you&#8217;ll see the value change everytime you call it, but when you debug, the map will look correct.  Hours later, you&#8217;ll discover that you didn&#8217;t create the Map correctly, even though inspecting it in debug, and printing it out in unit testing will show that it looks correct.</div><div><br /></div><div>While I don&#8217;t know Groovy that well yet, I can understand at least some of the mechanisms that would lead to that behavior.  However, I wonder two things:</div><div><ol><li>Why does the map print out the way it does?  I need to do some more digging into the Groovy Map implementation to figure out what underlying mechanism is causing it, but it seems like there could be some kind of way of determining how it&#8217;s being stored.  Meaning, there&#8217;s obvious differences between the 3 entries, but you won&#8217;t see it visually when printing, and you won&#8217;t be able to determine it easily in a debugger.  (Although, I may have missed something important when looking)</li><li>Should the closure returning null for every element behave this way?  I suppose there isn&#8217;t much way around it, when you consider a scenario where null is returned in some but not all cases. </li></ol><div><br /></div></div><div><br /></div><div><br /></div><div><br /></div></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Wombatolog</div>
+<div class='content'>
+I try to println the element of this map by first key (GString = &quot;A&quot;), result is null again.<br /><br />groovy:000&gt; println map[map.keySet().iterator().next()]<br />null<br />===&gt; null<br /><br />Seems like a bug in the groovy map.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@Danno<br /><br />Thanks for the clarification.  I assumed it was probably something related to GString.  It reminded me of a classloader issue where I thought I had the same two classes, but it turns out they were loaded from different classloaders.  I&#39;ve seen quite a few bugs related to confusion around String and GString when googling for answers.  I&#39;ll have to make sure I do more research on it.<br /><br />I understand the issue underlying your second point.  When within [] tags it assumes it&#39;s a string, kind of like a ruby hash, but outside of that it considers it to be a variable, which it isn&#39;t finding.  It can still be an easy mistake to make, since only position relative to brackets indicate usage.  It does throw an exception when hit though, so its something I would likely catch in a unit test.  It still can be confusing if you&#39;re not used to looking at Groovy code.<br /><br />Is there some easy way of seeing the difference between a GString and a String at runtime?  Or is it just familiarity with Groovy over time?</div>
+</div>
+<div class='comment'>
+<div class='author'>Danno Ferrin (aka shemnon)</div>
+<div class='content'>
+regarding the maps:<br /><br />The first issue is that the string &quot;${A}&quot; will result in a groovy.lang.GString, not a String.<br /><br />The second issue has to do with the unbound reference to C.  Since it looks like a variable it will be treated as a variable.  And since it is not declared it is an &#39;unbound variable&#39; that will be looked up in the binding.  The script could work if called from some other source and passed in with a binding where C is defined to some value.</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/12/10/groovy-metaprogramming/">Groovy MetaProgramming</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-12-10T11:09:00-06:00" pubdate data-updated="true">Dec 10<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+While working on a Grails project I started investigating groovy meta-programming.  I wanted to be able to add one method per class for every Enum in the containing class.  (I&#8217;ll have an example below)<br /><br />The official groovy documentation on the topic is here: <a href="http://groovy.codehaus.org/ExpandoMetaClass">http://groovy.codehaus.org/ExpandoMetaClass</a><br /><br />Most examples show something like the following:<br /><pre class="prettyprint"><br />//Add new method call printHello<br />SomeClass.metaClass.printHello = { print "Hello" }<br />def instance = new SomeClass()<br /></pre><br />Which of course when run will print &#8220;Hello&#8221;.<br /><br />However, I didn&#8217;t know the method was called at runtime, I just wanted to add one for every entry in an enum.  It&#8217;s not hard, but there isn&#8217;t an example out there, after a little playing in the groovy console, I figured it out:<br /><pre class="prettyprint"><br />enum Status {A,B,C}<br /><br />class User{<br />   def status<br />}<br /><br />Status.each{ statusEnum -><br />   User.metaClass."is${statusEnum.name()}" = {<br />       return status == statusEnum<br />   }<br />}<br /><br />def user = new User()<br />println user.isA()<br />user.status = Status.A<br />println user.isA()<br />println user.isB()<br />user.status = Status.B<br />println user.isB()<br /></pre>While will output:<br /><pre><br />false<br />true<br />false<br />true<br /></pre><br />Of course, this isn&#8217;t exactly complex, and I may find that I don&#8217;t like how this turns out, but I couldn&#8217;t find an example of this type of Groovy meta-programming example, so I thought I would share.</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/11/09/maven-and-continuous-delivery/">Maven and Continuous Delivery</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-11-09T23:30:00-06:00" pubdate data-updated="true">Nov 9<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+There has been an interesting discussion going on recently in the Maven user group list about Continuous Delivery:<a href="http://maven.40175.n5.nabble.com/Continuous-Delivery-and-Maven-td3245370.html"><br /><br />http://maven.40175.n5.nabble.com/Continuous-Delivery-and-Maven-td3245370.html</a><br /><br />My colleague here at ThoughtWorks, <a href="http://www.jezhumble.net/">Jez Humble,</a> contends that the SNAPSHOT model that Maven uses is prohibitive to many of the principles espoused in his <a href="http://www.continousdelivery.com/">book</a>.  And I have to say, I largely agree with him.<br /><br />Before diving into why I agree with him, it&#8217;s worthwhile to add a bit of context.  I&#8217;m one of a minority of people in ThoughtWorks that prefer Maven to Ant.  That&#8217;s not to say that we don&#8217;t deliver projects using Maven, but if given a choice, most ThoughtWorkers prefer Ant.  Personally, I have had a long history of using Maven, starting with my work with <a href="http://static.springsource.org/spring-batch/">Spring Batch</a>.  That&#8217;s not to say that Maven doesn&#8217;t have it&#8217;s problems, but if given a choice, I&#8217;ll start a project with Maven.  (Why that&#8217;s the case would certainly be worthy of another blog post)  I mention all of this because I am not bringing up issues with the release model of Maven to bash it because I hate the tool.  I bring it up because I think there can be improvements in how Maven thinks about and deals with releases.<br /><br />I remember the first time I had to cut a release with Maven oh so many years ago. I had my project working, everything was in exactly the state I wanted it to be into for release.  All I needed to do was create the final cut.  Like a good Maven user, I went to check out the documentation for how Maven approached releases.  I quickly found the section on the release plugin and thought &#8216;Aha, I just need to use this plugin, and my release will be painless, thanks Maven!&#8217;  Of course, reality is never that simple.  The maven release project has two &#8216;phases&#8217; prepare, and then the actual release.  Below is a list of what Maven does during the prepare phase, shamelessly pulled from the <a href="http://maven.apache.org/plugins/maven-release-plugin/examples/prepare-release.html">official plugin site</a>:<br /><ul><li>Check that there are no uncommitted changes in the sources</li><li>Check that there are no SNAPSHOT dependencies</li><li>Change the version in the POMs from x-SNAPSHOT to a new version (you will be prompted for the versions to use)</li><li>Transform the SCM information in the POM to include the final destination of the tag</li><li>Run the project tests against the modified POMs to confirm everything is in working order</li><li>Commit the modified POMs</li><li>Tag the code in the SCM with a version name (this will be prompted for)</li><li>Bump the version in the POMs to a new value y-SNAPSHOT (these values will also be prompted for)</li><li>Commit the modified POMs</li></ul>The SCM related bits make sense.  Of course you need to create a tag that coincides with the release.  However, the majority of the remaining bullets are around modifications to the POM files themselves, and checking that other POM files aren&#8217;t in a &#8216;SNAPSHOT&#8217; state.<br /><br />I didn&#8217;t understand that process years ago, and I still don&#8217;t understand it today.  I have my codebase, I&#8217;ve tested it thoroughly, both with unit, integration, automated, and manually testing. I just want to take the &#8216;binary&#8217; that I&#8217;ve been using, and promote it to production while also taging the SCM revision that created it.  Why does a snapshot state even matter?  I suppose with external dependencies there are some concerns about APIs changing underneath you.  However, what does it matter, you have working code, right now, surely the changing API is a problem for tomorrow, not the release of today?<br /><br />In my time at ThoughtWorks, and other consulting experience, I have always prognosticated that the same build that a developer makes on his machine, and ultimately what will come out of CI (because he or she commits that revision) should look as identical as possible to what will be in production.  Why add an extra step to change anything at all?<br /><br />In short, I agree with Jez, why can&#8217;t every artifact created from mvn deploy be potentially a release into production?  The only value I&#8217;ve seen the snapshot concept add is away to describe a dependency as &#8216;whatever the latest CI has produced is&#8217;.  It seems to me its just as easy to say: &#8216;any release greater than x.y&#8217; and call it a day, which is something Maven supports now as well, at least from a dependency declaration perspective.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Danijel Arsenovski</div>
+<div class='content'>
+@dantheperson <br />Exactly.<br /><br />Finally, you can always NOT use snapshots. If the team works on the same artifact, no need to use snapshot mechanism to update the binaries anyway and the current project will be updated through code repository. Dependencies can be updates through mvn versions:display-dependency-updates.</div>
+</div>
+<div class='comment'>
+<div class='author'>dantheperson</div>
+<div class='content'>
+<i>However, what does it matter, you have working code, right now, surely the changing API is a problem for tomorrow, not the release of today?</i><br /><br />Snapshots changing beneath you is a problem for tomorrow, but it&#39;s a problem you need to solve today.<br /><br />So you&#39;ve released 1.1.1 and a couple days later a critical bug is discovered and you need to do an emergency intra-day release.<br /><br />Work on trunk has continued on features that are user visible and you don&#39;t want to release them till the next regular release after the end users have been notified of the changes.<br /><br />No problem, just create a branch from your 1.1.1 release tag, fix the bug, and build 1.1.2 right?  <br /><br />Not if you have snapshot dependencies, because when you checkout the source and build, it pulls down the latest snapshot dependencies which are going to be newer than the one you pulled in last week, which might not compile, or even worse will have subtle bugs that only show up during the exhaustive testing that you don&#39;t have time to give to this emergency patch release.<br /><br />So as your builds aren&#39;t repeatable with snapshot dependencies, the path you have to take is to start with your last binary distribution, and patch in just the jar you want. And once you&#39;ve done that you&#39;re distributing binary images that you can&#39;t rebuild from source.  Good luck supporting that.</div>
+</div>
+<div class='comment'>
+<div class='author'>Christopher</div>
+<div class='content'>
+I must say that I followed this thread on the Maven Users list and got a little lost with it. I don&#39;t really understand where Jez is coming from.<br /><br />From my own perspective, I&#39;ve never had an issue with the release plugin. I like how it works; particularly when you have many developers all working on the same thing and you want to take something out of the CI stream at a particular rev and then release it.<br /><br />I wonder if this debate is an academic one, or whether there really was some issue Jez came across to fuel the debate. If it is the latter then it&#39;d be great to hear about what happened in reality.<br /><br />Maybe Thoughtworks should develop a new release plugin also given that I don&#39;t see Maven itself being the issue.</div>
+</div>
+<div class='comment'>
+<div class='author'>Curt Yanko</div>
+<div class='content'>
+I have never cared for the release plugin either, didn&#39;t make sense to me. Still the idea of transmorgafying your SNAPSHOTS into a *release* is fine if you your not worried about reproducibility. The amount of effort to compensate for that is on the wrong side of an 80/20 equation imo. Sadly, far too many Maven users devolve into using SNAPSHOTS for the wrong reasons, namely laziness. The byproduct of years of neglect for the build process in general as a second class, low value, activity not worthy a a developers attention or time.<br /><br />Ant clearly lends itself to CD because it doen&#39;t try to manage the build dependencies, a simple *.jar in the &#39;ol lib folder will do, thank you very much. And why not? It&#39;s all in there right? &#8230;managed by good &#39;ol SCC tools. But Maven wants you to be more prescriptive about those yet out of old habits many see SNAPSHOTS as the mechanism to keep doing things the old,l easy, way.<br /><br />In Maven, when you have *value* you need to release it (pin it down so-to-speak). Myself and others in that thread did flip the problem around and re-approached it with Dependency ranges in mind which imo provides a much clearer path forward to craft a plugin that can meet the needs of CD. Dependency ranges provide the ease-of-use of SNAPSHOTs but resolve to real, released, versions at build time which can be captured and codified.<br /><br />I&#39;m sure I have a lot to learn about CD but I&#39;m also sure the Maven community will get there.</div>
+</div>
+<div class='comment'>
+<div class='author'>Michael Hüttermann</div>
+<div class='content'>
+in my opinion the best approach is: people over processes over tools.<br /><br />Thus Maven&#39;s release plugin can be the best choice in the case your process is exactly what the plugin offers. In other cases, you need to set up an infrastructure that maps to your release process. I agree with Jason, this often is part of the activities of (technical) release management. <br /><br />I like Maven and its concepts. That said, the process of chosing the right tool is aligned with concrete requirements. As a result of this Ant can be the best choice in a specific situation, in other cases it is Maven or something completely different.</div>
+</div>
+<div class='comment'>
+<div class='author'>Jason van Zyl</div>
+<div class='content'>
+Unfortunately, but naturally, users tend to think that the release plugin embodies all best practices for Maven with respect to releases, but in practice many people accept it&#39;s flaws &#8211; for which there are many &#8211; or remake their own tools.<br /><br />I believe the separation of snapshot and release repositories are required but the extraction of a release should happen as the process of extracting that release from a stream of potential releases. Given you could assert all conditions of the build you should be able to tag the code, and pluck the snapshot out and promote it to a release repository.<br /><br />I don&#39;t think you would have any disagreements with you from a release management perspective. Someone just needs to do the two weeks of work to add the tooling.</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/4/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/2/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

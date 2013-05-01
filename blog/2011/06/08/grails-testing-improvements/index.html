@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Grails testing improvements - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Peter Ledbrook put up a new blog post detailing some of the improvements to come 1.4 for unit testing grails: http://blog.springsource.com/2011/06/ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2011/06/08/grails-testing-improvements">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Grails Testing Improvements</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-08T10:08:00-05:00" pubdate data-updated="true">Jun 8<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+Peter Ledbrook put up a new blog post detailing some of the improvements to come 1.4 for unit testing grails: <a href="http://blog.springsource.com/2011/06/07/countdown-to-grails-1-4-unit-testing/">http://blog.springsource.com/2011/06/07/countdown-to-grails-1-4-unit-testing/</a><br /><br />There&#8217;s some awesome stuff in there. I had read a bit about the new features in milestone 1. But it didn&#8217;t show the kind of details that Peter has. I&#8217;m especially excited about these two features:<br /><ol><li>Full Gorm testing. It looks like they&#8217;re using some kind of noSQL database in-memory. I&#8217;m interested to see if it will slow down the unit test at all, but the method of testing is much more intuitive. The whole mockDomain(Class,listOfInstances) felt a bit dirty, and it was kind of brittle if you used any kind of inheritance at all.</li><li>Improved JSON response testing. Grails now does the work in the mock response of converting the JSON response to a proper object hierarchy. In my own testing, I could get halfway there by converting the responseText to JSONObjects, but they were a bit painful to work with at times. (especially arrays)<br /></li></ol>Those two fixes represent for me the only real issues I have with grails unit testing. The annotations are nice, but I had given up on the test hierarchy long ago. You can use MockUtils easily in the same way that GrailsUnitTest does.<br /><br />That leaves only one major complaint for me regarding testing and Grails: Integration testing. Its nice that they found ways to allow for using unit testing more often, but it doesn&#8217;t solve the fundamental problem. Integration testing takes too long because you have to start the world. Lately I&#8217;ve been working a lot with ElasticSearch, and I refused to put it in the Integration test folder and rely on the bootstrap. In the test setup I brought up an in-memory ElasticSearch instance and test against it. Its definitely an integration test, but I can run it in about 6 seconds. It takes longer than that for Grails to resolve dependencies. (Which is something I hear they&#8217;re addressing in 1.4) Its all perfectly fine for CI, but you can&#8217;t use it to test on the fly. Its far too tempting to do a run-war and fiddle with it that way. It seems like it wouldn&#8217;t be too difficult to bring up a persistent integration testing environment. In truth, it would probably still be some kind of headless container that you could keep running integration tests in without having to restart the container. I&#8217;ve seen a few other Grails bloggers mention it though, so perhaps its on the roadmap somewhere? Maybe post 1.4?</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Graeme,<br /><br />I&#39;ve tried that once or twice before and its still was too slow to run it reliably. I know one issue you&#39;re addressing is dependency resolution, but what are the other issues to speed it up in interactive mode in 1.4?<br /><br />I still kind of wish I could start an integration environment in something like Jetty with an overlay, and just runs tets, which perhaps under the covers are either JMX or &#39;web service&#39; calls to run tests in the container and report back results.</div>
+</div>
+<div class='comment'>
+<div class='author'>Graeme Rocher</div>
+<div class='content'>
+For speeding up integration testing we recommend using interactive mode which is greatly improved in 1.4. In 1.3.x you can do:<br /><br />{code}<br />grails interactive<br />{code}<br /><br />Then type test-app, but it has a few issues which we&#39;re addressing in 1.4</div>
+</div>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-08T10:08:00-05:00" pubdate data-updated="true">Jun 8<span>th</span>, 2011</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2011/06/08/grails-testing-improvements/" data-via="" data-counturl="http://lucaslward.github.io/blog/2011/06/08/grails-testing-improvements/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/06/06/im-speaking-at-chicago-groovy-user/" title="Previous Post: I'm speaking at Chicago Groovy User Group on June 14th">&laquo; I'm speaking at Chicago Groovy User Group on June 14th</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/06/18/open-symphony-rip-2000-2011/" title="Next Post: Open Symphony, RIP (2000 - 2011)">Open Symphony, RIP (2000 - 2011) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -9,7 +9,7 @@
   <meta name="author" content="Your Name">
 
   
-  <meta name="description" content=" Blog Archives Recent Posts ">
+  <meta name="description" content="Quite awhile ago I wrote a plugin for Hibernate Envers. You can find the original blog post here:&nbsp;http://www.lucasward.net/2011/04/grails- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,7 +66,413 @@
       <div class="blog-index">
   
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers Plugin Update</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-11T16:55:00-05:00" pubdate data-updated="true">Apr 11<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+Quite awhile ago I wrote a plugin for Hibernate Envers. You can find the original blog post here:&nbsp;<a href="http://www.lucasward.net/2011/04/grails-envers-plugin.html">http://www.lucasward.net/2011/04/grails-envers-plugin.html</a><br /><br />After that I got insanely busy with my startup. The Grails releases started to pile up and you can see the comments of the original blog post asking about when new releases of Grails would be supported. The great thing about open source (and especially github) is that others could take what I did and build on it easily. After my startup sold a few months back, I peeked my head back up to see what had happened with the plugin. Tomasz Kalkosinski summarized what had happened with forks by lots of people:&nbsp;<a href="http://refaktor.blogspot.com/2012/08/hibernate-envers-with-grails-210.html">http://refaktor.blogspot.com/2012/08/hibernate-envers-with-grails-210.html</a><br /><br />From following the chain it looks like the following group all provided individual contribution to the plugin:<br /><br /><ul><li>Jay Hogan</li><li>Tomasz Kalkosiński</li><li>Damir Murat</li><li>Matija Folnovic</li><li>Alexander Abdugafarov</li></ul><div>If I have missed anyone, I sincerely apologize. That&#8217;s at least who I could find in various commit logs.</div><div><br /></div><div>I took the various commits from everyone and turned it into three versions of the plugin that you can find in the Grails central plugin repository:</div><div><ul><li>1.0.0</li><li>2.0.0</li><li>2.1.0</li></ul><div><br />- 1.0.0 -&gt; This is my original version of the plugin that works for 1.3.6. I made a separate release because I know others that are still suck on an older version of grails. So, having a version they can download without having to pull down the old zip is helpful.</div></div><div>- 2.0.0 -&gt; This is the version mostly with work from Jay Hogan. It provides support for Grails 2.0.x and cleans up a few things.</div><div>-2.1.0 -&gt; The latest release I could find. It appears to support Grails 2.1.x, although I had no issues with it working on 2.2.1. It may be what was pushed to the grails repo as 0.4.4.</div><div><br /></div><div>You can see all the versions in the Grails maven repo:&nbsp;<a href="http://repo.grails.org/grails/plugins/org/grails/plugins/envers/">http://repo.grails.org/grails/plugins/org/grails/plugins/envers/</a></div><div><br /></div><div>&nbsp;Please feel free to submit any pull requests to:&nbsp;<a href="https://github.com/lucaslward/grails-envers-plugin">https://github.com/lucaslward/grails-envers-plugin</a></div></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire Has Been Acquired</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-25T12:46:00-06:00" pubdate data-updated="true">Jan 25<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+This is definitely a bit belated, however, I wanted to announce on my blog that my startup, Fundspire, was acquired by Evestment last <a href="http://finance.yahoo.com/news/evestment-acquires-pertrac-fundspire-140000958.html" target="_blank">November</a>. Nothing much changes for me day to day, and I&#8217;m hopeful that it will allow more time to blog and work on my open source projects. I still very much need to get the grails envers plugin in the official repo and upgraded to support the latest versions of grails.</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to Figure Out What the Grails Meta-methods Do</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-12T11:29:00-05:00" pubdate data-updated="true">Oct 12<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+Since I code in Grails everyday, I periodically have friends and&nbsp;acquaintances that are learning the framework asking me questions. By far the most common one is something like: &#8220;where are all of these magic methods coming from!?!?!?!&#8221;<br /><br /><a href="http://4.bp.blogspot.com/-GGm0H6ccXYI/UHg4RrrewfI/AAAAAAAAACc/8sIiO1IBoiM/s1600/Screen+Shot+2012-10-12+at+10.31.16+AM.png" imageanchor="1" style="clear: right; float: right; margin-bottom: 1em; margin-left: 1em;"><img border="0" height="400" src="http://4.bp.blogspot.com/-GGm0H6ccXYI/UHg4RrrewfI/AAAAAAAAACc/8sIiO1IBoiM/s400/Screen+Shot+2012-10-12+at+10.31.16+AM.png" width="146" /></a>Grails heavily uses <a href="http://groovy.codehaus.org/Dynamic+Groovy" target="_blank">Groovy meta programming</a>&nbsp;across every tier, but especially in controllers and domain objects. One example would be domainObject.save(), another would be the render method on controllers. You can see a list of all these dynamic methods in the grails documentation:&nbsp;<a href="http://grails.org/doc/latest/" target="_blank">http://grails.org/doc/latest/</a>&nbsp;I can&#8217;t find a good way to link to just the dynamic methods, but on the right side of the documentation there is a quick reference section that contains a listing of all the available methods and brief descriptions if you click through.<br /><br />While it&#8217;s definitely the best way to figure out what meta-methods are available to you, it doesn&#8217;t help you figure out exactly what those methods are doing. Furthermore, the documentation is generally pretty brief around how to use them. In my experience the best way to see all the configuration options and understand what&#8217;s happening is to look at the actual methods that are added to your controllers and domain objects. However, because they&#8217;re added to the &#8216;metaClass&#8217; of these classes when Grails bootstraps it can be difficult to figure out where and how they&#8217;re added.<br /><br />Fortunately, it&#8217;s not as bad as you think. Grails follows it&#8217;s own recommendations well and as a result all of these methods are added in the exact same fashion as they would be in a normal plugin. So, what you need to look for are the plugins that add them. I&#8217;ll start first with the Domain classes because they&#8217;re the most complicated and also the ones you will most likely need to understand. (More information on Grails plugins can be found <a href="http://grails.org/doc/latest/guide/plugins.html" target="_blank">here</a>)<br /><h3><b><br /></b></h3><h3><b>GORM Dynamic methods</b></h3>The first thing to note when examining the GORM Methods is that it was designed to be plug and play from the get go. By default GORM is a hibernate implementation connecting to a standard RDBMS. However, that can be changed to use something like <a href="http://blog.mongodb.org/post/18510469058/grails-in-the-land-of-mongodb" target="_blank">Mongo</a>. To keep things simple I&#8217;ll assume the default.<br /><table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center;"><tbody><tr><td style="text-align: center;"><a href="http://1.bp.blogspot.com/-i-adGG_Rgm4/UHg7xejuXCI/AAAAAAAAACs/WiODQqELVxI/s1600/Screen+Shot+2012-10-12+at+10.46.35+AM.png" imageanchor="1" style="margin-left: auto; margin-right: auto;"><img alt="" border="0" height="200" src="http://1.bp.blogspot.com/-i-adGG_Rgm4/UHg7xejuXCI/AAAAAAAAACs/WiODQqELVxI/s640/Screen+Shot+2012-10-12+at+10.46.35+AM.png" title="HibernateGrailsPlugin" width="640" /></a></td></tr><tr><td class="tr-caption" style="text-align: center;">In IntelliJ the hibernate plugin is included with all other project plugins</td></tr></tbody></table>As you can see, just like any other plugin, the hibernate plugin adds the dynamic methods in doWithDynamicMethods. In this case it&#8217;s delegating to another class, likely to allow for easier testing. I&#8217;m not going to go through the entire class, but it&#8217;s fairly straightforward from here, as most of the dynamic methods are added directly by HibernatePluginSupport.<h3><br /></h3><h3>Controller Dynamic Methods</h3><div>The controller methods are a little bit harder to find. Like the Hibernate plugin above, they are added via a plugin. However, you won&#8217;t find it with the normal plugin list, as it&#8217;s &#8216;core&#8217;. (Unless something massive has changed in 2.0)&nbsp;</div><div><br /></div><div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-JP202gjFz1I/UHg9okZhkiI/AAAAAAAAAC0/6z1K_uirKBI/s1600/Screen+Shot+2012-10-12+at+10.54.45+AM.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="168" src="http://2.bp.blogspot.com/-JP202gjFz1I/UHg9okZhkiI/AAAAAAAAAC0/6z1K_uirKBI/s640/Screen+Shot+2012-10-12+at+10.54.45+AM.png" width="640" /></a></div><div><br /></div><div>You&#8217;ll find when you look in this class that there&#8217;s a pretty natural separation of concerns, there&#8217;s a class for adding just the render methods, etc. In general, you can find most dynamic methods by searching for *GrailsPlugin.groovy.</div><div><br /></div><div>Hopefully this helps you understand better how the Grails &#8216;magic&#8217; works. Anyone with experience in Spring MVC or Hibernate will recognize most of what these methods are doing, but if not I suggest you do a quick look through those products to help you understand what&#8217;s happening.</div><div><br /></div></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Burt</div>
+<div class='content'>
+This is true before 2.0, but in 2.0+ most of the domain class methods and controller methods are added directly to the bytecode via ASTs rather than dynamic metaprogramming. Real dynamic methods like dynamic finders (e.g. findByFooAndBar) have to be added at runtime, but methods with fixed signatures like save() are added by the compiler.<br /><br />Also one small correction - GORM was not originally designed to be pluggable, it was retrofitted in 2.0 to be so; before that it was tightly coupled to Hibernate.</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session Controls With Grails</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-08T12:15:00-05:00" pubdate data-updated="true">Aug 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+While it isn&#8217;t a problem for most website, many have a requirement to control how many users can be connected concurrently. This is usually related to sites that sell &#8216;per user&#8217; licenses, such as my current company. Unfortunately, this isn&#8217;t very straightforward in Grails.<br /><br />First thing to note: Grails Spring Security plugin doesn&#8217;t support concurrent session. Spring security does have the feature, and the plugin doesn&#8217;t prevent it from being used, but it doesn&#8217;t help either. And it&#8217;s a bit harder because you don&#8217;t have the advantage of the spring security namespace to help with some of this. Most of the information I found on how to set this up came from this blog post: <a href="http://blog.block-consult.com/2012/01/restricting-concurrent-user-sessions-in-grails-2-using-spring-security-core-plugin/">http://blog.block-consult.com/2012/01/restricting-concurrent-user-sessions-in-grails-2-using-spring-security-core-plugin/</a>. Using that as a guide, There are three things that have to be added to resources.groovy:<br /><blockquote class="tr_bq">sessionRegistry(SessionRegistryImpl)<br /><br />concurrencyFilter(ConcurrentSessionFilter) {<br />&nbsp; &nbsp; sessionRegistry = sessionRegistry<br />&nbsp; &nbsp; logoutHandlers = [ref(&#8220;rememberMeServices&#8221;), ref(&#8220;securityContextLogoutHandler&#8221;)]<br />&nbsp; &nbsp; expiredUrl=&#8217;/login/invalidated&#8217;<br />}<br /><br /><br />concurrentSessionControlStrategy(ConcurrentSessionControlStrategy, sessionRegistry) {<br />&nbsp; &nbsp; alwaysCreateSession = true<br />&nbsp; &nbsp; exceptionIfMaximumExceeded = true<br />&nbsp; &nbsp; maximumSessions = 1<br />}</blockquote>The SessionRegistry is just a mechanism with a thread-safe map to register new sessions. It&#8217;s stores them both by session id and by principal. It uses a class called SessionInformation. This object contains some information, such as the last time anything happened on this session, and if it&#8217;s expired. In general, sessions are only registered by the ConcurrentSessionControlStrategy. This strategy actually extends the Spring SessionFixationStragey, which is a whole other ball of wax I won&#8217;t go into. Either way, this strategy is generally used by the UsernamePasswordAuthenticationFilter. Normally I imagine this is setup using the spring namespace. However, in grails you have to deal with it manually. The way I found for it to work is an entry in boostrap.groovy: <br /><blockquote class="tr_bq">authenticationProcessingFilter.sessionAuthenticationStrategy = concurrentSessionControlStrategy</blockquote>What this strategy does is enforce *at authentication time* various rules about concurrent sessions. In our case, we set the Maximum sessions to 1. I also set it to throw an exception if it&#8217;s exceeded. It basically stops the authentication. I do this because I would prefer to tell the user what will happen if they log in: the other session will be expired. This is done by the strategy by looping through the SessionInformation objects tied to the given principal and calling expireNow() on the least recently used one.<br /><br />Which brings me to the filter.<br /><br />The filter shown above is inserted into the standard spring security authentication filter chain. From the blog post above, it can be added to the filter chain using the following code in bootstrap.groovy:<br /><blockquote class="tr_bq">SpringSecurityUtils.clientRegisterFilter(&#8216;concurrencyFilter&#8217;, SecurityFilterPosition.CONCURRENT_SESSION_FILTER)</blockquote>Basically, what the filter does is call the SessionRegistry for the given session id. If there is a session information and it is marked as expired, it forces a redirect to the provided &#8216;expiredUrl&#8217;. <br /><br />Once this is done, it generally works as you expect. If you prevent a user from logging in, it&#8217;s fairly simple to mark other session information as &#8216;expired&#8217; and the filter will then redirect them to the &#8216;expiredURL&#8217;. <br /><br />Unless you&#8217;re using Remember me, in which case everything is screwed. <br /><br />If you notice in the config of the filter, there&#8217;s a couple of log out handlers, and one of them is the remember me service. Which removes the remember me token when the filter &#8216;expires&#8217; the session. But there&#8217;s still a gigantic problem: RememberMe tokens are processed by a completely different filter that is oblivious to the concurrent session control. This is the RememberMeAuthenticationFilter. Keep in mind that the username and password filter is only called for a specific url and is usually posted to by some login page. So, it only touches a request if the url of the request matches the one it&#8217;s looking for.  <br /><br />So, here&#8217;s the scenario: User A logs in with a remember me token. The normal UsernamePasswordAuthenticationFilter is called. Because there&#8217;s the remember me option enabled. (easily setup by the grails plugin) It tells the RememberMeServices to add the cookie to the response. Everything is fine after that. So, let&#8217;s say that user sits idle for a bit and their session expires. The SessionRegistryImpl is also setup to receive HttpSession change events. This is setup by turning on the session event publisher via an option in config.groovy. Something like: grails.plugins.springsecurity.useHttpSessionEventPublisher = true. Which, is also necessary for concurrent session handling to work. <br /><br />The container expiring the session causes the registry to remove the SessionInformation for this session from the registry. Now, let&#8217;s say another user logs in with the same credentials (the same principal in Spring Security terms) That user is logged in and now has a session tied to that principal in the registry. Now, let&#8217;s say that the first user with the remember me cookie starts using the application again. This creates a request that doesn&#8217;t have a security context, which would normally punt you back to login. However, the RememberMeAuthenticationFilter sees the cookie and authenticates the user. In this case, it&#8217;s actually a slightly different Authentication object, but the user is still authenticated. The RememberMe filter never looks at the registry or strategy, so as far as the SessionRegistry is concerned, there is still only one user for this principal. Thus the user with the token can use it all day long without running afoul of the concurrent session limits. What this basically means is that anyone using Spring Security with remember me can bypass concurrent session limits by using a remember me token and letting their session expire.<br /><br />My first assumption was that there was something that needs to be setup that wasn&#8217;t being done. Maybe something the namespace was doing. But I can&#8217;t find any hook in either the remember me filter of the service for anything that would handle this. Even looking at newer versions of spring security, the only changes I see are for the registry to use java.util.concurrent, which was probably done after 3.1 when they could assume Java 5.<br /><br />There are some pretty reasonable extension points to the filter though. I extended it and overrode the method onSuccessfulAuthentication, thinking I could do some of the same things the strategy does. I could register a new information and mark others as expired. But it gets a bit complicated. In this case, I think the users with the token coming back from idle should be the one bounced. Which isn&#8217;t super hard, as long as the remember me filter is before the ConcurrentSessionFilter. However, there&#8217;s all kinds of potential threading issues. Especially if an application uses ajax. It&#8217;s really non-deterministic. I honestly think that the registry would need to be upgraded to understand the RememberMe cookie. <br /><br />Usually, when working with an established open source project, I assume that I&#8217;m doing something wrong. However, when looking through the code, I can&#8217;t find anything to handle this properly.<br /><br />So, my current bottom line is this: Concurrent Session can be used with the Grails plugin, however, not if you allow your users to use a &#8216;remember me&#8217; token.<br /><br /><b><span style="font-size: large;">Update</span></b><br /><br />I had passed on this issue to some friends at Vmware, and it looks like I was correct: Concurrent Session doesn&#8217;t work with RememberMe. Here&#8217;s the ticket that was created:&nbsp;<a href="https://jira.springsource.org/browse/SEC-2028">https://jira.springsource.org/browse/SEC-2028</a></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>BadBob</div>
+<div class='content'>
+Great and very detailed article. It helps me so much. Thanks a lot.<br />Your issue was closed as duplicate. Actual issue is: https://jira.springsource.org/browse/SEC-2028<br />Everyone, who read this article, please vote for that issue. </div>
+</div>
+<div class='comment'>
+<div class='author'>BadBob</div>
+<div class='content'>
+This comment has been removed by the author.</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-15T00:29:00-06:00" pubdate data-updated="true">Dec 15<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+Today I was reading about a new tool to use Git on a Mac called <a href="http://itunes.apple.com/us/app/gitbox/id403388357">GitBox</a>. I generally prefer the command-line, but as it was on sale and mentioned as one of the best clients for Mac, I figured I would at least take a look. When looking through the comments though, one part of a particular review stuck out to me:<br /><blockquote class="tr_bq">This app generally is a relieve compared to the terribly complicated git command line</blockquote>It&#8217;s a common refrain from even a seasoned developer that has been using other tools for awhile, even those familiar with subversion on the command-line. To simplify the discussion, let&#8217;s take one part of the obvious usability issues out of the general discussion of git usability: <a href="http://www.lucasward.net/2010/02/maturity-model-for-source-control-scmm.html">DVCS</a> in general. If using something like Hg or Git after using a more centralized VCS, it&#8217;s going to be more complicated by nature. With DVCS you&#8217;re effectively managing your own repo and merging with another common repo shared with the rest of your team. With a more centralized system like SVN you&#8217;re really just pushing change lists to a repo managed by someone else. I&#8217;m sure there&#8217;s some power users at every company, but I&#8217;m betting a lot of SVN users aren&#8217;t doing a lot of branch merging. Even looking at GitBox, which does look like a more simplified view of Git, the overall actions you&#8217;re performing are more complicated than say, something like tortoiseSVN.<br /><br />DVCS has it&#8217;s <a href="http://www.lucasward.net/2010/02/maturity-model-for-source-control-scmm.html">advantages and disadvantages</a>, but given that the overall model is more complex in nature for individual developers committing code, let&#8217;s shelve that and focus solely on the question of whether the git command line itself is overly complicated. (as the review described)<br /><br />My gut response to this question is &#8216;it depends&#8217;. Perhaps I was a consultant for too long. Git to me seems Unixy. That&#8217;s not really a word and doesn&#8217;t mean much though. I suppose another way of saying it is: if you&#8217;re used to working in unix like environments, it feels comfortable and familiar to you, and if you&#8217;re not, it&#8217;s never going to feel like anything other than overly complicated. If you&#8217;ve written a lot of bash scripts, or regularly tweaked your command line (i.e. bash settings), git feels natural. If you&#8217;re not that kind of command-line user, git seems complex.<br /><br />I would like to strenuously point out that <b>I am in no way trying to offend users who don&#8217;t like unix (or unix like operating system) or using the command-line in general</b>. I have some strong personal feelings about it, but at the end of the day, it&#8217;s personal preference. If you don&#8217;t like using the command-line, then you don&#8217;t like it. As an example, when talking through how to us a rest API with someone a month or so ago, I mentioned that they could just toss the URL into <a href="http://curl.haxx.se/">curl</a>. I&#8217;m so used to reaching for the command-line as my first instinct, that I didn&#8217;t even think that for someone not used to the command-line, it might seem complex. It&#8217;s just curl -XGET http://someurl afterall.<br /><br />But it&#8217;s never that simple is it? The next question is, ok, how do I post data?<br /><br />Hmm&#8230;..well, something like this:<br /><blockquote class="tr_bq">curl -XPOST http://someurl -d &#8220;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8221;</blockquote>Except, that won&#8217;t work. You can&#8217;t use double quotes like that. It has to be:<br /><blockquote class="tr_bq">curl -XPOST http://someurl -d &#8216;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8217;</blockquote>That will work. Well, maybe. You might need to set a json content header. If you&#8217;re used to using a unix command, you just type man curl, look up the option and do:<br /><br />curl -XPOST http://someurl -H &#8220;ContentType:application/json&#8221; -d &#8216;{&#8220;jsonstuff&#8221;:&#8221;value&#8221;}&#8217;<br /><br />But reading man pages can sometimes be an acquired skill. For those of us that are used to it, we might quickly notice the quote issue, or quickly find the option we&#8217;re looking for with a quick man page search. However, if you just wanted to get something done quickly and you&#8217;re not used to these types of tools, it makes a simple test of a rest API turn into an epic undertaking leaving you doing a google search for rest thick clients.<br /><br />As another example, I recently wiped my mac machine. I hadn&#8217;t used it in awhile, as I normally code on an Ubuntu machine. However, the stock git that came with the fresh install of OS X Lion was jarring. There was no colors set, and I didn&#8217;t have my customery indicator in bash telling me what branch I was on. I needed to copy some of my bash config over from my other machine.<br /><br />It&#8217;s worth repeating, to effectively use git on the command line, I needed to modify my bash profile. (or bashrc, whatever you want to call it, depending on how you have things setup and distro, etc etc) For a regular command line user, it&#8217;s not a problem. But I remember when I first was learning to use linux, and failing miserably to even add things to my PATH the first few times.<br /><br />So I guess that&#8217;s my main point. Git to me fits in well with all my other gnu/unix style command line tools. It feels familiar and as it follows these conventions, I can work with it. But as I have introduced it and other command line tools to fellow programmers, it becomes obvious to me: If you&#8217;re not familiar with these conventions and with how to work with this type of command line, it&#8217;s going to seem extremely complex.</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/06/27/why-developers-sometimes-do-things-hard/">Why Developers Sometimes Do Things &#8216;the Hard Way&#8217;</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-27T13:08:00-05:00" pubdate data-updated="true">Jun 27<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+I don&#8217;t like using the <a href="http://en.wikipedia.org/wiki/Agile_software_development">a word</a>. I never want to catch myself saying anything that could be construed as: &#8216;methodology X says we should do it this way&#8217;. Especially when it comes to engineering practices. These kinds of things should stand on their own really. In fact, I&#8217;m going to try and steer clear of any specifics in this post and speak to a larger trend.<br /><br />When working through an issue or a new feature, regardless of what environment you&#8217;re coding in or what language you&#8217;re using, there is probably a &#8216;hard way&#8217; to work through the issue/feature. I don&#8217;t mean this in terms of level of effort. I mean it takes longer for whatever reason. It may even be an uglier solution. I&#8217;ll give an example. Let&#8217;s say you&#8217;re adding a new feature to a web application. It&#8217;s not a big feature, maybe just adding the ability to search off of a new set of values. The easier way is to find some kind of quick feedback. A way to implement the new search and find out quickly if there&#8217;s an issue. I&#8217;ll stop short of saying &#8216;write a test&#8217; for the reasons mentioned above. However, instead you make the change and fire up the application server. You try the simple feature and it doesn&#8217;t work. You forgot something simple. You fix it, bounce the server, and try it again. Still doesn&#8217;t work. Rinse and repeat ad infinitum.<br /><br />To the outside observer, this certainly is &#8216;the hard way&#8217; to do it. Because of the amount of time it takes to restart the web server and click through to test the feature. It takes more effort than some other means with a shorter feedback cycle. But to the person using this approach is it really &#8216;the hard way&#8217;? The way they are doing it requires less thinking, and while they&#8217;re waiting on the server to bounce back up they can check reddit, failblog, or have an impromptu <a href="http://xkcd.com/303/">sword fight</a>. To put it another way, it takes longer but requires less effort.<br /><br />Of course, at this point someone could start throwing out the word &#8216;lazy&#8217;. But let&#8217;s take a more sympathetic approach. Why are they doing it this way? Why do they want to think less? Maybe they&#8217;re burnt out? Maybe they feel the project is out of their control and there is no reason to put in a lot of effort. That its better to save their brain power for the new programming language or framework they&#8217;re learning in their spare time. Maybe they aren&#8217;t getting enough sleep. They probably know deep down that its not really the most efficient way to do it, but they&#8217;re tired. Emotionally, physically, or even subconsciously. I&#8217;ve certainly felt that way before.<br /><br />Maybe the approach isn&#8217;t convincing your developers to do things the more efficient way. Maybe its better to be more sympathetic and find out why they&#8217;re doing it the easy way.</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/06/18/open-symphony-rip-2000-2011/">Open Symphony, RIP (2000 - 2011)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-18T14:17:00-05:00" pubdate data-updated="true">Jun 18<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+It looks like the folks over at open symphony have declared the project <a href="http://www.opensymphony.com/">dead</a>. The main projects that originated there and are still in use have their own separate sites now, but the rest hadn&#8217;t been updated in awhile. I remember using OSCache awhile ago, but it seemed to have been completely replaced by EHCache.<br /><br />The question in my mind is, do organization like OpenSymphony need to exist anymore? (perhaps the same could be said for something like CodeHaus as well) Given sites like github and bitbucket, and the ease of getting a project website up and running via various mechanisms, perhaps they aren&#8217;t needed anymore? The one exception to that of course is community built around a particular project. Like plugins for Grails, or some of the Spring sub projects. They&#8217;re tied to a particular solution and can benefit from some of the success of the solution as well. Although, in the case of Grails plugins, they&#8217;re all hosted on GitHub, as is the code for grails itself.</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/06/08/grails-testing-improvements/">Grails Testing Improvements</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-08T10:08:00-05:00" pubdate data-updated="true">Jun 8<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+Peter Ledbrook put up a new blog post detailing some of the improvements to come 1.4 for unit testing grails: <a href="http://blog.springsource.com/2011/06/07/countdown-to-grails-1-4-unit-testing/">http://blog.springsource.com/2011/06/07/countdown-to-grails-1-4-unit-testing/</a><br /><br />There&#8217;s some awesome stuff in there. I had read a bit about the new features in milestone 1. But it didn&#8217;t show the kind of details that Peter has. I&#8217;m especially excited about these two features:<br /><ol><li>Full Gorm testing. It looks like they&#8217;re using some kind of noSQL database in-memory. I&#8217;m interested to see if it will slow down the unit test at all, but the method of testing is much more intuitive. The whole mockDomain(Class,listOfInstances) felt a bit dirty, and it was kind of brittle if you used any kind of inheritance at all.</li><li>Improved JSON response testing. Grails now does the work in the mock response of converting the JSON response to a proper object hierarchy. In my own testing, I could get halfway there by converting the responseText to JSONObjects, but they were a bit painful to work with at times. (especially arrays)<br /></li></ol>Those two fixes represent for me the only real issues I have with grails unit testing. The annotations are nice, but I had given up on the test hierarchy long ago. You can use MockUtils easily in the same way that GrailsUnitTest does.<br /><br />That leaves only one major complaint for me regarding testing and Grails: Integration testing. Its nice that they found ways to allow for using unit testing more often, but it doesn&#8217;t solve the fundamental problem. Integration testing takes too long because you have to start the world. Lately I&#8217;ve been working a lot with ElasticSearch, and I refused to put it in the Integration test folder and rely on the bootstrap. In the test setup I brought up an in-memory ElasticSearch instance and test against it. Its definitely an integration test, but I can run it in about 6 seconds. It takes longer than that for Grails to resolve dependencies. (Which is something I hear they&#8217;re addressing in 1.4) Its all perfectly fine for CI, but you can&#8217;t use it to test on the fly. Its far too tempting to do a run-war and fiddle with it that way. It seems like it wouldn&#8217;t be too difficult to bring up a persistent integration testing environment. In truth, it would probably still be some kind of headless container that you could keep running integration tests in without having to restart the container. I&#8217;ve seen a few other Grails bloggers mention it though, so perhaps its on the roadmap somewhere? Maybe post 1.4?</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Graeme,<br /><br />I&#39;ve tried that once or twice before and its still was too slow to run it reliably. I know one issue you&#39;re addressing is dependency resolution, but what are the other issues to speed it up in interactive mode in 1.4?<br /><br />I still kind of wish I could start an integration environment in something like Jetty with an overlay, and just runs tets, which perhaps under the covers are either JMX or &#39;web service&#39; calls to run tests in the container and report back results.</div>
+</div>
+<div class='comment'>
+<div class='author'>Graeme Rocher</div>
+<div class='content'>
+For speeding up integration testing we recommend using interactive mode which is greatly improved in 1.4. In 1.3.x you can do:<br /><br />{code}<br />grails interactive<br />{code}<br /><br />Then type test-app, but it has a few issues which we&#39;re addressing in 1.4</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/06/06/im-speaking-at-chicago-groovy-user/">I&#8217;m Speaking at Chicago Groovy User Group on June 14th</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-06T15:59:00-05:00" pubdate data-updated="true">Jun 6<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+Details can be found here: <a href="http://cgug.org/">http://cgug.org/</a><br /><br />And you can sign up here: <a href="http://cgug.eventbrite.com/?ref=enivtefor?amp;utm_source=eb_email&utm_media=email&utm_compaign=invitefor&utm_term=readmore">http://cgug.eventbrite.com/?ref=enivtefor?amp;utm_source=eb_email&utm_media=email&utm_compaign=invitefor&utm_term=readmore</a></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/05/24/fundspire-is-hiring/">Fundspire Is Hiring</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-24T20:01:00-05:00" pubdate data-updated="true">May 24<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+The title says it all.  Things are going very well here at Fundspire, and we&#8217;re looking to expand.  You can find more information here: <a href="http://www.fundspire.com/careers/">http://www.fundspire.com/careers/</a><br /><br />Just because I can be a bit more narrative here.  We&#8217;re using the following technologies: Grails, Ext Js, Spring Batch running on Amazon EC2.  Of course, it would be great to find someone with experience in all of those technologies, but it never works out that way.  A solid Java developer experienced with Spring and Hibernate would also be great.  And of course the most important skill of all, a developer that tests the code they write, not with a debugger, but by writing tests.<br /><br />If you think you might be interested (or know someone who might be) please apply via the link above, or send your resume to jobs@fundspire.com</div>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/2/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -77,6 +483,26 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
     
   </ul>
 </section>

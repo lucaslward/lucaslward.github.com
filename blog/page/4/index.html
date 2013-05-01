@@ -1,0 +1,573 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Deployment has always been a tricky part of Batch Processing. Unlike a Web application, there is no standardized deployment, and there are a variety &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/page/4">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/07/15/spring-batch-deployment-example/">Spring Batch Deployment Example</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-07-15T16:14:00-05:00" pubdate data-updated="true">Jul 15<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+Deployment has always been a tricky part of Batch Processing.  Unlike a Web application, there is no standardized deployment, and there are a variety of environments that could be deployed to.  You could actually deploy a Batch application within a web container, or as a standalone java app to be started by one of many available schedulers.  For this reason, everyone&#8217;s environment is different, and there can be no one example that someone can use as a starting point.  However, I have done enough standalone deployments for Linux using Bash to share a simple example. <br /><br />The job itself matters little for the purposes of this post.  A simple one tasklet job suffice:<br /><br /><pre class="prettyprint">   &lt;job id="sampleJob" job-repository="jobRepository"&gt;<br />       &lt;step id="simpleStep"&gt;<br />           &lt;tasklet ref="tasklet" /&gt;<br />       &lt;/step&gt;<br />   &lt;/job&gt;<br /><br />   &lt;beans:bean id="jobRepository" <br />   class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"/&gt;<br /><br />   &lt;beans:bean id="transactionManager" <br />   class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" /&gt;<br /><br />   &lt;beans:bean id="jobLauncher" <br />   class="org.springframework.batch.core.launch.support.SimpleJobLauncher"&gt;<br />       &lt;beans:property name="jobRepository" ref="jobRepository" /&gt;<br />   &lt;/beans:bean&gt;<br /><br />   &lt;beans:bean id="tasklet" class="net.lucasward.sample.SampleTasklet" /&gt;<br /></pre><br /><br />(namespace removed for readability)<br /><br />The Tasklet simply prints &#8216;Hello World&#8217;<br /><br /><pre class="prettyprint">public class SampleTasklet implements Tasklet {<br /><br />   public RepeatStatus execute(StepContribution contribution, <br />                               ChunkContext chunkContext) throws Exception {<br />       System.out.println("Hello World");<br />       return FINISHED;<br />   }<br />}<br /></pre><br /><br />Simple enough, right?  Now for the hard part.  If we want a scheduler to be able to launch this from the command line, what do we do?  The first problem to solve is, what does our deployment look like?  In my mind, there&#8217;s three necessary components: <br /><br /><ol><br /><li>The jars themselves, which need to be on the classpath<br /></li><li>A Script that can be called<br /></li><li>The xml and/or .properties files that will be used for configuration<br /></li></ol><br /><br />Personally, I prefer to separate the XML files from the jars, to allow for tweaks to the Job.  This is especially useful for Spring Batch job definitions, although may be less so for normal spring configuration files.   My preferred layout is to have three directories: bin, lib, and resources.  Obviously, the scripts go in /bin, jars in /lib, and xml/properties in /resources.  It doesn&#8217;t really matter how you break yours up, but it&#8217;s the format I&#8217;ll be using.  In order to create this layout, I&#8217;ll use Maven and the assembly plugin:<br /><br /><pre><br />          &lt;plugin&gt;<br />               &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;<br />               &lt;version&gt;2.2-beta-2&lt;/version&gt;<br />               &lt;configuration&gt;<br />                   &lt;descriptors&gt;<br />                       &lt;descriptor&gt;src/main/assembly/descriptor.xml&lt;/descriptor&gt;<br />                   &lt;/descriptors&gt;<br />               &lt;/configuration&gt;<br />               &lt;executions&gt;<br />                   &lt;execution&gt;<br />                       &lt;id&gt;make-distribution&lt;/id&gt;<br />                       &lt;phase&gt;package&lt;/phase&gt;<br />                       &lt;goals&gt;<br />                           &lt;goal&gt;single&lt;/goal&gt;<br />                       &lt;/goals&gt;<br />                   &lt;/execution&gt;<br />               &lt;/executions&gt;<br />           &lt;/plugin&gt;<br /></pre><br /><br />And the Descriptor:<br /><br /><pre>&lt;assembly&gt;<br />   &lt;id&gt;distribution&lt;/id&gt;<br />   &lt;formats&gt;<br />       &lt;format&gt;tar.gz&lt;/format&gt;<br />   &lt;/formats&gt;<br />   &lt;includeBaseDirectory&gt;false&lt;/includeBaseDirectory&gt;<br />   &lt;fileSets&gt;<br />       &lt;fileSet&gt;<br />           &lt;directory&gt;src/main/scripts&lt;/directory&gt;<br />           &lt;outputDirectory&gt;bin&lt;/outputDirectory&gt;<br />           &lt;useDefaultExcludes&gt;true&lt;/useDefaultExcludes&gt;<br />       &lt;/fileSet&gt;<br />       &lt;fileSet&gt;<br />           &lt;directory&gt;src/main/resources&lt;/directory&gt;<br />           &lt;outputDirectory&gt;resources&lt;/outputDirectory&gt;<br />           &lt;useDefaultExcludes&gt;true&lt;/useDefaultExcludes&gt;<br />           &lt;filtered&gt;true&lt;/filtered&gt;<br />       &lt;/fileSet&gt;<br />   &lt;/fileSets&gt;<br /><br />   &lt;dependencySets&gt;<br />       &lt;dependencySet&gt;<br />           &lt;outputDirectory&gt;lib&lt;/outputDirectory&gt;<br />       &lt;/dependencySet&gt;<br />   &lt;/dependencySets&gt;<br />&lt;/assembly&gt;<br /></pre><br /><br />The format I&#8217;m using is tar.gz, since I&#8217;m targeting linux, but <a href="http://maven.apache.org/plugins/maven-assembly-plugin/">there are many more available</a>.<br /><br />The two fileset entries describes both the bin and resources directory.  (I haven&#8217;t talked about the script yet, but I will below).  The &#8216;DependencySet&#8217; reference is to transfer all the dependencies that Maven is managing into the lib directory, including the created jar itself.  When you run &#8216;mvn install&#8217; there will be two artifacts created: The normal jar, and another file with the same name, ending in -distribution.tar.gz.  In the case of my example that is: batch-deploy-sample-1.0-SNAPSHOT.jar and batch-deploy-sample-1.0-SNAPSHOT-distribution.tar.gz.  In my example, unzipping gave me the following:<br /><br /><pre>./bin:<br />sampleJob.sh<br /><br />./lib:<br />aopalliance-1.0.jar                           spring-batch-core-2.1.1.RELEASE.jar           spring-tx-2.5.6.jar<br />batch-deploy-sample-1.0-SNAPSHOT.jar          spring-batch-infrastructure-2.1.1.RELEASE.jar stax-1.2.0.jar<br />commons-logging-1.1.1.jar                     spring-beans-2.5.6.jar                        stax-api-1.0.1.jar<br />jettison-1.1.jar                              spring-context-2.5.6.jar                      xpp3_min-1.1.4c.jar<br />spring-aop-2.5.6.jar                          spring-core-2.5.6.jar                         xstream-1.3.jar<br /><br />./resources:<br />jobs<br /><br />./resources/jobs:<br />sampleJob.xml<br /></pre><br /><br />All we need now is a simple script to actually run the job:<br /><br /><pre class="prettyprint">#!/bin/bash<br /><br />CP=resources/<br /><br />LIB=lib/*<br />for f in $LIB<br />do<br />CP=$CP:$f<br />done<br /><br />java -cp $CP org.springframework.batch.core.launch.support.CommandLineJobRunner \<br />jobs/sampleJob.xml sampleJob<br /></pre><br /><br />I&#8217;m probably not going to win any awards for my bash scripting skills anytime soon, but it gets the job done and isn&#8217;t quite as archaic as a more concise version would be.  Essentially, I&#8217;m creating a classpath from all the jar files in /lib by looping through the files and separating them with a colon.  Once that is done, I can start a java process, using the <a href="http://static.springsource.org/spring-batch/apidocs/org/springframework/batch/core/launch/support/CommandLineJobRunner.html">CommandLineJobRunner</a> as the Main method.  As described in the documentation, all I need to pass to the job runner is the xml file to run the job, and the job name.  (It&#8217;s worth noting that normally you would also need JobParameters, but since I&#8217;m using the MapRepository, it isn&#8217;t necessary)<br /><br />You can download the running example from my github account: <a href="http://github.com/lucaslward/blog/tree/master/batch-deploy-sample/">batch-deploy-sample</a>.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Interesting. I&#39;ll definitely add your code for the script directory. I&#39;m not a big fan of using the CLASSPATH variable, so I think I&#39;ll stick to just passing in the classpath to the command line via -cp</div>
+</div>
+<div class='comment'>
+<div class='author'>Philippe</div>
+<div class='content'>
+I slightly corrected the shell script so that it can be launched from anywhere, rather than having to cd to the bin directory.<br />Here is what I did :<br /><br /># Set the classpath<br />SCRIPTDIR=&quot;$( cd &quot;$( dirname &quot;$0&quot; )&quot; &amp;&amp; pwd )&quot;<br />CLASSPATH=.<br /><br />for file in `ls $SCRIPTDIR/../lib`<br />do<br />        export CLASSPATH=$CLASSPATH:$SCRIPTDIR/../lib/$file<br />done<br />export CLASSPATH=$CLASSPATH:$SCRIPTDIR:$SCRIPTDIR/../resources<br /><br /># Launch the conversion job<br />java org.springframework.batch.core.launch.support.CommandLineJobRunner &#8230;</div>
+</div>
+<div class='comment'>
+<div class='author'>Philippe</div>
+<div class='content'>
+Thanks a lot ! It&#39;s exactly what I was looking for and it works like a charm&#8230;</div>
+</div>
+<div class='comment'>
+<div class='author'>Philippe</div>
+<div class='content'>
+This comment has been removed by the author.</div>
+</div>
+<div class='comment'>
+<div class='author'>Dil&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;:)</div>
+<div class='content'>
+I want to stop the running spring batch job, Please let me know how can i do that .. i wil b follooing u r blog fr ans</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+I&#39;m sorry for the crazy late response, I&#39;ve been extremely busy with client work for the last few weeks.  Are you still having this issue?</div>
+</div>
+<div class='comment'>
+<div class='author'>David Tam</div>
+<div class='content'>
+Thanks, this is very useful for someone totally new to Spring Batch, but when I run the job.. I get this.. <br /><br />ClassPathXmlApplicationContext [INFO] Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@4ca31e1b: display name [org.springframework.context.support.ClassPathXmlApplicationContext@4ca31e1b]; startup date [Fri Oct 22 10:28:52 CDT 2010]; root of context hierarchy<br />2010-10-22 10:28:52 XmlBeanDefinitionReader [INFO] Loading XML bean definitions from class path resource [jobs/sampleJob.xml]<br />2010-10-22 10:28:53 CommandLineJobRunner [ERROR] Job Terminated in error:<br />org.springframework.beans.factory.BeanDefinitionStoreException: Unexpected exception parsing XML document from class path resource [jobs/sampleJob.xml]; nested exception is java.lang.IllegalArgumentException: &#39;beanName&#39; must not be empty<br /><br />Its probably something simple I&#39;m missing.</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/05/24/test-code-quality/">Test Code Quality</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-05-24T23:41:00-05:00" pubdate data-updated="true">May 24<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+I&#8217;ve been meaning to write about this for awhile, but it always seems so contentious for some reason.  I&#8217;m sure we&#8217;ve all seen the worst examples before.  I once opened up a 5,000 line unit test of a Spring MVC controller.  It got this bad because every bit of setup was <span style="font-weight:bold;">cut and paste into each new test function</span>.  Of course, it should have been a sign to the original author that refactoring was needed when there was that much setup required in the first place.  But it still begs the question: What level of quality should be expected of test code?  <br /><br />I&#8217;ve worked with lots of great developers that would see so much as a line of duplication and take it upon themselves to drop everything, including the donut in their hand, to remove it from code.  However, when it comes to test code, that same developer would shrug their shoulders and say: &#8216;It&#8217;s only test code&#8217;.  I just don&#8217;t get this.  If lack of reuse and duplicate code would cause an aneurysm in normal code, why is it acceptable in test code?  For that matter, why would the way you treat test code be any different at all?<br /><br />When we write unit tests, it&#8217;s code we intend to last just as long as the class it&#8217;s testing, or at least until the assumptions we made about the code have changed.  And given how slowly some companies could change even those basic assumptions, that could mean never.  Testcode still needs to be easy to maintain, and easy to understand.  <br /><br />Here&#8217;s some of the reasoning I&#8217;ve heard:<br /><br /><blockquote>I don&#8217;t want to make the unit test complicated, it should be easy to understand the intention</blockquote><br /><br />If abstractions and code reuse done properly can make code easier to understand, why would the same not apply to test code?  How would duplication between two unit test classes aid in the clarity of the individual test?<br /><br /><blockquote>Unit tests should be completely isolated from each other</blockquote><br /><br />I&#8217;ll agree to this in principle.  But I think it can be taken too far.  Unit tests should be able to be run side effect free.  You should be able to run each individual test by itself, or with any number of other unit tests without the existence or absence of such tests causing failures.  However, this has nothing to do with sharing abstractions with each other, or reusing the same setup data if more than one class under test uses the same domain objects.  As long as you&#8217;re creating new instances in your test classes, and not accessing them through stateful static calls, there should be no issue.<br /><br /><blockquote>Modifying one test to pass shouldn&#8217;t cause another to break</blockquote><br /><br />This is a tricky one that has bitten me numerous times before.  If you create some kind of abstraction, such as some type of a builder to create a set of test data for multiple tests, you run the risk of breaking a lot of tests if you change something in the builder to make one pass.  It can be extremely disheartening to watch the unit test you were working with pass, only to see hundreds of test failures when you run the entire build.<br /><br />However, despite the pain this has caused me in the past, doesn&#8217;t this seem like a normal coding problem?  Maybe it&#8217;s coupling/cohesion, or demeters law, or any other random law.  There&#8217;s probably a perfectly well known refactoring mechanism to make this test code easier to modify without side affects.  <span style="font-weight:bold;">There is no reason not to apply them to your unit test code as well.</span><br /><br />Now though, there comes the dirty part, that only an &#8216;Enterprise&#8217; developer will know the unfortunate reality of.  What if your test code looks nothing like your real code, but there&#8217;s nothing really wrong with it except it breaks many of the largely nonsensical &#8216;coding standards&#8217; put in place by some type of &#8216;governing body&#8217;?  What if *gasp* its better as a result?</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Dokemion</div>
+<div class='content'>
+When you are trying to <a href="http://www.developintelligence.com/" rel="nofollow"> learn java</a> you have to under go training.</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/05/19/boiler-plate-code-and-closures-in-java/">Boiler Plate Code and Closures in Java</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-05-19T14:22:00-05:00" pubdate data-updated="true">May 19<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+While working on a project recently, I ran into the following code:<br /><pre class="prettyprint"><br />public SomethingFromDatabase getSomethingFromDatabase(){<br />  Element element = getDataFromCache();<br />  return (SomethingFromDatabase)element.getValue();<br />}<br /><br />private Element getDataFromCache(){<br />  Element element = cache.get(KEY);<br />  if(element == null){<br />    element = new Element(KEY, dao.getSomethingFromDatabase());<br />    cache.put(element);<br />  }<br />  return element;<br />}<br /></pre>Assuming cache is an instance of net.sf.Ehcache and the dao is your run of the mill Dao.<br /><br />There&#8217;s some obvious problems with this code, the one that stood out the most to me is the boilerplate code.  The solution I used to solve the problem, which is common, is to use closures:<br /><pre class="prettyprint"><br />public <t> T get(String cacheKey, CacheDataClosure<t> closure){<br />  Element element = cache.get(cacheKey);<br />  @SuppressWarnings("unchecked")<br />  T cachedObject = element == null ? null : (T) element.getValue();<br />  if(cachedObject == null){<br />    cachedObject = closure.getData();<br />    cache.put(new Element(cacheKey, cachedObject));<br />  }<br />  return cachedObject;<br />}<br /><br />public interface CacheDataClosure<t> {<br />  T getData();<br />}<br /></t></t></t></pre>A similar approach is used by Spring in it&#8217;s *Template classes.  Refactoring the original code to use the Facade, would look something like:<br /><pre class="prettyprint"><br />private Foo getDataFromCache(){<br />  return cacheFacade.get(KEY, new CacheDataClosure<Foo>(){<br />     Foo getData(){ return dao.getFooFromDatabase(); }<br />   });<br />}<br /></pre>I&#8217;m sure to some people reading this blog, the solution seems obvious, and almost not worth mentioning.  However, over the years I have seen many interesting solutions to the same problem, especially in the database world, but elsewhere as well.  You would be surprised how many people solve this problem with inheritance by instinct.  Even those who have used frameworks that require a closure in certain scenarios, don&#8217;t necessarily think about what it is they&#8217;re using, and don&#8217;t think to use it when a problem arises later.  Despite the fact that closures are ugly in Java, they are still the best solution for allowing for separation of concerns in a lot of scenarios, and reducing boilerplate code.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Thanks for pointing that out.  I hadn&#39;t seen it before.  I&#39;m still not sure that I get it though, as I don&#39;t see a way for someone to define how the cache is refreshed, which is the main problem I had with the original code.  When the cache is stale, you have to populate it yourself, and it&#39;s all boilerplate.  As a user of ehcache, all I really want to tell them is how to get my data.  Unless I&#39;m missing something when looking at the Javadoc?  (Which is highly likely)<br /><br />I do think from looking at it that I may need to go back and think about concurrency.  I haven&#39;t looked at the ehcache implementation, but I assumed it blocked.  I was simply refactoring the earlier boiletplate code.</div>
+</div>
+<div class='comment'>
+<div class='author'>David Dossot</div>
+<div class='content'>
+You could also consider using EHCache&#39;s <a href="http://ehcache.org/apidocs/net/sf/ehcache/constructs/blocking/SelfPopulatingCache.html" rel="nofollow">SelfPopulatingCache</a> construct (granted it&#39;s cache specific while your approach is generic).</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/02/19/vcs-continued/">SCM Continued</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-02-19T18:27:00-06:00" pubdate data-updated="true">Feb 19<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+In my last <a href="http://lucas-ward.blogspot.com/2010/02/maturity-model-for-source-control-scmm.html">blog post</a> I talked about a maturity model for source control systems.  Martin Fowler has recently posted a blog entry that covers the same topic:<div><br /></div><div><a href="http://martinfowler.com/bliki/VersionControlTools.html">http://martinfowler.com/bliki/VersionControlTools.html</a></div><div><br /></div><div>One of the reasons that <a href="http://paulhammant.com/">Paul</a> and I thought a maturity model for SCM was interesting, was that it brought objectivity to the debate.(or at least tried to)  It seems far too subjective (and easy) to break SCM systems down into two categories: usable and unusable.  For me personally, I would list ClearCase in the &#8216;unusable&#8217; category.  However, despite it&#8217;s shortcomings, thousands of programmers use it on a daily basis.  Therefore, it can&#8217;t be &#8216;unusable&#8217;.   What it boils down to though, is that for me personally, given what I find important when developing, ClearCase is a tool that I feel prevents me from coding effectively.  If someone else doesn&#8217;t hold these same values to be important, perhaps it changes what they view to be usable.</div><div><br /></div><div>Martin takes an interesting twist with his article, in that while he still uses two groups, his dividing line is on &#8216;recommendability&#8217;.  This is still a somewhat subjective measurement, especially since his focus group was us ThoughtWorkers.  But after reading the responses to my last blog post, a common theme seemed to come from those using ClearCase.  They were willing to defend it as &#8216;usable&#8217;, but not a single one that I read would recommend it.  This mirrors some of my project experience as well.  I&#8217;ve even known some ClearCase admins that would argue with me at length about how ClearCase isn&#8217;t that bad, as long as you &#8216;used it right&#8217;, and yet even they wouldn&#8217;t recommend it as a source control product.  Perhaps it&#8217;s much more useful to ask a client if they would recommend their SCM to others, rather than arguing about why you don&#8217;t think it&#8217;s the best solution.  Afterall, if they wouldn&#8217;t recommend it to others, why are they still using it?</div></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/02/03/maturity-model-for-source-control-scmm/">A Maturity Model for Source Control (SCMM)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-02-03T22:52:00-06:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>Most enterprise developers are already familiar with the <a href="http://en.wikipedia.org/wiki/Capability_Maturity_Model" id="vabn" title="Capability Maturity Model">Capability Maturity Model</a>.  Those of you with Agile tendencies may have also heard of the <a href="http://www.thoughtworks.com/what-we-say/presentations/AgileMadeUsBetter.pdf" id="iep:" title="Agile Maturity Model">Agile Maturity Model</a>.  The purpose of these models is to objectively assess an organization&#8217;s maturity in a particular methodology.  Despite any feelings you may have on CMM or waterfall in general, having an agreed upon way to assess the basic principles of a methodology can be quite useful.  One area where this type of assessment typically falls under the radar is SCM.  Many companies look at a particular SCM solution, and believe it covers every need.  However, when objectively analyzing the various uses and features of SCM systems, a type of maturity model begins to emerge.<br /><br />As with other maturity models, we can use a similar numbering system to delineate how &#8216;mature&#8217; an organization or tool is, with a higher number being better.  As you can imagine, zero corresponds to a complete lack of source control at all, or perhaps a shared file system and a <a href="http://thedailywtf.com/Articles/The-Source-Control-Shingle.aspx" id="ahfi" title="roofing shingle">roofing shingle</a>.  The highest level is reserved for the most advanced tools such as Git or Mercurial, that allow for advanced SCM capabilities such as zero-cost branching and merge through rename. </div> <div><br /></div> <div>   In doing this analysis, some common feature-sets emerge:<br /><ul>     <li>       Atomicity: If you check in 5 files, and there is an issue with one, none of the five should be committed.     </li>     <li> Revision Tagging: The ability to take a snapshot of the state of your codebase at a particular moment in time, and refer back to it later. </li>     <li>       Branching: The ability to have more than one version of the codebase in active development, seperate from each other.     </li>     <li> Merging: Taking different versions of the same codebase and combining those changes.  This may mean changes from a local copy or between two branches, with a complete history of how these various pieces have been merged. </li>     <li>Merge through Rename: A more advanced SCM feature for dealing with merging files that have been renamed.  Consider file A in branch 1 and 2 that is then renamed to B in branch 2, but not in 1.  Then consider what would happen when A&#8217;s contents are changed in branch 1.  SCM systems that support merge through rename allow for this and more, all others blow up.<br /></li>     <li> Repository Navigation:  The means of accessing the contents of the repository.  Subversion, for example, has a web interface. (among many other third party tools)  While Clearcase has thick client access.</li></ul><span class="Apple-style-span"  style="font-size:x-large;"><b>Lack of SCM Bravery</b></span><br /><br />Most folks in enterprise computing as of 2003, had experienced two SCM tools.  It does not matter which two.  The important point is that they remebered which of the two was the better one, and which was the OH-MY-GOD-I-NEVER-WANT-TO-USE-THAT-AGAIN one.  They had taken that lesson, and were going to make damn sure they were never going to use the lame one again.  Sadly that meant there were risk averse in respect of a third or fourth choice.  Perhaps also as all the tools chains and workflows are different, there was caution based on that too.</div> <div>   </div> <div>   <span>Much has changed since then with experience of half a dozen much more common place now.  However, if you walk into most enterprises today,  you&#8217;re likely to see only one of two SCMs: Clearcase or Subversion.  For those of us who have used many of the SCM systems below, (especially us consultants) it is hard to understand why someone would continue to use some of the SCM systems that are lower on the maturity model below.  It can be easy to think that it is imposed upon them by the powers that be, however, in many cases they will tell you at length why their SCM is better, or at least why they don&#8217;t feel the need to switch.  This stems from two fundamental issues:<br /><ol><li>They&#8217;re pervasive.  Like an IDE, they&#8217;re there every second of every day, everything we do as programmers short of documentation needs to be checked in.  It has a huge impact upon our day to day lives.</li><li>Steep learning curve.  Regardless of the solution, and any third party tools helping to make it easier, source control in and of itself is complex.  Switching requires that you accept a drop in productivity, and no one wants to become a newb again.</li></ol><span class="Apple-style-span" style=" font-weight: bold; "><span class="Apple-style-span"  style="font-size:x-large;">Five maturity Levels</span></span></span></div><div><br /></div><div><span>Shadowing the CMM, we&#8217;re aiming at five levels above zero.</span></div><div><br /></div><div><b><span class="Apple-style-span"  style="font-size:x-large;">Level Zero - &#8216;No SCM&#8217;</span></b><br /><br /></div><div>No source control solution at all, or a shared file system with periodic backups.  One developer, or a few at most share source without tools, and as such run a number of risks:</div> <div><ul><li>Source may not be compilable at any moment</li><li>Source may be lost because of developer error</li><li>Extremely easy for developers to overwrite each others changes.</li></ul></div> <div>   There is nothing to redeem in this level, or build on for future ones.</div><div><span class="Apple-style-span"  style="font-size:x-large;"><b><br /></b></span></div><div><b><span class="Apple-style-span"  style="font-size:x-large;">Level One - &#8216;First Foray&#8217;</span></b></div><div>   <div>     <div><ul><li>Developers have workspace on network and cannot work offline</li><li>Run a build means go to a long lunch</li><li>Refactoring - if it works at all, is deathly slow</li><li><span>Checkouts slow enough to be done over night</span></li><li>Checkins slow</li><li>Non-atomic commits</li><li>Branching and tagging expensive</li><li>Personal/local branching means second checkout</li><li><span>Centralized rather than distributed</span></li><li>Unusable or slow merge point tracking</li><li>Merge through rename - merge, rename not understood by tool</li><li>Repository can corrupt on occasion, high administrator/expert to developer ratio (1:10)</li></ul></div></div><div>   </div>Tools with basic ability to checkout, version and lock files.  Usually implies developers are working on the same code.  Synchronization to head my be problematic depending on locked status of individual source files.  Tools in this space may have scaling issues, and not work well over long distances.  Renaming of resources may be hard to impossible.  Branching and tagging may require permissions on triplicate stationary, and with a slaughtered lamb or incense stick or two (they take a while and eat disk).<br /></div> <div>  </div> <div><br /></div><div>   Examples: </div><div><br /></div> <div><b> Visual Source Safe</b>  </div><div><br /></div><div>The core of VSS&#8217;s problem is that it is not client/server and has not moved forward much in a number of years.  Developers can hurt each other with locking files and even marking files as shared (an esoteric feature). </div> <div><br /></div> <div><b> Clearcase&#8217;s Dynamic mode of operation</b>  </div><div><br /></div><div>Though an enterprise tool that sold widely into enterprises, it is like wading through molasses (treacle for Brits) to use.  It mounts a network share or two for you, and thats what you edit on, and compile against.  Both IDEs and builds are slow as a consequence.  Dynamic checkouts are also precarious as you may have more than one developer active whithin it, and for periods of time, you may observe the codeline to be non-compilable.  Furthermore, it does not support atomic commits.  Though three way merge is actually advanced, nothing else about Clearcase in dynamic mode (including UCM mode) makes you want to particularly recommend it to anyone for any purpose.  Merges from one active branch to another can actually take longer than the time spent making the original commits to the donor branch. There is a inverse square law at work with these installs of Clearcase, in that capacity drops off exponentially as you add more staff to it, and attempt to get busier (more throughput) with it.  Clearcase sales folks and consultants recommend this mode of operation.  Anomalous for Clearcase (dynamic mode) when rated against the bullets above, is that it can merge through rename, which is the preserve of more advanced tools (see later). </div><div><br /></div><div><span class="Apple-style-span"  style="font-size:x-large;"><b>Level Two - &#8216;Clunky&#8217;</b></span></div><div>   <ul>     <li>       Developers have local copies and can work offline</li>     <li>       Local file system means fast(er) builds</li>     <li>       Refactoring - will go through; make a cup of tea     </li>     <li>       <span>Checkouts will trickle past as if in bullet time</span></li>     <li>       Checkins potentially still slow</li>     <li>       Non-atomic commits     </li>     <li>       Branching and tagging potentially expensive     </li>     <li>       Personal/local branching means second checkout     </li>     <li>       <span>Centralized rather than distributed</span></li><li>Unusable or slow merge point tracking</li>     <li>       <span>Merge through rename not working, requires extensive follow up conflict resolution before commit</span></li><li><span>Repository can corrupt on occasion, administrator to developer ratio sub optimal (1:20)</span></li></ul></div> <div>   Examples:</div><div><br /></div><div><b>CVS</b></div><div><br /></div> <div> For the longest time, CVS was the default internet-community SCM server.  It has a variety of network protocols, and runs at a predictable speed over an arbitrary distance.  It uses optimistic locking (it kinda introduced this), and developers find working offline a breeze.  Commits back can still be like pulling teeth, in that every directory in a source tree is analyzed for differences with the server version via a wire call (just a hash but even so).  Sadly, branching and tagging are still costly.  Some folks still prefer CVS over others listed below.</div><div><br /></div><div><b>TFS</b></div><div><br /></div><div>Microsoft have tried to make something in Perforce&#8217;s image (they historically ran a private fork of Perforce from the 90&#8217;s called Source Depot), but do not have all of the features and performance of Perforce.  They rammed in too many non-source control features and it is falling short of the mark in terms of installation and administration costs.  Its pretty much wedded to Windows developers, and correspondingly leverages a ton of other MS server side pieces.  Day to day integrated operations in Visual Studio are where you feel forcibly slowed down versus not using SCM.  Agile folks approach checkout/checkin/conflict resolution with dread.  This tool should be higher ranked based on features, but is a let down in implementation.<br /><br /></div><div><b>Clearcase static mode of operation</b></div><div><br /></div> <div> This is where Clearcase checks out a branch to your C:\ drive.  Much like CVS, but a little faster.  Builds run as fast as is possible for a local IDE drive (a gazillion times faster than a overloaded 10-base-T ethernet network with 50 devs on it). You&#8217;re not going to get hosed by some other developer rendering the branch non-compilable (phew!). At least not unless they checked in that broken state.  You don&#8217;t automatically keep abreast of communal efforts - you have to sync/update periodically. Clearcase sales folks and consultants <b>do not</b> recommend this mode of operation, for some strange reason.  Anomalous for Clearcase (static mode) when rated against the bullets above, is that it can merge through rename, which is the preserve of more advanced tools (see later). </div><div><br /></div><div><span class="Apple-style-span"  style="font-size:x-large;"><b>Level Three - &#8216;Basic&#8217;</b></span></div> <div>   <div><ul><li>Developers have local copies and can work offline</li><li>Local file system means fast builds</li><li>Refactoring - speedy; smile at your neighbors for a second</li><li><span>Checkouts might finish before you die of old age</span></li><li>Checkins very fast</li><li>Atomic Commits</li><li>Lightweight (cost free) tagging and branches</li><li>Rudimentary branching and merging</li><li>Personal/local branching means second checkout</li><li>Centralized rather than distributed</li><li>Rudimentary merge point tracking</li><li>Merge through rename not working, requires extensive follow up conflict resolution before commit</li><li>Repository can corrupt on occasion, low administrator to developer ratio (1:100)</li></ul></div></div><div><div>   </div> </div> <div>   Examples:<br /><br /><b> Subversion</b> </div><div><br /></div><div>This is now the defacto standard install for enterprises, and since 2003 has been viable enough for the majority of open source SCM portals to install it, or at least have plans to.  Compared to CVS its a definite advance. There is much improved speed. That is for normal checkin checkout operations and branching and tagging.  It is a comfortable place for Agile developers to feel that their love for throughput is requited.  Just don&#8217;t try to do frantic parallel development on more than one branch. </div><div><br /></div><div><span class="Apple-style-span"  style="font-size:x-large;"><b>Level Four - &#8216;Effective and Reliable&#8217;</b></span></div><div><ul><li>Developers have local copies and can work offline</li><li>Local file system means fast builds.</li><li>Refactoring - speedy; smile at your neighbors for a second</li><li>Checkouts reasonably fast.Checkins reasonably fast</li><li>No-op sync/update very fast</li><li>Atomic Commits</li><li>Lightweight (cost free) tagging and branches</li><li>Advanced branching and merging</li><li>Personal/local branching means second checkoutCentralized rather than distributed</li><li>Sophisticated merge point tracking</li><li>Merge through rename only possible with configured branch mappings, otherwise a fix-up before commit is required</li><li>Repository corruptions very rare, very low administrator to developer ratio (1:1000)</li></ul></div><div><span class="Apple-style-span"  style="font-size:x-large;"><b><span class="Apple-style-span" style="font-weight: normal; ">Examples:</span></b></span></div> <div><br /></div> <div><b> Perforce</b></div><div></div><div>Fast is what this ten year old tool was built to be.  In some operations nothing beats it.  Back in the day, Perforce heralded a number of firsts in terms of capability (atom commits, lightweight branching/tagging, three-way merges). </div> <div><br /></div> <div>   This is bound to be controversial at &#8216;level 4&#8217; as P4 uses read-only locks extensively.   </div> <div> Some Agileists are going to violently object as this mandates good tool support (Intellij juggles the read-only flags via perforce, but Vim does not).  This severely limits the ability to work offline (making it anomalous versus the definition for level 4).  You can still do it, you have to blast away the read only flags, and do a revert-unchanged when you reconnect later, but don&#8217;t try to do renames while offline - it&#8217;ll end in tears. Also refactorings (when there is tool support) will work, but will be slightly slower than for the likes of Subversion as network IO is happening per changed file. </div><div><br /></div><div><span class="Apple-style-span"  style="font-size:x-large;"><b>Level Five - &#8216;Speedy, Invisible, and Highly Capable&#8217;</b></span></div><div> </div> <div>   <div><ul><li>Developers have local copies and can work offline</li><li>Local file system means fast builds</li><li>Refactoring - speedy; crick your knuckles momentarily</li><li>Checkouts reasonably fast</li><li>Checkins reasonably fast</li><li>No-op sync/update very fast</li><li>Atomic Commits</li><li>Lightweight (cost free) tagging and branches</li><li>Advanced branching and merging</li><li>Highly efficient local/personal branches</li><li>Distributed rather than centralized, full audit on consumed contributions from distributed sources</li><li>Seamless merge through rename - no configuration needed</li><li>Sophisticated merge point tracking</li><li>Repository corruptions very rare, almost invisible administrator to developer ratio (1:10000)</li></ul><span class="Apple-style-span"  style=" ;font-family:Verdana, sans-serif;"></span></div></div> <div> </div> <div>   Examples: </div> <div><br /></div> <div><b> GIT and Mercurial</b> </div><div><br /></div><div>These two are very similar, and both have their fans.  It is difficult to tell which will win out over the other in time.   For both, the killer capability for Agile folks who treat previously committed code like wet-paint, is merge through rename. It works so well that you feel this is how Fowler intended refactoring to feel and that all other SCMs fall short on that vision.  In short Git and Mercurial have the speed of Perforce, plus easy local branching, plus distributed operation, plus merge through rename.</div><div><br /></div><div><span class="Apple-style-span"  style="font-size:x-large;"><b>Level Minus One - &#8216;Death Wish&#8217;</b></span></div><div><br /></div> <div> There is a special place in hell for PVCS Dimensions.  We don&#8217;t know about the latest version which is rumored to have atomic commits, but we&#8217;e pretty sure that the turn of the millenium version was the worst of Clearcase but with a bucket full of suck thrown into the mix.  For example, person A doing a sync/update in the morning would take 45 mins, but if person B started their sync/update after person A, then 1.5 hours would be the reality (even if nothing changed).  Sometimes things were so bad, an ad-hoc distributed mode would leap into being (devs putting sets of changed files on network mounts, floppy disks or emailing).  As far as the authors can recall, there is 100% correlation between PVCS-Dimensions use and failed projects.</div><div><br /></div><div><span class="Apple-style-span"  style="font-size:x-large;"><b>Anomalies</b></span><br /><div><br /></div><div>Subversion with Git as a front end.  Git has built in support for Subversion servers.  Given some time, Git can clone a whole Subversion repository to a local workspace. From there you get the quick branch juggling capability, as well as local commits that can be sent back to Subversion later via &#8216;dcommit&#8217;.  Speedy branch local juggling (a level 5 gain) is possible just like for Git proper.  However, Git as a front end for Subversion cannot participate in Subversion merge point tracking (yet), thus we cannot back-implement another level 5 feature - merge through rename.  Lastly, Git fronting Subversion is still mostly tied to a single server, so cannot claim to be distributed in the text book sense of the word.  Where should it be placed ?  3.5 or 4 perhaps in terms of maturity, but merge lets it down. </div><br /><br /></div><div><span class="Apple-style-span"  style="font-size:x-large;"><b>Seamless merge through rename is the high bar</b></span></div><div><br /></div> <div> You&#8217;re most likely to be using Clearcase in the enterprise today, and may have heard that a shift to Subvesion will be more productive (and a lot cheaper).  Though Subversion is enterprise approved now and taking over from Clearcase as #1 soon enough, it is time to look for new tools.  Git and Mercurial mark the high bar now in many ways.  However one feature stands out for Agile teams chasing high throughput - seamless merge through rename.  If Perforce wants some of its old empire back, it is going to have to do this feature which could well be hard for them.  The Subversion team already has it scheduled. </div> <div><br /></div><div><div><span class="Apple-style-span"  style="font-size:small;">This blog post was the result of much discussion and pair blogging with </span><a href="http://paulhammant.com/"><span class="Apple-style-span"  style="font-size:small;">Paul Hammant</span></a><span class="Apple-style-span"  style="font-size:small;">.</span></div> </div></div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>moirajohn</div>
+<div class='content'>
+In this blog is very nice.so great information to in this blog&#8230;.<br /><br /><a href="http://www.evoquemodels.co.uk" rel="nofollow">Model agencies in london uk | Modeling agencies</a></div>
+</div>
+<div class='comment'>
+<div class='author'>twic</div>
+<div class='content'>
+For the sake of completeness, here&#39;s how Mercurial deals with Michele&#39;s third scenario. Here&#39;s the script:<br /><br />echo VERSION:<br />hg &#8211;version | head -1<br /><br />echo<br />echo SETUP:<br /><br />rm -rf michele<br />hg init michele<br />cd michele<br /><br />echo &quot;one&quot; &gt;test<br />hg add test<br />hg commit -m &quot;first commit&quot;<br /><br />hg branch nbr<br />hg mv test test_nbr<br />echo &quot;two&quot; &gt;test_nbr<br />hg commit -m &quot;renamed to test_nbr and edited&quot;<br /><br />hg update default<br />hg mv test test_default<br />echo &quot;three&quot; &gt;test_default<br />hg commit -m &quot;renamed to test_master and edited&quot;<br /><br />echo<br />echo MERGE:<br />hg merge nbr<br /><br />echo<br />echo FILES:<br />grep . *<br /><br />Here&#39;s the output:<br /><br />VERSION:<br />Mercurial Distributed SCM (version 1.8.2)<br /><br />SETUP:<br />marked working directory as branch nbr<br />1 files updated, 0 files merged, 1 files removed, 0 files unresolved<br /><br />MERGE:<br />note: possible conflict - test was renamed multiple times to:<br /> test_default<br /> test_nbr<br />1 files updated, 0 files merged, 0 files removed, 0 files unresolved<br />(branch merge, don&#39;t forget to commit)<br /><br />FILES:<br />test_default:three<br />test_nbr:two<br /><br />So, it does the same thing as Git, but it does at least warn you about it.</div>
+</div>
+<div class='comment'>
+<div class='author'>ian.ringrose</div>
+<div class='content'>
+I have seen ClearCase dynamic views work very well and be very fast.   However they don’t work well for .net or jave development. <br />The power of ClearCase dynamic views is when they are combined with oMake for C/C++ development.  oMake will avoid the call to the compiler if someone else has already done the compile with the same options and header file.  The dynamic views allow oMake to totally track the dependencies of every object file – a great benefit when using C/C++ with often tangled header files.<br /><br />(As to the number of ClearCase admins, I have often seen them run the entire build server farm, automatic tests as well as all the make files – a lot of work if you are building for many platforms.  – Once again ClearCase was designed for a different world to what most of us live in these days)</div>
+</div>
+<div class='comment'>
+<div class='author'>Preston L. Bannister</div>
+<div class='content'>
+Seems you left out a dimension - support for GUI-oriented developers. Git and Mercurial were quite immature in this aspect, and are still somewhat lesser.<br /><br />Since this can be the majority of interaction, the impact on adoption can be painful. Depends on the group of developers, and the difference between resources present and what is needed to push up the learning curve.</div>
+</div>
+<div class='comment'>
+<div class='author'>Andreas Krey</div>
+<div class='content'>
+@Michele: The results of scenario #3 depend on how you change the file in each branch. git looks at the contents of each files (esp. those that appeared or vanished) to detect renames; if they are sufficiently similar, it calls that a rename, otherwise it treats them as an added and a delete file, and performs the merge accordingly.<br /><br />(And it also only looks at the sum of all changes from the merge root to the tips, meaning that it does not matter whether you added the new and deleted the old file in the same commit or in separate ones.)</div>
+</div>
+<div class='comment'>
+<div class='author'>ketchup</div>
+<div class='content'>
+@Michele<br /><br />Scenario 2 raises a conflict since the &quot;line&quot; holding the filename was changed to &quot;test_master&quot; on branch master and to &quot;test_nbr&quot; on branch test_nbr. Same line, concurrent changes, so it&#39;s a conflict. At least that&#39;s how I would explain it. :)<br /><br />I tested your scenarios 2 and 3 on Cygwin 1.7.1 with git 1.6.6.1. I could run the scenarios on some more OS including Solaris and AIX, but as I understand it, the OS should not have any influence on the way changes and conflicts are detected (except maybe for POSIX file attributes), since only the <i>content</i> of the files are considered.</div>
+</div>
+<div class='comment'>
+<div class='author'>Michele</div>
+<div class='content'>
+It&#39;s ok. I will pursue this, since I have to &quot;defend&quot; Git where I work. Because of the content vs file, I also guessed this is the reason of the conflict in scenario 2, but I really don&#39;t understand why. Btw, have you tested scenario 3, and if yes, on which OS?</div>
+</div>
+<div class='comment'>
+<div class='author'>ketchup</div>
+<div class='content'>
+@Michele<br /><br />Sorry if I appeared unfriendly, it was completely unintentionally. I just feel the right place for git support is not exactly the comment section of Lucas&#39; blog (but thanks to Lucas to endure us!).<br /><br />In short: Git does not track files, it tracks content. Imagine all you files punched into a flat file with a line indicating the original filename, then diff it. This way git can find a given text blob and track the changes to the text across file boundaries. It should explain the conflict in scenario 2.<br /><br />As for scenario 3, I&#39;m not really sure why it works. I&#39;m not really sure if it should work or not, but it emphasizes my opinion that no technical solution can ever help a team of developers if they don&#39;t talk to each other (one way or other): If you start a refactoring, tell it to your mates. :)<br /><br />But maybe you really should dig into http://git-scm.com for a authorative answer. These guys not only built git, they <i>know</i> git. ;)</div>
+</div>
+<div class='comment'>
+<div class='author'>Michele</div>
+<div class='content'>
+Absolutely no fingerpointing. I really want to understand how this works. After I held a presentation at my work about Git - since many developers here are not happy with our current system (MKS) - a developer challenged me with this problem. MKS just crashes. I tried it several times - both on OSX and on Windows XP (mysysgit) - and always with the same result. I am curious to know exactly what you did. I have asked Scott Chacon directly, because I didn&#39;t find a good place to present the problem.<br /><br />I&#39;ll describe the three scenarios I&#39;ve used. I always start with a clean directory.<br /><br />#Initialize<br />git init<br />touch test<br />&quot;edit test&quot;<br />git add test<br />git commit -m &quot;first commit&quot;<br />git checkout -b nbr #new branch<br /><br /><br />#Scenario 1 - rename file in one branch<br />git mv test test_nbr <br />&quot;edit test&quot; # Doesn&#39;t really make a difference<br />git commit -am&quot;renamed to test_nbr&quot;<br />git checkout master<br />git merge nbr<br />#Result in master: The file is renamed. No conflict.<br /><br /><br />#Scenario 2 - rename file in both branches<br />git mv test test_nbr<br />git commit -am&quot;renamed to test_nbr&quot;<br />git checkout master<br />git mv test test_master<br />git commit -am&quot;renamed to test_master&quot;<br />git merge nbr<br />#Result in master: Conflict. I don&#39;t understand why, but at least Git indicates that a file has been renamed.<br /><br /><br />#Scenario 3 - rename and edit file in both branches<br />git mv test test_nbr<br />&quot;edit test_nbr&quot;<br />git commit -am&quot;renamed to test_nbr and edited&quot;<br />git checkout master<br />git mv test test_master<br />&quot;edit test_master&quot;<br />git commit -am&quot;renamed to test_master and edited&quot;<br />git merge nbr<br />#Result in master: Two files, test_master and test_nbr, and no conflict.</div>
+</div>
+<div class='comment'>
+<div class='author'>ketchup</div>
+<div class='content'>
+@Michele<br /><br />I just tried to provoke the problem you described and failed: Git either correctly auto-merged the file (when no conflict araised), or flagged a conflict and did not merge. Then again, I&#39;m using git a lot, and this problem never occured to me.<br /><br />If you feel you experienced a bug, you should:<br /> 0. make sure it&#39;s a bug, not a feature, just to save you lots of time and trouble<br /> 1. write down how to reproduce the behaviour in detail<br /> 2. visit http://git-scm.com/ and make sure it&#39;s gits fault, either intentionally or not<br /> 3. contact the developers, see http://git-scm.com/<br /><br />Point 0. is very very important, especially when you plan point fingers at git (as your statement seems to imply). ;)<br /><br />You might be able to find a support shortcut with some heavy git users (e.g. Github), but beware to assume they provide universal git support for free. :)</div>
+</div>
+<div class='comment'>
+<div class='author'>Michele</div>
+<div class='content'>
+A problem with Git?<br /><br />Renaming and modifying a file in two branches, and merging them results in two files and no merge conflict. This means that Git doesn&#39;t give any information that we now have two files instead of one.</div>
+</div>
+<div class='comment'>
+<div class='author'>Ran</div>
+<div class='content'>
+One thing missing in this maturity model is how these models support continuous integration. I have found out that using SVN is good step in practising CI because it has only one common repository and merging takes effort so people tend to move towards small commits.</div>
+</div>
+<div class='comment'>
+<div class='author'>ketchup</div>
+<div class='content'>
+@Paul,<br />yes, my point: Admins should not merge. Merging code is essentially coding.<br /><br />The merge-throu-rename-capabiblity of CC made it stand out in its time, as well as its support for massive parallel branches. But I suppose Agile and massive parallel works only with short-lived branches. Maybe the &quot;content tracking&quot; of modern DSCM helps, but, honestly, I don&#39;t know.<br /><br />(The SCM problems are my main, if not only, objections against Agile. Glad to hear it works well with git and hg, have to try that in my next project.)<br /><br />Finally, I agree dynamic CC probably spent even more network time than traditional working copy models. It is supposed to hide that from user by updating when the system is idle, which is probably why it never bothered me. (Never? No, that&#39;s a lie: I remember a project where I went ballistic because I had to wait for a compile for 45min, just because our project site was connected with 64kbit with the CC system. <i>That&#39;s</i> pain.)<br /><br />But I&#39;d like to think Linus was right as he said having a very very fast SCM changes the way we use the SCM. So don&#39;t take my comments on CC speed as an glorious aprisal, it&#39;s a simple statement that dynamic CC can be setup in a way which does not interfere too much in traditional software development. It can&#39;t support the way I&#39;d like to work today anymore.<br /><br />(Actually, thinking back, the highest risk in using dynamic CC is that nobody can work anymore if the CC server is down, with all the dire business implications.)<br /><br /><br />@Lucas,<br /><br />RAD might be IBMs IDE, and CC might be one of IBMs SCMs. However, assuming they work together well, given their different lineages, is &#8230; bold. I would never dream they could be the same suite &#8211; maybe that&#39;s an important point. And please, please don&#39;t start on ClearQuest. I&#39;d rather forget about that. :)<br /><br /><br />I used the CC plugin fo Eclipse some years ago. I can&#39;t remember exactly, but it might have had that strange behaviour already. If so, it&#39;s probably a weakness in the relevant Eclipse API, which might not support checking in and out folders, so they have to checkin the modified folder immediately (just my guess). That would render an otherwise great CC feature useless.<br /><br />If it really matters, you can verify the correct behaviour in the CC Excplorer. Then again, it&#39;s purely academic, since you need to use the refactoring tools in you IDE, which obviously behaves wrong.<br /><br />So I must accept the rename behavior is broken, at least for Java developers (which are possibly the majority of CC users nowadays?). I already lamented the missing change sets, so there&#39;s nothing to discuss left here. :)<br /><br />I&#39;m not sure about the branching argument. I like branches, I think CC and git do it right, while CVS and SVN are wrongly pretend there&#39;s no branching involved, even if every working copy effectively is a branch. However, I agree that you need short-lived branches for this to work well. Maybe you need to check on the private branches; I have no experience with them.<br /><br />Finally about config-specs: Ah, I completely forgot about them! Fine stuff, esotheric, perfectly useable to confuse co-workers and drive developers crazy! ;)<br /><br />In fact, I think config-specs are build- and configuration management responsibility, since they are part of the CC branching scheme. If a developer has to handle them, he does a job he&#39;s not paid for, hence he looses productivity. I stand corrected.<br /><br /><br />P.S.: Sometime you do something wrong, because you don&#39;t know better, sometime, because you must. With CC, at some point, it&#39;s usually because you must. And I&#39;m not even telling you you&#39;re doing something wrong. Except, of course, if you use a 64kbit line and developers have to maintain config-specs, that would be wrong. :)</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@ketchup<br /><br />&quot;sorry, my &quot;wording&quot; was not correct: &quot;Biased&quot; might be too harsh,&#8230;&quot;<br /><br />No worries.  I&#39;m currently learning French, and fully understand how confusing the small differences in meaning between words can be.<br /><br />&quot;- CC has atomic check-ins, but it has no change sets. You might be able to emulate change sets with labels, but that&#39;s hardly the same. Atomic check-ins just make sure a failed check-in won&#39;t ruin the repository (as it was possible in CVS), and does not help code integrity.&quot;<br /><br />This is somewhat of a semantics argument.  What I meant by atomic, was that if you checked in 10 files, and have some kind of issue  with one, none of them should be checked in.  I suppose we could call this atomic changelists or something, but it&#39;s beside the point.<br /><br />&quot;- Renaming a file in CC checks out the parent folder element and leaves in checked out. If your IDE checks it in immediately, your IDE is broken:&#8230;&quot;<br /><br />As far as I&#39;ve ever known, there has only really been one clearcase IDE, RAD.  At least that&#39;s where I used it.  I know there&#39;s plugins for other IDEs, but I would be a bit scared to use them.  I agree that the file will still be checked out.  However, the file will still be considered renamed regardless.  If someone else does an update, and you haven&#39;t checked in the files that required renaming as part of the refactoring, which you definitely won&#39;t, then the build is broken until you check in the result of the refactoring.  Whenever I was working with CC I would always do renames first and check in immediately to avoid this issue.  It&#39;s not the end of the world, but still annoying.<br /><br />&quot;-&#8230; CC has private branches. And: You will always have to merge if two developers concurrently worked on the same object&#8230;&quot;<br /><br />Personally, that&#39;s a problem for me.  This ultimately leads into proliferation of branching and away from trunk based development.  Although, the benefits of TBD are a completely separate discussion.<br /><br />&quot;- Calling an admin for more complicated tasks than checking in or out is &#8230; a myth. &#8230;&quot;<br /><br />On the previous CC projects I&#39;ve worked, I always seemed to have some kind of scenario where I had to call in an admin.  I suppose it wasn&#39;t always simple merges, but something seemed to always get funky, leading to me getting out of the chair and hearing faint mumbling about config specs. :)<br /><br />&quot;&#8230; I find the objections against CC mostly grown out of buggy tools and misinformation&#8230; Just one favour? Please, don&#39;t tell me the speed of your SCM is lowering your productivity&#8230;&quot;<br /><br />I don&#39;t want to make offense, but this is the argument that always comes up when discussing ClearCase that bothers me.  It basically boils down to: &quot;You must be using it wrong!&quot;  You&#39;re right, RAD is buggy, but considering who creates it, I think we can consider it part of ClearCase, it&#39;s all the same suite after-all.<br /><br />I also completely disagree with your productivity statement.  Everytime a build is accidentally broken because of the tool (even the IDE you need to work with to use it), productivity is lost.  Everytime you have to call an admin over to look at your config spec, productivity is lost.  It&#39;s not necessarily the speed of the SCM, since if that&#39;s a problem, even with clearcase, it&#39;s probably network related.  Even SVN or Git can have the same issues.  I will say though, I have never been on a CC project, even one where day to day usage was relatively zippy, where rebaselining wasn&#39;t measured in hours, and don&#39;t get me started on ClearQuest :)<br /><br />Thanks for the well thought out comments.  Having people poke holes in arguments is the only way to improve them, and improve your thinking on them.</div>
+</div>
+<div class='comment'>
+<div class='author'>Paul Hammant</div>
+<div class='content'>
+@ketchup.  Lots to respond to.  <br /><br />ClearCase admin:dev ratio (IBM has at one time or another recommended 1:20). AFAIK admins are not for merging exclusively, though they are known to get involved.  You&#39;re right - that&#39;s a developer duty in a good team.  Admins are for tricky stuff like (but not exclusively) repo repair, and branch creation.<br /><br />You&#39;re point about working copy (SCMs other than dynamic-CC) differ greatly in merge capability. With Git and Mercurial, their merge-through-rename works incredibly well.  An Agile team that&#39;s doing lots of refactoring need not instigate as much communication around such checkins.  For P4/Svn and anything else, much conversation is needed - &quot;hey everyone, I want to move ShoppingCart to an new package, any objections?&quot;.  Someone with WIP on ShoppingCart is going to ask you to wait until they&#39;ve checked in.  Even Dynamic CC has downstream consequences for merge pain, after Agile style refactorings. <br /><br />In terms of performance.  Lets take the high bar for one operation.  Say you want to sync/update from some canonical repo. Say there are actually no changes to come since your last sync/update.  Perforce will take one second to tell you &quot;already up to date&quot;.  Static ClearCase (lets not mention PVCS Dimensions) can take 30 mins.  Dynamic ClearCase makes you pay by in build and IDE minutes to make that sync/update look cost-free.  Its a lie though.  There is no Agile team on earth that is at anything even close to 2/3 effectiveness using Dynamic ClearCase, and no Agile team on earth that does not yearn for instantaneous and omnipresent SCM.  I&#39;d suggest that the same effective malaise even effects non-Agile teams, but I personally care less about them :-)</div>
+</div>
+<div class='comment'>
+<div class='author'>James Sears</div>
+<div class='content'>
+Your enthusiasm doesn&#39;t mask your inexperience in using some of these tools.</div>
+</div>
+<div class='comment'>
+<div class='author'>ketchup</div>
+<div class='content'>
+@Lucas,<br /><br />sorry, my &quot;wording&quot; was not correct: &quot;Biased&quot; might be too harsh, and I don&#39;t want to be rude on your blog. Please contribute that lapse to my imperfect and non-native English language skill. And yes, to begin with, ClearCase, as <i>any</i> CSCM, is no longer cutting edge. I totally agree. But let me correct a thing or two.<br /><br />- CC has atomic check-ins, but it has no change sets. You might be able to emulate change sets with labels, but that&#39;s hardly the same. Atomic check-ins just make sure a failed check-in won&#39;t ruin the repository (as it was possible in CVS), and does not help code integrity.<br /><br />- Renaming a file in CC checks out the parent folder element <i>and leaves in checked out</i>. If your IDE checks it in immediately, your IDE is broken: Usually you have to check in the folder element yourself. (Actually, that&#39;s the coolest feature CC has, if you employ it correctly.)<br /><br />- Two developers can <i>never</i> work on the same object without branching (except, maybe, in Etherpad or Google Wave). It&#39;s just that most SCM have an implicite branch (working area). CC has private branches. And: You will always have to merge if two developers concurrently worked on the same object.<br /><br />- Calling an admin for more complicated tasks than checking in or out is &#8230; a myth. What&#39;s more complicated than check-in/check-out? Merge?!? A developer is far better eqipped to solve merge conflicts than a CC admin ever could (which might be the guy who knows how to handle an Oracle, but not your code). You just need to read the manual. I know, that&#39;s hardly done nowadays, but then again CC is a dinosaur. Be brave! Hit F1 once in a while!<br /><br />So, while I&#39;m still with you in any practical term, I find the objections against CC mostly grown out of buggy tools and misinformation (for lack of a better word - please refer to the first paragraph). Just one favour? Please, don&#39;t tell me the speed of your SCM is lowering your productivity, lest I&#39;m compelled to ask how you measure productivity. ;)<br /><br />Anyway, I should be glad as long as git is coming out of that race of yours first place. You know, in git, the developers <i>are</i> the SCM admins, so they all must learn how SCM works. Otherwise they simply can&#39;t work.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@Ketchup<br /><br />&#39;But is looks a bit &quot;biased&quot; against dynamic ClearCase: This can be quite responsive, even for large installations. It can be done! :)&#39;<br /><br />Since it&#39;s centralized, having good infrastructure can help with some of the pain, but it will never be as fast as something on a local hard drive.  Furthermore, it&#39;s not atomic, which leads to all kinds of other errors.  If you rename a file in your IDE, that rename is immediately committed, even if the change in files referencing this class aren&#39;t, which leads to a broken build.  Check-ins aren&#39;t atomic either, so if there is an issue with one file, for whatever reason, you just broke the build.  There&#39;s also the file locking.  Two developers can&#39;t work on the same file at the same time without branching and a huge messy merge after the fact.  There&#39;s also the slowness you&#39;ll encounter when you need to do anything more trivial than simple check-in and check-outs, which is why the admin to developer ratio is so high.  Even if your network is responsive, your productivity will be lower.<br /><br />So, I wouldn&#39;t say that the article was biased against ClearCase dynamic mode, but rather the things we thought were important in an SCM naturally push ClearCase dynamic lower, although, I&#39;m not sure what features others would find more important that would push dynamic mode up.  I would be interested in hearing them though.</div>
+</div>
+<div class='comment'>
+<div class='author'>Cosmin Stejerean</div>
+<div class='content'>
+Preventing developers from leaving the building with source code once it is checked out to their machines, or preventing them from accessing source code another developer checked out are issues that affect all source control systems equally.<br /><br />Regarding local checkouts, the only difference I see between a source control system like Git and something like Subversion is that by default Git gives you a copy of the entire history locally, as opposed to only the latest revision. Let&#39;s ignore for a moment the fact that it is possible to get a copy of every revision from any version control system.  What about those historical revisions makes stealing a Git repository more concerning than stealing the latest revision from any other repository?<br /><br />Any enterprise concerned about people stealing source code or any other IP can take the same kind of measures to prevent theft, from severely restricting network communications to superglueing USB ports. That&#39;s why I mentioned the issue of stealing source code is a red herring. It has nothing to do with Git.<br /><br />Leaving aside the issue of stolen checkouts, Git allows one to control read access to the canonical repository in a similar way to any other tool. It is certainly possible to restrict read access to release branches, although the easiest way of doing so is to separate release branches with sensitive information into a second repository that only select people can access.</div>
+</div>
+<div class='comment'>
+<div class='author'>Paul Hammant</div>
+<div class='content'>
+<b>Git on Windows ..</b><br /><br />I&#39;m interested by AndLinux.org. As soon as I can make some space on my MBP, I&#39;m going to do Win7 + AndLinux.org.<br /><br />It might be more of a first class place for Gitters on Windows.<br /><br /><b>on &#39;Svn not making it easy&#39;</b><br /><br /><br /><br /><b>In Summary.</b><br /><br />I&#39;ve thought some more and I think the summary of the permissions issue for Agile teams is that while  all folks in a dev team should see all of trunk, some enterprises want to make release branches read restricted because they&#39;re putting settings into bash scripts or properties files (or alike).<br /><br />Going back to trunk, I&#39;ve only seen once in thirteen years of using SCM a company put read restrictions on items in trunk.  That  company had co-mingled multiple separate projects in one big source tree (kinda like <a href="http://www.gjt.org/servlets/JCVSlet/list/gjt" rel="nofollow">this</a> )<br /><br />If you were using Git (or Mercurial) in such a strict enterprise, most likely you&#39;d be ruling out the clone/pull from each other aspect of Git.  Of course that would be a rule, as anyone could try to mount a share or open up SSH on their dev machines to subvert rules.  That&#39;s true for Svn, CVS, Static-Clearcase (and more) too.</div>
+</div>
+<div class='comment'>
+<div class='author'>ketchup</div>
+<div class='content'>
+Cosimin,<br /><br />with hooks you can implement <i>write</i> policies, not <i>read</i> policies. That&#39;s basically impossible in a DSCM, since all you need is find someone who has read access, and clone his repo.<br /><br />Red-herring or not (I disagree with you: I&#39;ve seen co-workers sending out sensible data because they where not aware of the problem, and I&#39;ve seen co-workers sending out code because they where unaware of any problem), this is an issue Enterprise has. Try it: Suggest to your project leader you want to copy all the source of your project onto a stick and walk it out the door, destiny unknown. It&#39;s a great exit strategy. From your project.<br /><br />Second, cygwin git does not work as expected, since cloning is broken. Google for cygwin 1.7.1 git. As soon as cygwin has an issue tracker (besides subscribing to an email list), I might consider cygwin as a viable alternative to a Unix environment. (Hint: If you have a cygwin prior to 1.7.1, and you need itjust for git, don&#39;t upgrade until someone blurrs out it&#39;s working again. Trouble is to find out when it&#39;s fixed.)<br /><br />@Paul,<br />yes, with the git-svn &quot;bridge&quot; you can suck an SVN dry. But neither does svn make that especially easy for you, nor is this the &quot;fault&quot; of svn. Plus your admin might implement policies here, and it would work for any CSCM you create a bridge for git for.<br /><br /><br />Don&#39;t get me wrong: Just because I knwo these arguments against git/hg does not imply I share the objections - at least not completely (face it: developers are as fallable as every human). I really don&#39;t want to defend the Enterprise position, especially not against git, which is, dunno how often I had stated this, my avourite SCM ever (and I worked with quite some SCMs). It&#39;s just that DSCM <i>inherently</i> empowers developers, while Enterprise (currently) wants to <i>control</i> developers, which results in a fundamental incompatibility which cannot be talked away.</div>
+</div>
+<div class='comment'>
+<div class='author'>Paul Hammant</div>
+<div class='content'>
+IRO &#39;Red-herring&#39; or not, lets expand that a little ..<br /><br />With Svn (and Git-Svn proves it) you can pull out all commits ever to a repo (trunk + all branches) and end up with a zip that is quite manageable in terms of flash drive.  Thus Svn can also fail the &quot;competitor could receive &#39;all code ever&#39; too.  <br /><br />That said, paths can be hidden behind Apache DAV permissions.  Perforce can similarly have restricted paths/branches. Clercase breathes this sort of restraint.<br /><br />Thus we need to work out configurations whereby the canonical git repo has variable restrictions per cloner.</div>
+</div>
+<div class='comment'>
+<div class='author'>Cosmin Stejerean</div>
+<div class='content'>
+You might not be able to enforce hooks that run on the developer&#39;s workstation, and I don&#39;t think one ever should try to enforce hooks at that level.<br /><br />You can however enforce the hooks that run on the canonical source repository, which is what really matters for enforcing controlled read/write access. You can prevent people from pushing changes to a certain branch, from pushing changes that touch a certain file, from pushing changes with commit messages that are not to your specification, etc.<br /><br />If you are curious about how specific workflows you have encountered can be implemented, I will gladly attempt to give you examples of how I would implement them in Git.<br /><br />The whole argument about non-loyal developers stealing source code is a red-herring as it has nothing o do with Git or any other source control being used.<br /><br />Regarding Windows support, it is true that traditionally Git has been a second class citizen on Windows, requiring cygwin to run. That said, support for Git on Windows has become a lot better recently.<br /><br />Git under cygwin should run just fine, but if that does not work for you, or you do not want cygwin, I recommend trying msysGit. A good starting point for getting started with Git on windows is http://github.com/guides/using-git-and-github-for-the-windows-for-newbies</div>
+</div>
+<div class='comment'>
+<div class='author'>ketchup</div>
+<div class='content'>
+Cosmin,<br /><br />hooks are nice. Problem is: they are not mandatory. You cannot force developers to use them, so you cannot enforce. Hence, you cannot implement an Enterprise workflow (let alone certificate it), because a workflow you cannot enforce is &#8230; not a workflow.<br /><br />If you are Enterprise, you don&#39;t assume loyal developers. They are human resources, as loyal as you pay them if you&#39;re lucky (but Enterprise is not about being lucky). Hence they might work for your competition tomorrow. You don&#39;t want to give your competition (or whoever might be after your busines vital information) a headstart by handing over all your code. A, sorry, here&#39;s the right button: <i>all</i> your code, ever.<br /><br />In other words: Enterprise is driven by accounting and legal, not by geeks.<br /><br />Next, Enterprise loves Windows as workstation platform. There&#39;s no Windows git available (<i>don&#39;t</i> tell me there&#39;s cygwin unless cygwin git can clone a repository at the first try again).<br /><br />You see, it&#39;s not only git that has a hard time in Enterprise. It&#39;s primarily that DSCM is not yet trusted, and this distrust is not entirely unreasonable.</div>
+</div>
+<div class='comment'>
+<div class='author'>juancn</div>
+<div class='content'>
+I use a clearcase derivative at work (which added a form of pseudo atomic commits). It&#39;s fugly, slow, and extremely unreliable!<br /><br />We actually built a bridge using git as a frontend to make it palatable (with a lot of script-fu to keep histories in sync).<br /><br />With network latencies &gt; 200ms, the unnamed-CC derivative is completely unusable (I&#39;m in Argentina and the data center is in the US).<br /><br />Opening a large project using intelliJ used to take between 2 to 4 hours! Now it takes a couples of minutes at worst.</div>
+</div>
+<div class='comment'>
+<div class='author'>Paul Hammant</div>
+<div class='content'>
+Mike,<br /><br />The Svn, P4, Git/Mercurial rankings above are ultimately about merging as you surmise. <br /><br />Subversion is weaker than P4 presently because its merge point tracking cannot work through a rename.  Indeed for Subversion 1.6.3 through 1.6.5 the merge would abort in particular situations because of conflicts concerning renames.  1.6.6 sailed past the &#39;abort&#39;, but left us with conflicts that we&#39;d need to resolve later.  That conflict would not have existed in P4 with the appropriate branch-spec (see below).  It would not have existed in Git/Mercurial at all.<br /><br />Perforce can do merge through rename if you setup branch mappings - though it&#39;s pretty second class.  It can&#39;t be tooled because branchspecs are in themselves committed.  They transcend versions.  If they were committed as part of a change list, then the likes of Intellij, Eclipse and &#39;Studio could update specs when refactorings happen.<br /><br />While I agree that trunk is best, merge is also used for updating working copy (tis often forgotten).  To that end, Subversion leaves you abruptly, Perforce can&#39;t help because a branch-spec is about branches not working copy, and only Git and Mercurial update your working copy with renames/moves regardless of whether you had local commits that have not been pushed to the backend.<br /><br />Now there is nothing here that the Subversion teams (or Perforce the company) cannot fix.<br /><br />Meanwhile, like you, true trunk based development is what I recommend as teams mature through experience with SCM tools.</div>
+</div>
+<div class='comment'>
+<div class='author'>Mike Mason</div>
+<div class='content'>
+Could you articulate why Subversion doesn&#39;t make it into the next level? By my reckoning it hits most of the criteria.<br /><br />Whilst the best developers in the world undoubtedly will make use of the new features in advanced tools like Git and Mercurial, those features are likely to be dangerous to the average corporate developer.<br /><br />Right now we are constantly facing teams who have some crazy branching &quot;strategy&quot; in place, usually to hide the fact that they have no confidence in running their projects and want to hedge their bets with a crazy merge tree. Surely a DVCS, where such merge swapping is even easier, would make this problem worse and make people even less likely to actually fix their schedules and engineering practices.</div>
+</div>
+<div class='comment'>
+<div class='author'>Cosmin Stejerean</div>
+<div class='content'>
+There is nothing about Git that prevents controlled read/write access or implementation of enterprise workflows.<br /><br />Between the distributed nature of Git and the available hooks one can implement even the most complicated enterprise workflows.<br /><br />Perhaps we need more commercial support options for Git in order to allow companies to feel comfortable.</div>
+</div>
+<div class='comment'>
+<div class='author'>ketchup</div>
+<div class='content'>
+Nice job.<br /><br />But is looks a bit &quot;biased&quot; against dynamic ClearCase: This can be quite responsive, even for large installations. It can be done! :)<br /><br />Further, &quot;Branching and tagging expensive&quot; is a bit broad, since branching and tagging are quite different use cases: Having expensive branches might not be as big as a problem as having expensive tags. Depends on your development model, of course.<br /><br />Then again, I agree that Git and probably Mercurial (I don&#39;t use hg, so I can&#39;t really tell) are clearly marking the top of the line, if only technology is considered, and I clearly prefer git over any other SCM I worked with, including SVN, ClearCase, Synergy and, of course, CVS/RCS.<br /><br />But Enterprise decisions are made at least partial in laws department, which calls, as a minimum, for controlling (read) access and enforced certified workflows. The nature of DSCM is against that, and evolution will take time. So I guess we&#39;ll see Subversion around for quite some while.</div>
+</div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2008/11/02/spring-batch-and-ddd/">Spring Batch and DDD</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-11-02T20:11:00-06:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+I use Google blog search (<a href="http://blogsearch.google.com">http://blogsearch.google.com/</a>) to keep track of anyone blogging about Spring Batch.  Usually, blog posts are &#8216;getting started guides&#8217;, with simple examples, which is understandable given the way our samples are organized.  Our samples are indented to test nearly every framework feature in a real batch job, and serve as a form of functional test.  This is good for developers that understand the framework and want to know how to use feature X, but not so good if you&#8217;re new to the framework.  I always intended on creating a simple example, but I think the blogging community has been so good about creating them, I&#8217;m not sure we could add much value. <br /><br />I&#8217;m slightly digressing though.  I recently ran into a much different blog post about Spring Batch:<br /><br /><a href="http://java-chimaera.blogspot.com/2008/11/spring-batch-domain-driven-design-in.html">http://java-chimaera.blogspot.com/2008/11/spring-batch-domain-driven-design-in.html</a><br /><br />The main theme of the post is that Spring Batch serves as almost a reference implementation for DDD:<br /><br /><blockquote><span style="font-family: arial;">&#8220;By applying DDD in Spring Batch, we now have a realistic and elaborate example of concepts like ‘repository’, ‘factory’ or again the ‘ubiquitous language’. What’s also interesting in this implementation is that, by being a technical domain, developers can easily comprehend the concepts and identify them more easily.&#8221;<br /><br /></span></blockquote>In nearly every presentation Dave or I has given about Spring Batch, we usually start describing the domain model, and express that Eric Evans&#8217; book was highly influential in how we designed Spring Batch.  I can&#8217;t begin to tell you how much this model changed from when we first start until 1.0.  In the original model, Steps were called StepControllers, and so on.  As we continued through development, they naturally began to evolve.  We were very conscious of Evans&#8217; concept of Ubiquitous Language, and as we noticed ourselves continuing to refer to a concept as something, we usually decided that the class should be called that, which ultimately let to the simple Job and Step in the framework today. <br /><br />I could talk for days about the evolution of the domain model in Spring Batch, but in the interest of keeping this post reasonably sized, I&#8217;ll simply summarize by saying that DDD was a big driver in the creation of Spring Batch, and it&#8217;s interesting to me that others unrelated to the project can see this by simply inspecting the code.  I think it speaks volumes for the approach.</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/3/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

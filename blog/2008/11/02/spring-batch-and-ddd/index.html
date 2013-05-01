@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Spring Batch and DDD - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="I use Google blog search (http://blogsearch.google.com/) to keep track of anyone blogging about Spring Batch. Usually, blog posts are &#8216;getting &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2008/11/02/spring-batch-and-ddd">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Spring Batch and DDD</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-11-02T20:11:00-06:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+I use Google blog search (<a href="http://blogsearch.google.com">http://blogsearch.google.com/</a>) to keep track of anyone blogging about Spring Batch.  Usually, blog posts are &#8216;getting started guides&#8217;, with simple examples, which is understandable given the way our samples are organized.  Our samples are indented to test nearly every framework feature in a real batch job, and serve as a form of functional test.  This is good for developers that understand the framework and want to know how to use feature X, but not so good if you&#8217;re new to the framework.  I always intended on creating a simple example, but I think the blogging community has been so good about creating them, I&#8217;m not sure we could add much value. <br /><br />I&#8217;m slightly digressing though.  I recently ran into a much different blog post about Spring Batch:<br /><br /><a href="http://java-chimaera.blogspot.com/2008/11/spring-batch-domain-driven-design-in.html">http://java-chimaera.blogspot.com/2008/11/spring-batch-domain-driven-design-in.html</a><br /><br />The main theme of the post is that Spring Batch serves as almost a reference implementation for DDD:<br /><br /><blockquote><span style="font-family: arial;">&#8220;By applying DDD in Spring Batch, we now have a realistic and elaborate example of concepts like ‘repository’, ‘factory’ or again the ‘ubiquitous language’. What’s also interesting in this implementation is that, by being a technical domain, developers can easily comprehend the concepts and identify them more easily.&#8221;<br /><br /></span></blockquote>In nearly every presentation Dave or I has given about Spring Batch, we usually start describing the domain model, and express that Eric Evans&#8217; book was highly influential in how we designed Spring Batch.  I can&#8217;t begin to tell you how much this model changed from when we first start until 1.0.  In the original model, Steps were called StepControllers, and so on.  As we continued through development, they naturally began to evolve.  We were very conscious of Evans&#8217; concept of Ubiquitous Language, and as we noticed ourselves continuing to refer to a concept as something, we usually decided that the class should be called that, which ultimately let to the simple Job and Step in the framework today. <br /><br />I could talk for days about the evolution of the domain model in Spring Batch, but in the interest of keeping this post reasonably sized, I&#8217;ll simply summarize by saying that DDD was a big driver in the creation of Spring Batch, and it&#8217;s interesting to me that others unrelated to the project can see this by simply inspecting the code.  I think it speaks volumes for the approach.</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-11-02T20:11:00-06:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2008</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2008/11/02/spring-batch-and-ddd/" data-via="" data-counturl="http://lucaslward.github.io/blog/2008/11/02/spring-batch-and-ddd/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+        <a class="basic-alignment right" href="/blog/2010/02/03/maturity-model-for-source-control-scmm/" title="Next Post: A Maturity Model for Source Control (SCMM)">A Maturity Model for Source Control (SCMM) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

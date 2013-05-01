@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Velocity Anchors - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="A former colleague of mine from my ThoughtWorks days, Aaron Erickson recently wrote a blog post about Engineering practices and how they impact a &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucaslward.github.io/blog/2011/01/26/velocity-anchors">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucaslward.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Velocity Anchors</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-26T13:37:00-06:00" pubdate data-updated="true">Jan 26<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+A former colleague of mine from my ThoughtWorks days, <a href="http://nomadic-developer.com/">Aaron Erickson</a> recently wrote a <a href="http://nomadic-developer.com/2011/01/26/velocity-101-get-the-engineering-practices-right/">blog post</a> about Engineering practices and how they impact a project&#8217;s velocity.  The post is good, and talks about some common engineering practices to help improve velocity.  However, the problem I&#8217;ve found on numerous projects, regardless of their level of engineering maturity is that they often don&#8217;t see that they even have any velocity issues.  The closest most projects get to is: &#8216;We want to release by date x, with feature-set y and at our current velocity that isn&#8217;t possible&#8217;.  Aaron&#8217;s post is a an example of positive ways to improve velocity, rather than the unsustainable practices of throwing more people at it or making everyone work 100+ hours a week.  But what really is the proverbial anchor slowing the velocity ship down?<br /><br /><span style="font-weight: bold;font-size:130%;" >Technical Debt?</span><br /><br />Martin Fowler wrote a recent blog post related to software craftsmanship where he talked about how much he hates <a href="http://martinfowler.com/bliki/MetaphoricQuestioning.html">using metaphors</a> to describe software development.  Technical debt is an often used metaphor for describing what is essentially causing velocity anchors in the codebase.  This is of course completely separate from process issues. (7 design meetings and signoff sessions before even starting to code will kill the velocity of even the cleanest codebase)  It&#8217;s a tempting metaphor to use.  Everyone understands the concept of debt from their own lives.  Your income is severely handicapped if every month a large percentage has to go to paying down debt.  The same can be applied mentally too, paying down debt every-time you code.  However, there&#8217;s a number of problems with using this metaphor.<br /><br /><span style="font-weight: bold;">People don&#8217;t understand debt</span><br /><br />Earlier I said &#8220;Everyone understands the concept of debt from their own lives&#8221; No, no they don&#8217;t.  Especially not in America.  In many ways our attitude towards debt in our personal lives mirrors the problems in codebases.  Can&#8217;t afford the new TV?  It&#8217;s cool, Best Buy has financing.  In fact, in many ways the concept of &#8220;I&#8217;m taking on acceptable debt now to get a feature out, and I&#8217;ll totally going pay it off next quarter&#8221; is what gets most companies into trouble in the first place.<br /><br /><span style="font-weight: bold;">The code fairies don&#8217;t send you a bill</span><br /><br />A credit card bill is tangible.  They mail you a piece of paper that says: &#8220;You have to pay this much right now or bad stuff is going to happen.&#8221;  And you know exactly what that bad stuff is.  Everyone knows what the end of this path is, and speaking as someone who has recently watched family go through it, bankruptcy sucks.  There is no such obviously painful end point to accumulating too much debt in your code.  The only thing I can tell you is: you&#8217;ll know it when you see it.  When you&#8217;ve spent years working on a codebase, and have a small percentage of the features you want done, and your retention rate is falling rapidly, you&#8217;ll know you have too much debt.  However, its really hard to make someone understand that when they&#8217;re staring at all the screens in best buy.<br /><br /><span style="font-weight: bold;">Software development is subjective</span><br /><br />Is that piece of code technical debt or a really clever architecture?  I bet you could take any random snippet from your codebase and ask two developers whether its technical debt or not and get two completely different answers.  Usually because one of them thinks you&#8217;ll &#8220;definitely need to let users add their own custom widgets in the future&#8221;.  (I&#8217;ll save the speculative generality rant for another day)  My point is that you could spend a lot of time trying to define what is debt vs. &#8216;good architecture&#8217; and end up being one of those people who hasn&#8217;t actually written code in years and has a calendar where every hour is triple booked.<br /><br />Its not really that hard of a concept really.  I&#8217;m not sure it even needs a metaphor.  Your developers are trying to get stuff done.  There&#8217;s a bunch of crap in the way making that take longer than it rightfully should.  If  you care about developer productivity, you try and hunt it down and fix it. If you don&#8217;t, then stop reading this and get back to your gant chart.  I bet if you put one more developer on that task the earn/burn ratio will look way better.  (Another rant for another day though)<br /><br />So, what are some of the things getting in the way of getting stuff done?<br /><br /><span style="font-weight: bold;">WTF?</span><br /><br />That&#8217;s the sound your developer makes when they are looking at a piece of code and can&#8217;t figure out what it&#8217;s doing.  it might be a bug fix or a new feature or whatever.  The bottom line is that they&#8217;re trying to get something done, but instead they spend hours digging through file after file trying to figure out why there are 7 variables named &#8216;chart&#8217; that all mean completely different things depending upon which part of the application they&#8217;re used in.  It&#8217;s a simple equation.  The number of WTFs is inversely proportional to developer productivity.  We could probably even make a Sonar widget for it.<br /><br /><span style="font-weight: bold;">Code Jenga</span><br /><br />Have you ever touched a piece of code to make what seemed like a simple bug fix only to realize that you just committed an atrocity?  One variable changes, and now the login page has no text?  It makes developers afraid to do anymore than the bare minimum required.  And if anything more is required, it takes forever, because they now have to climb the mountain of WTFs to accomplish the feature/bug fix.<br /><br />I&#8217;m sure I could come up with some more if I kept thinking about it.  But then I&#8217;ve seen plenty of teams brought to their knees because they spend the entire time arguing about which design pattern to use, or what&#8217;s the most productive IDE, or which BBQ restaurant is best. <br /><br />The only thing I&#8217;ve ever seen work is empowering developers* to make the right decision when the time comes.  They know the codebase, they know what&#8217;s slowing them down, let them make the decision.  Yes, stuff still has to get done.  Yes, releases still need to get out.  But by and large, if you let developers code and focus on solving business problems, most of the time they&#8217;ll make the right call.<br /><br />*Architects aren&#8217;t developers.  If they aren&#8217;t solving business problems, they&#8217;re not a developer.  I know, a bit hypocritical coming from someone who wrote a framework.<br /><br />Unless you have a team full of developers who don&#8217;t realize all the little things out of their day that&#8217;s killing their velocity.  15 minutes to do a build?  7 properties files to update for each change?  10 Different components that all inter-depend upon each other and require a certain build order for no good reason?  People get used to the craziest things, and unless someone points it out to them, won&#8217;t even notice.  And even if you do, they might just shrug and say: &#8216;I don&#8217;t mind&#8217;.  Then again, telling them they have too much technical debt doesn&#8217;t help much either.<br /><br />And maybe that&#8217;s my point really.  Regardless of all the engineering practices or programming language, or IDEs, there&#8217;s no guarantees.  Switching to Ruby won&#8217;t make your project ship on time.  Using TDD doesn&#8217;t mean you won&#8217;t have quality issues.  Meticulously planning every second of every day of the project from now until completion doesn&#8217;t mean you&#8217;ll make that date either.  The only thing you can do is focus on getting stuff done, hire the best, most passionate people you can, and hope for the best.</div>
+<h2>Comments</h2>
+<div class='comments'>
+<div class='comment'>
+<div class='author'>yulumule</div>
+<div class='content'>
+Thank you for sharing the info. I found the details very helpful.<br /><br /><a href="http://consultantmediconline.com#785" rel="nofollow">cheap nolvadex</a></div>
+</div>
+<div class='comment'>
+<div class='author'>wuliinge</div>
+<div class='content'>
+Super-Duper site! I am loving it!! Will come back again â taking your RSS feeds also, Thanks.<br /><br /><a href="http://yourdoctorpharmacy.com/#453" rel="nofollow">cheap clomid</a></div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+@Fabio<br /><br />That&#39;s a nice way of organizing issues.  I agree that it&#39;s really helpful when deciding how to tackle them to look effort vs. value or in the way you described it, pain reduction.  However, I suppose I&#39;m arguing that the technical debt metaphor isn&#39;t really helping us.  What you really have is a &#39;wall of stuff slowing us down&#39;  I think telling &quot;Management&quot; that it&#39;s slowing you down is the key message.  It doesn&#39;t matter what the metaphor used is, it&#39;s slowing you down.  I think its too easy for certain types to think of acceptable debt, which I suppose is true, but it beside the point.<br /><br />Thanks for the congratulations..<br /><br />@jcobbers<br /><br />I agree and I think it gets to the point of &#39;why we&#39;re being slowed down&#39;.  The answer in this case is: &quot;because it takes us hours to figure out what this piece of code is doing for no good reason&quot;</div>
+</div>
+<div class='comment'>
+<div class='author'>jcobbers</div>
+<div class='content'>
+I&#39;ve heard the technical debt can be measured as a rate of WTF&#39;s per minute out of developers mouths.</div>
+</div>
+<div class='comment'>
+<div class='author'>Fabio Pereira</div>
+<div class='content'>
+Very good post Lucas! Congratulations.. I completely agree that people don&#39;t understand their debt and it&#39;s hard for them to know where to start in terms of &quot;paying&quot;. On a previous project we created this Tech Debt Wall as part of a retrospective and it helped us a lot in terms of prioritising and maximising our efforts in fixing tech debt&#8230;<br />http://fabiopereira.me/blog/2009/09/01/technical-debt-retrospective/<br />Congratulations once again for the post.. very well written.</div>
+</div>
+<div class='comment'>
+<div class='author'>Lucas Ward</div>
+<div class='content'>
+Thanks for the compliment!  I&#39;ll be sure to add your blog to my RSS feed.<br /><br />I suppose I really should get on this twitter thing everyone keeps talking about&#8230;</div>
+</div>
+<div class='comment'>
+<div class='author'>Carol Dekkers</div>
+<div class='content'>
+Lucas,<br /><br />Excellent posting and I&#39;m going to reference it in a future one of my own posts (http://musingsaboutsoftwaredevelopment.wordpress.com).<br /><br />It&#39;s great to find insightful and coherent writing like this one.  (I&#39;ve tweeted it already @caroldekkers).<br /><br />Thanks for putting your keystrokes to blog (rather than pen to paper). I&#39;m looking forward to future posts.<br /><br />Carolt</div>
+</div>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-26T13:37:00-06:00" pubdate data-updated="true">Jan 26<span>th</span>, 2011</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lucaslward.github.io/blog/2011/01/26/velocity-anchors/" data-via="" data-counturl="http://lucaslward.github.io/blog/2011/01/26/velocity-anchors/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/01/26/new-job/" title="Previous Post: New Job">&laquo; New Job</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/02/01/speculative-generality/" title="Next Post: Speculative Generality">Speculative Generality &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/11/grails-envers-plugin-update/">Grails Envers plugin update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/25/fundspire-has-been-acquired/">Fundspire has been Acquired</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/how-to-figure-out-what-grails-meta/">How to figure out what the Grails meta-methods do</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/08/using-spring-security-concurrent/">Using Spring Security Concurrent Session controls with Grails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/on-git-command-line-usability/">On Git Command Line Usability</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
